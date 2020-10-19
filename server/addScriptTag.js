@@ -1,7 +1,7 @@
 import ShopifyAPIClient from "shopify-api-node";
 import axios from "axios";
 import mongoose from "mongoose";
-import './models/shop'
+import "./models/shop";
 
 const Shop = mongoose.model("shops");
 
@@ -52,19 +52,20 @@ const addScriptTag = (shop, accessToken) => {
     });
 };
 
+const BASE_SCRIPT_URL =
+  "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js";
+
 const createShopAndScriptTag = async function (shopDomain, accessToken) {
   const shopify = new ShopifyAPIClient({
     shopName: shopDomain,
     accessToken: accessToken,
   });
 
-  
-  
   const fetchedShop = await Shop.findOne({ domain: shopDomain });
   if (!fetchedShop) {
     const newScriptTag = await shopify.scriptTag.create({
       event: "onload",
-      src: "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js",
+      src: BASE_SCRIPT_URL,
     });
 
     const newShop = new Shop({
@@ -74,11 +75,19 @@ const createShopAndScriptTag = async function (shopDomain, accessToken) {
     });
     newShop.save();
   } else {
-    console.log('Shop existed!')
-    // await shopify.scriptTag.update(fetchedShop.scriptTagId, {
-    //   src: "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js?v=2"
-    // })
-    return
+    console.log("Shop existed!");
+    const updatedSriptTag = await shopify.scriptTag.update(
+      fetchedShop.scriptTagId,
+      {
+        src: `${BASE_SCRIPT_URL}?v=${Math.floor(Math.random() * 100000)}`,
+      }
+    );
+
+    await Shop.updateOne(
+      { domain: shopDomain },
+      { scriptTagId: updatedSriptTag.id + "" }
+    );
+    return;
   }
 };
 
