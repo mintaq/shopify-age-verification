@@ -21,21 +21,21 @@ let ageV_settings;
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV = "https://8626c450a65d.ngrok.io";
+var rootLinkAgeV = "https://c518b7feb39d.ngrok.io";
 // var rootLinkAgeV = 'https://minhlocal.omegatheme.com/age-verification-omega'
 
 if (typeof $ == "undefined") {
-  // (function (e, s) {
-  //   e.src = s;
-  //   e.onload = function () {
-  //     $ = jQuery.noConflict();
-  //     ageV_init();
-  //   };
-  //   // document.head.appendChild(e);
-  // })(
-  //   document.createElement("script"),
-  //   "https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"
-  // );
+  (function (e, s) {
+    e.src = s;
+    e.onload = function () {
+      $ = jQuery.noConflict();
+      ageV_init();
+    };
+    document.head.appendChild(e);
+  })(
+    document.createElement("script"),
+    "https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"
+  );
   ageV_init();
 } else {
   ageV_init();
@@ -57,7 +57,6 @@ async function ageV_init() {
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js" ></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" ></script>
       <script defer src="https://use.fontawesome.com/releases/v5.12.0/js/all.js" ></script>
-      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
       `
       );
@@ -69,30 +68,19 @@ async function ageV_init() {
 // }
 
 function omega_displayAgeVerifyModal() {
-  $("body").addClass("bootstrapiso");
+  // $("body").addClass("bootstrapiso");
+  
   $(".otAgeVerify").append(`
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">
-      Launch demo modal
-    </button>
-    
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            asd
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
-        </div>
-      </div>
+    <style>
+      
+    </style>
+
+    <div class="av_modal" id="av_modal-main">
+      <p>hello</p>
     </div>
+
+    <div class="av_modal-overlay" id="av_modal-overlay"></div>
 	`);
 }
+
+

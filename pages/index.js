@@ -13,13 +13,31 @@ import {
   Modal,
   Toast,
   Frame,
+  Thumbnail,
+  Sticky,
+  DisplayText,
+  TextContainer,
   hsbToRgb,
   rgbString,
   rgbToHsb,
 } from "@shopify/polaris";
+import { DropzoneArea, DropzoneAreaBase } from "material-ui-dropzone";
+// import DropzoneArea from "react-dropzone-material-ui";
 import SkeletonPageComp from "../components/SkeletonPageComp";
+import styled from "styled-components";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import axios from "axios";
+
+const StickyLayoutSection = ({ children }) => (
+  <StickySection className="Polaris-Layout__Section Polaris-Layout__Section--secondary">
+    {children}
+  </StickySection>
+);
+
+const StickySection = styled.div`
+  position: sticky;
+  top: 2rem;
+`;
 
 const Index = ({ shopOrigin, settings }) => {
   const app = useAppBridge();
@@ -29,7 +47,10 @@ const Index = ({ shopOrigin, settings }) => {
   const [disableAppToastActivate, setDisableToastActivate] = useState(false);
   const [saveToastActivate, setSaveToastActivate] = useState(false);
   const [disableModalActivate, setDisableModalActivate] = useState(false);
-  // GENERAL SETTINGS
+  // LAYOUT SETTINGS
+  const [popupDisplaySelected, setPopupDisplaySelected] = useState("allPages");
+  const [currentLogo, setCurrentLogo] = useState({});
+  const [uploadLogo, setUploadLogo] = useState({});
   const [appStatus, setAppStatus] = useState("enable");
   const [layoutSelected, setLayoutSelected] = useState("transparent");
   const [requireAgeSelected, setRequireAgeSelected] = useState("yes");
@@ -96,13 +117,20 @@ const Index = ({ shopOrigin, settings }) => {
     { label: "With Background Image", value: "withBackground" },
   ];
 
+  const popupDisplayOptions = [
+    { label: "All pages", value: "allPages" },
+    { label: "Only in home page", value: "onlyHomePage" },
+    { label: "Only in collection page", value: "onlyCollectionPage" },
+    { label: "Specific products", value: "allPages" },
+  ];
+
   const tabs = [
     {
-      id: "general-settings",
-      content: "General settings",
-      accessibilityLabel: "General settings",
-      panelID: "general-settings-content",
-      render: generalSettings,
+      id: "layout-settings",
+      content: "Layout settings",
+      accessibilityLabel: "Layout settings",
+      panelID: "layout-settings-content",
+      render: layoutSettings,
     },
     {
       id: "style-settings",
@@ -111,7 +139,28 @@ const Index = ({ shopOrigin, settings }) => {
       panelID: "style-settings-content",
       render: styleSettings,
     },
+    {
+      id: "advance-settings",
+      content: "Advance settings",
+      accessibilityLabel: "Advance settings",
+      panelID: "advance-settings-content",
+      render: advanceSettings,
+    },
   ];
+
+  const getUploadParams = ({ meta }) => {
+    return { url: "https://httpbin.org/post" };
+  };
+
+  const handleChangeStatus = ({ meta, file }, status) => {
+    console.log(status, meta, file);
+  };
+
+  // receives array of files that are done uploading when submit button is clicked
+  const handleSubmit = (files, allFiles) => {
+    console.log(files.map((f) => f.meta));
+    allFiles.forEach((f) => f.remove());
+  };
 
   // FETCH SHOP SETTINGS
   useEffect(() => {
@@ -149,6 +198,10 @@ const Index = ({ shopOrigin, settings }) => {
   }, []);
 
   // HANDLERS
+  const handlePopupDisplayChange = useCallback(
+    (value) => setPopupDisplaySelected(value),
+    []
+  );
   const handleTabChange = useCallback(
     (selectedTabIndex) => setTabSelected(selectedTabIndex),
     []
@@ -266,6 +319,15 @@ const Index = ({ shopOrigin, settings }) => {
     });
   };
 
+  const handleSubmitLogo = () => {
+    console.log(uploadLogo);
+    setCurrentLogo(uploadLogo);
+  };
+
+  const handleRemoveLogo = () => {
+    setCurrentLogo({});
+  };
+
   const disableModal = (
     <Modal
       open={disableModalActivate}
@@ -306,7 +368,8 @@ const Index = ({ shopOrigin, settings }) => {
     />
   ) : null;
 
-  const generalSettings = (
+  // LAYOUT SETTINGS SECTION
+  const layoutSettings = (
     <Layout>
       <Layout.Section>
         <Card title="Select your layout">
@@ -321,7 +384,60 @@ const Index = ({ shopOrigin, settings }) => {
       </Layout.Section>
 
       <Layout.Section>
-        <Card title="Require input age to verify">
+        <Card title="Logo">
+          <Card.Section>
+            <Stack spacing="loose" vertical>
+              {currentLogo.data ? (
+                <Thumbnail source={currentLogo.data} size="large" alt="Logo" />
+              ) : (
+                <TextContainer>
+                  <p>Please upload your new logo!</p>
+                </TextContainer>
+              )}
+              <Stack distribution="trailing">
+                <Button
+                  primary
+                  disabled={currentLogo.data ? false : true}
+                  onClick={handleRemoveLogo}
+                >
+                  Remove
+                </Button>
+              </Stack>
+            </Stack>
+          </Card.Section>
+        </Card>
+      </Layout.Section>
+
+      <Layout.Section>
+        <Card
+          title="Upload new logo"
+          primaryFooterAction={{
+            content: "Submit",
+            onAction: () => handleSubmitLogo(),
+          }}
+        >
+          <Card.Section>
+            <DropzoneAreaBase
+              acceptedFiles={["image/*"]}
+              onAdd={(fileObjs) => setUploadLogo(fileObjs[0])}
+              onDelete={(fileObj) => setUploadLogo({})}
+              dropzoneText={"Drag and drop logo here or Click (<1MB)"}
+              filesLimit={1}
+              maxFileSize={1000000}
+            />
+          </Card.Section>
+          <Card.Section title="Preview uploaded logo">
+            {uploadLogo.data ? (
+              <Thumbnail source={uploadLogo.data} size="large" alt="Logo" />
+            ) : (
+              <DisplayText size="large">...</DisplayText>
+            )}
+          </Card.Section>
+        </Card>
+      </Layout.Section>
+
+      <Layout.Section>
+        <Card title="Require input age to verify:">
           <Card.Section>
             <Select
               options={requireInputAgeOptions}
@@ -333,7 +449,7 @@ const Index = ({ shopOrigin, settings }) => {
       </Layout.Section>
 
       <Layout.Section>
-        <Card title="Minimum age to view site">
+        <Card title="Minimum age to view site:">
           <Card.Section>
             <TextField
               value={minimumAge}
@@ -346,44 +462,13 @@ const Index = ({ shopOrigin, settings }) => {
       </Layout.Section>
 
       <Layout.Section>
-        <Card title="Remember visitors for (days)">
+        <Card title="Display popup in:">
           <Card.Section>
-            <TextField
-              value={rememberDays}
-              type="number"
-              inputMode="numeric"
-              onChange={handleDaysChange}
+            <Select
+              options={popupDisplayOptions}
+              value={popupDisplaySelected}
+              onChange={handlePopupDisplayChange}
             />
-          </Card.Section>
-        </Card>
-      </Layout.Section>
-
-      <Layout.Section>
-        <Card title="Submit button label">
-          <Card.Section>
-            <TextField
-              value={submitBtnLabel}
-              onChange={handleSubmitBtnLabelChange}
-            />
-          </Card.Section>
-        </Card>
-      </Layout.Section>
-
-      <Layout.Section>
-        <Card title="Cancel button label">
-          <Card.Section>
-            <TextField
-              value={cancelBtnLabel}
-              onChange={handleCancelBtnLabelChange}
-            />
-          </Card.Section>
-        </Card>
-      </Layout.Section>
-
-      <Layout.Section>
-        <Card title="Exit URL">
-          <Card.Section>
-            <TextField value={exitUrl} onChange={handleExitUrlChange} />
           </Card.Section>
         </Card>
       </Layout.Section>
@@ -573,6 +658,7 @@ const Index = ({ shopOrigin, settings }) => {
     </Popover>
   );
 
+  // STYLE SETTINGS SECTION
   const styleSettings = (
     <Layout>
       <Layout.Section>
@@ -634,6 +720,60 @@ const Index = ({ shopOrigin, settings }) => {
       </Layout.Section>
 
       <Layout.Section>
+        <Card title="Submit button label">
+          <Card.Section>
+            <TextField
+              value={submitBtnLabel}
+              onChange={handleSubmitBtnLabelChange}
+            />
+          </Card.Section>
+        </Card>
+      </Layout.Section>
+
+      <Layout.Section>
+        <Card title="Cancel button label">
+          <Card.Section>
+            <TextField
+              value={cancelBtnLabel}
+              onChange={handleCancelBtnLabelChange}
+            />
+          </Card.Section>
+        </Card>
+      </Layout.Section>
+
+      <Layout.Section>
+        <Button fullWidth primary={true} onClick={handleSaveSetting}>
+          Save
+        </Button>
+      </Layout.Section>
+    </Layout>
+  );
+
+  // ADVANCE SETTINGS SECTION
+  const advanceSettings = (
+    <Layout>
+      <Layout.Section>
+        <Card title="Remember visitors for (days)">
+          <Card.Section>
+            <TextField
+              value={rememberDays}
+              type="number"
+              inputMode="numeric"
+              onChange={handleDaysChange}
+            />
+          </Card.Section>
+        </Card>
+      </Layout.Section>
+
+      <Layout.Section>
+        <Card title="Exit URL">
+          <Card.Section>
+            <TextField value={exitUrl} onChange={handleExitUrlChange} />
+          </Card.Section>
+        </Card>
+      </Layout.Section>
+
+      <Layout.Section>
         <Button fullWidth primary={true} onClick={handleSaveSetting}>
           Save
         </Button>
@@ -645,30 +785,48 @@ const Index = ({ shopOrigin, settings }) => {
     <SkeletonPageComp />
   ) : (
     <Frame>
-      <Page
-        title="Age Verification App"
-        primaryAction={{
-          content: `${appStatus == "enable" ? "Disable" : "Enable"}`,
-          onAction: () => handleAppStatusChange(),
-        }}
-        separator
-      >
-        {enableToast}
-        {disableToast}
-        {saveToast}
-        {disableModal}
-        <Card>
-          <Tabs tabs={tabs} selected={tabSelected} onSelect={handleTabChange}>
-            <Card.Section>
-              {tabSelected == 0
-                ? generalSettings
-                : tabSelected == 1
-                ? styleSettings
-                : null}
-            </Card.Section>
-          </Tabs>
-        </Card>
-      </Page>
+      <Layout>
+        <Layout.Section oneHalf>
+          <Page
+            title="Settings"
+            primaryAction={{
+              content: `${appStatus == "enable" ? "Disable" : "Enable"}`,
+              onAction: () => handleAppStatusChange(),
+            }}
+            separator
+          >
+            {enableToast}
+            {disableToast}
+            {saveToast}
+            {disableModal}
+            <Card>
+              <Tabs
+                tabs={tabs}
+                selected={tabSelected}
+                onSelect={handleTabChange}
+              >
+                <Card.Section>
+                  {tabSelected == 0
+                    ? layoutSettings
+                    : tabSelected == 1
+                    ? styleSettings
+                    : tabSelected == 2
+                    ? advanceSettings
+                    : null}
+                </Card.Section>
+              </Tabs>
+            </Card>
+          </Page>
+        </Layout.Section>
+        {/* <StickyLayoutSection>asdasd</StickyLayoutSection> */}
+        <Layout.Section oneHalf>
+          <Sticky >
+            <Page title="Layout Preview">
+              
+            </Page>
+          </Sticky>
+        </Layout.Section>
+      </Layout>
     </Frame>
   );
 
