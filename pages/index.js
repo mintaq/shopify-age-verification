@@ -121,7 +121,7 @@ const Index = ({ shopOrigin, settings }) => {
     { label: "All pages", value: "allPages" },
     { label: "Only in home page", value: "onlyHomePage" },
     { label: "Only in collection page", value: "onlyCollectionPage" },
-    { label: "Specific products", value: "allPages" },
+    { label: "Specific products", value: "specificProducts" },
   ];
 
   const tabs = [
@@ -147,20 +147,6 @@ const Index = ({ shopOrigin, settings }) => {
       render: advanceSettings,
     },
   ];
-
-  const getUploadParams = ({ meta }) => {
-    return { url: "https://httpbin.org/post" };
-  };
-
-  const handleChangeStatus = ({ meta, file }, status) => {
-    console.log(status, meta, file);
-  };
-
-  // receives array of files that are done uploading when submit button is clicked
-  const handleSubmit = (files, allFiles) => {
-    console.log(files.map((f) => f.meta));
-    allFiles.forEach((f) => f.remove());
-  };
 
   // FETCH SHOP SETTINGS
   useEffect(() => {
