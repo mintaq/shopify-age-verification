@@ -21,7 +21,7 @@ let ageV_settings;
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV = "https://c518b7feb39d.ngrok.io";
+var rootLinkAgeV = "https://d41b7026cc14.ngrok.io";
 // var rootLinkAgeV = 'https://minhlocal.omegatheme.com/age-verification-omega'
 
 if (typeof $ == "undefined") {
@@ -52,14 +52,15 @@ async function ageV_init() {
     ageV_settings = result;
     if (ageV_settings.appStatus === "enable") {
       $("head").append(`
-      <link href='https://minhlocal.omegatheme.com/age-verification-omega/age-verification.css?v=${Math.floor(Math.random()*100000)}' rel='stylesheet' type='text/css'>
+      <link href='https://minhlocal.omegatheme.com/age-verification-omega/age-verification.css?v=${Math.floor(
+        Math.random() * 100000
+      )}' rel='stylesheet' type='text/css'>
       <link rel="stylesheet" href="https://minhlocal.omegatheme.com/age-verification-omega/assets/css/css4.1/bootstrapcustom.min.css" type='text/css'>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js" ></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" ></script>
       <script defer src="https://use.fontawesome.com/releases/v5.12.0/js/all.js" ></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
-      `
-      );
+      `);
       $("body").append("<div class='otAgeVerify'></div>");
       omega_displayAgeVerifyModal();
     }
@@ -69,7 +70,7 @@ async function ageV_init() {
 
 function omega_displayAgeVerifyModal() {
   // $("body").addClass("bootstrapiso");
-  
+
   $(".otAgeVerify").append(`
     <style>
       
@@ -82,5 +83,3 @@ function omega_displayAgeVerifyModal() {
     <div class="av_modal-overlay" id="av_modal-overlay"></div>
 	`);
 }
-
-

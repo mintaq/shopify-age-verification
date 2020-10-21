@@ -806,9 +806,18 @@ const Index = ({ shopOrigin, settings }) => {
         </Layout.Section>
         {/* <StickyLayoutSection>asdasd</StickyLayoutSection> */}
         <Layout.Section oneHalf>
-          <Sticky >
+          <Sticky>
             <Page title="Layout Preview">
-              
+              <Frame>
+                <div
+                  className="helloDiv"
+                  style={{
+                    backgroundColor: "darkgray",
+                    width: "100%",
+                    height: "50%",
+                  }}
+                ></div>
+              </Frame>
             </Page>
           </Sticky>
         </Layout.Section>
