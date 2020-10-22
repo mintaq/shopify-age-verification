@@ -21,7 +21,7 @@ let ageV_settings;
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV = "https://d41b7026cc14.ngrok.io";
+var rootLinkAgeV = "https://1757e9004e0f.ngrok.io";
 // var rootLinkAgeV = 'https://minhlocal.omegatheme.com/age-verification-omega'
 
 if (typeof $ == "undefined") {

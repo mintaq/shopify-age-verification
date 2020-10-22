@@ -7,8 +7,8 @@ import {
   TextField,
   Select,
   Tabs,
-  Stack,
   ColorPicker,
+  Stack,
   Popover,
   Modal,
   Toast,
@@ -21,12 +21,14 @@ import {
   rgbString,
   rgbToHsb,
 } from "@shopify/polaris";
-import { DropzoneArea, DropzoneAreaBase } from "material-ui-dropzone";
-// import DropzoneArea from "react-dropzone-material-ui";
+// import ColorPicker from 'material-ui-color-picker'
+// import {ColorPicker} from 'material-ui-color'
+import { DropzoneAreaBase } from "material-ui-dropzone";
 import SkeletonPageComp from "../components/SkeletonPageComp";
 import styled from "styled-components";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import axios from "axios";
+import classes from "./index.css";
 
 const StickyLayoutSection = ({ children }) => (
   <StickySection className="Polaris-Layout__Section Polaris-Layout__Section--secondary">
@@ -60,6 +62,24 @@ const Index = ({ shopOrigin, settings }) => {
   const [cancelBtnLabel, setCancelBtnLabel] = useState("Cancel");
   const [exitUrl, setExitUrl] = useState("https://www.google.com");
   // STYLE SETTINGS
+  const [styleSettings, setStyleSettings] = useState({
+    headlineText: "Welcome to shop!",
+    headlineTextSize: "30",
+    subHeadlineText: "You must at least 16 to visit this site!",
+    subHeadlineTextSize: "16",
+    overlayBgColor: { alpha: 1, red: 255, blue: 48, green: 48 },
+    popupBgColor: { alpha: 1, red: 255, blue: 48, green: 48 },
+    headlineTextColor: { alpha: 1, red: 0, blue: 0, green: 0 },
+    subHeadlineTextColor: { alpha: 1, red: 0, blue: 0, green: 0 },
+    submitBtnLabel: "OK",
+    cancelBtnLabel: "Cancel",
+    submitBtnBgColor: { alpha: 1, red: 255, blue: 48, green: 48 },
+    cancelBtnBgColor: { alpha: 1, red: 255, blue: 48, green: 48 },
+    submitBtnLabelColor: { alpha: 1, red: 0, blue: 0, green: 0 },
+    cancelBtnLabelColor: { alpha: 1, red: 0, blue: 0, green: 0 },
+  });
+
+  // TODO: clean up
   const [headlineText, setHeadlineText] = useState("Welcome to shop!");
   const [headlineTextSize, setHeadlineTextSize] = useState("30");
   const [subHeadlineText, setSubHeadlineText] = useState(
@@ -90,7 +110,53 @@ const Index = ({ shopOrigin, settings }) => {
     saturation: 1,
     alpha: 0.8,
   });
-  const [popoverBgColorActive, setPopoverBgColorActivate] = useState(false);
+
+  // ACTIVATOR AND HANDLERS
+  const [overlayBgColorActivate, setOverlayBgColorActivate] = useState(false);
+  const [popupBgColorActivate, setPopupBgColorActivate] = useState(false);
+  const [headlineColorActive, setHeadlineColorActivate] = useState(false);
+  const [subHeadlineColorActive, setSubHeadlineColorActive] = useState(false);
+  const [submitBtnBgColorActivate, setSubmitBtnBgColorActivate] = useState(
+    false
+  );
+  const [cancelBtnBgColorActivate, setCancelBtnBgColorActivate] = useState(
+    false
+  );
+  const [
+    submitBtnLabelColorActivate,
+    setSubmitBtnLabelColorActivate,
+  ] = useState(false);
+  const [
+    cancelBtnLabelColorActivate,
+    setCancelBtnLabelColorActivate,
+  ] = useState(false);
+
+  const handleHeadlineColorActivateChange = useCallback((v) =>
+    setHeadlineColorActivate(v)
+  );
+  const handleSubHeadlineColorActivateChange = useCallback((v) =>
+    setSubHeadlineColorActive(v)
+  );
+  const handleSubmitBtnLabelColorActivateChange = useCallback((v) =>
+    setSubmitBtnLabelColorActivate(v)
+  );
+  const handleSubmitBtnBgColorActivateChange = useCallback((v) =>
+    setSubmitBtnBgColorActivate(v)
+  );
+  const handleCancelBtnLabelColorActivateChange = useCallback((v) =>
+    setCancelBtnLabelColorActivate(v)
+  );
+  const handleCancelBtnBgColorActivateChange = useCallback((v) =>
+    setCancelBtnBgColorActivate(v)
+  );
+  const handleOverlayBgColorActivateChange = useCallback((v) =>
+    setOverlayBgColorActivate(v)
+  );
+  const handlePopupBgColorActivateChange = useCallback((v) =>
+    setPopupBgColorActivate(v)
+  );
+
+  //TODO: clean up
   const [popoverTextColorActivate, setPopoverTextColorActivate] = useState(
     false
   );
@@ -130,7 +196,7 @@ const Index = ({ shopOrigin, settings }) => {
       content: "Layout settings",
       accessibilityLabel: "Layout settings",
       panelID: "layout-settings-content",
-      render: layoutSettings,
+      render: layoutSettingsTab,
     },
     {
       id: "style-settings",
@@ -144,7 +210,7 @@ const Index = ({ shopOrigin, settings }) => {
       content: "Advance settings",
       accessibilityLabel: "Advance settings",
       panelID: "advance-settings-content",
-      render: advanceSettings,
+      render: advanceSettingsTab,
     },
   ];
 
@@ -202,42 +268,55 @@ const Index = ({ shopOrigin, settings }) => {
   );
   const handleMinAgeChange = useCallback((value) => setMinimumAge(value), []);
   const handleDaysChange = useCallback((value) => setRememberDays(value), []);
-  const handleSubmitBtnLabelChange = useCallback(
-    (value) => setSubmitBtnLabel(value),
-    []
-  );
-  const handleCancelBtnLabelChange = useCallback(
-    (value) => setCancelBtnLabel(value),
-    []
-  );
   const handleExitUrlChange = useCallback((value) => setExitUrl(value));
+
+  // STYLE SETTING HANDLERS
   const handleHeadlineTextChange = useCallback(
-    (value) => setHeadlineText(value),
+    (headlineText) => setStyleSettings({ ...styleSettings, headlineText }),
     []
   );
   const handleHeadlineTextSizeChange = useCallback(
-    (value) => setHeadlineTextSize(value),
+    (headlineTextSize) =>
+      setStyleSettings({ ...styleSettings, headlineTextSize }),
     []
   );
   const handleSubHeadlineTextChange = useCallback(
-    (value) => setSubHeadlineText(value),
+    (subHeadlineText) =>
+      setStyleSettings({ ...styleSettings, subHeadlineText }),
     []
   );
-  const handleSubHeadlineTextSizeChange = useCallback((value) =>
-    setSubHeadlineTextSize(value)
+  const handleSubHeadlineTextSizeChange = useCallback((subHeadlineTextSize) =>
+    setStyleSettings({ ...styleSettings, subHeadlineTextSize })
   );
-  const handleBgColorPickerChange = useCallback(
-    (color) => setBgColorPicker(color),
-    []
+  const handleOverlayBgColorChange = useCallback((overlayBgColor) =>
+    setStyleSettings({ ...styleSettings, overlayBgColor })
   );
-  const handleTextColorChange = useCallback((color) => setTextColor(color), []);
-  const handleSubmitBtnBgColorChange = useCallback(
-    (color) => setSubmitBtnBgColor(color),
-    []
+  const handlePopupBgColorChange = useCallback((popupBgColor) =>
+    setStyleSettings({ ...styleSettings, popupBgColor })
   );
-  const handleCancelBtnBgColorChange = useCallback(
-    (color) => setCancelBtnBgColor(color),
-    []
+  const handleHeadlineTextColorChange = useCallback((headlineTextColor) =>
+    setStyleSettings({ ...styleSettings, headlineTextColor })
+  );
+  const handleSubHeadlineTextColorChange = useCallback((subHeadlineTextColor) =>
+    setStyleSettings({ ...styleSettings, subHeadlineTextColor })
+  );
+  const handleSubmitBtnLabelChange = useCallback((submitBtnLabel) =>
+    setStyleSettings({ ...styleSettings, submitBtnLabel })
+  );
+  const handleSubmitBtnBgColorChange = useCallback((submitBtnBgColor) =>
+    setStyleSettings({ ...styleSettings, submitBtnBgColor })
+  );
+  const handleSubmitBtnLabelColorChange = useCallback((submitBtnLabelColor) =>
+    setStyleSettings({ ...styleSettings, submitBtnLabelColor })
+  );
+  const handleCancelBtnLabelChange = useCallback((cancelBtnLabel) =>
+    setStyleSettings({ ...styleSettings, cancelBtnLabel })
+  );
+  const handleCancelBtnBgColorChange = useCallback((cancelBtnBgColor) =>
+    setStyleSettings({ ...styleSettings, cancelBtnBgColor })
+  );
+  const handleCancelBtnLabelColorChange = useCallback((cancelBtnLabelColor) =>
+    setStyleSettings({ ...styleSettings, cancelBtnLabelColor })
   );
 
   const handleAppStatusChange = async () => {
@@ -355,7 +434,7 @@ const Index = ({ shopOrigin, settings }) => {
   ) : null;
 
   // LAYOUT SETTINGS SECTION
-  const layoutSettings = (
+  const layoutSettingsTab = (
     <Layout>
       <Layout.Section>
         <Card title="Select your layout">
@@ -467,25 +546,58 @@ const Index = ({ shopOrigin, settings }) => {
     </Layout>
   );
 
-  const bgColorPickerActivator = (
-    <Stack distribution="fillEvenly">
-      <Stack.Item>
-        <span>Popup window background color:</span>
-      </Stack.Item>
-      <Button onClick={() => setPopoverBgColorActivate(true)} plain>
+  // TODO: need fixed
+  const handleColorPickerActivator = (activateSetter, styleSettingsState) => {
+    return (
+      <Button onClick={() => activateSetter(true)} plain>
         <div
           style={{
-            height: "2rem",
+            height: "3.25rem",
             width: "7rem",
             borderRadius: "0.3rem",
             border: "0.5px solid darkgrey",
-            background: rgbString(hsbToRgb(bgColorPicker)),
+            background: rgbString(styleSettings[styleSettingsState]),
           }}
         />
       </Button>
-    </Stack>
-  );
+    );
+  };
 
+  const handlePopupColorPicker = (
+    activateState,
+    activateSetter,
+    stateHandler,
+    styleSettingsState
+  ) => {
+    return (
+      <Popover
+        active={activateState}
+        activator={handleColorPickerActivator(
+          activateSetter,
+          styleSettingsState
+        )}
+        onClose={() => activateSetter(false)}
+      >
+        <Popover.Section>
+          <ColorPicker
+            onChange={(color) => {
+              stateHandler(hsbToRgb(color));
+            }}
+            color={rgbToHsb(styleSettings[styleSettingsState])}
+            allowAlpha
+          />
+        </Popover.Section>
+        <Popover.Section>
+          <TextField
+            value={rgbString(styleSettings[styleSettingsState])}
+            onChange={(v) => stateHandler(hsbToRgb(v))}
+          />
+        </Popover.Section>
+      </Popover>
+    );
+  };
+
+  //TODO: clean up
   const textColorActivator = (
     <Stack distribution="fillEvenly">
       <Stack.Item>
@@ -543,35 +655,7 @@ const Index = ({ shopOrigin, settings }) => {
     </Stack>
   );
 
-  const rgb_bgColorPicker = rgbString(hsbToRgb(bgColorPicker));
-  const rgb_textColor = rgbString(hsbToRgb(textColor));
-  const rgb_submitBtnBgColor = rgbString(hsbToRgb(submitBtnBgColor));
-  const rgb_cancelBtnBgColor = rgbString(hsbToRgb(cancelBtnBgColor));
-
-  const bgColorPickerPopover = (
-    <Popover
-      active={popoverBgColorActive}
-      activator={bgColorPickerActivator}
-      onClose={() => setPopoverBgColorActivate(false)}
-    >
-      <Popover.Section>
-        <ColorPicker
-          onChange={handleBgColorPickerChange}
-          color={bgColorPicker}
-          allowAlpha
-        />
-      </Popover.Section>
-      <Popover.Section>
-        <TextField
-          value={rgb_bgColorPicker}
-          onChange={() =>
-            handleBgColorPickerChange(handleRgbChange(rgb_bgColorPicker))
-          }
-        />
-      </Popover.Section>
-    </Popover>
-  );
-
+  // TODO: clean up
   const textColorPopover = (
     <Popover
       active={popoverTextColorActivate}
@@ -579,19 +663,19 @@ const Index = ({ shopOrigin, settings }) => {
       onClose={() => setPopoverTextColorActivate(false)}
     >
       <Popover.Section>
-        <ColorPicker
+        {/* <ColorPicker
           onChange={handleTextColorChange}
           color={textColor}
           allowAlpha
-        />
+        /> */}
       </Popover.Section>
       <Popover.Section>
-        <TextField
+        {/* <TextField
           value={rgb_textColor}
           onChange={() =>
             handleBgColorPickerChange(handleRgbChange(rgb_textColor))
           }
-        />
+        /> */}
       </Popover.Section>
     </Popover>
   );
@@ -603,19 +687,19 @@ const Index = ({ shopOrigin, settings }) => {
       onClose={() => setPopoverSubmitBtnColorActivate(false)}
     >
       <Popover.Section>
-        <ColorPicker
+        {/* <ColorPicker
           onChange={handleSubmitBtnBgColorChange}
           color={submitBtnBgColor}
           allowAlpha
-        />
+        /> */}
       </Popover.Section>
       <Popover.Section>
-        <TextField
+        {/* <TextField
           value={rgb_submitBtnBgColor}
           onChange={() =>
             handleBgColorPickerChange(handleRgbChange(rgb_submitBtnBgColor))
           }
-        />
+        /> */}
       </Popover.Section>
     </Popover>
   );
@@ -627,31 +711,31 @@ const Index = ({ shopOrigin, settings }) => {
       onClose={() => setPopoverCancelBtnColorActivate(false)}
     >
       <Popover.Section>
-        <ColorPicker
+        {/* <ColorPicker
           onChange={handleCancelBtnBgColorChange}
           color={cancelBtnBgColor}
           allowAlpha
-        />
+        /> */}
       </Popover.Section>
       <Popover.Section>
-        <TextField
+        {/* <TextField
           value={rgb_cancelBtnBgColor}
           onChange={() =>
             handleBgColorPickerChange(handleRgbChange(rgb_cancelBtnBgColor))
           }
-        />
+        /> */}
       </Popover.Section>
     </Popover>
   );
 
   // STYLE SETTINGS SECTION
-  const styleSettings = (
+  const styleSettingsTab = (
     <Layout>
       <Layout.Section>
         <Card title="Color pickers">
           <Card.Section>
             <Stack vertical={true}>
-              {bgColorPickerPopover}
+              {/* {bgColorPickerPopover} */}
               {textColorPopover}
               {submitBtnBgColorPopover}
               {cancelBtnBgColorPopover}
@@ -661,69 +745,116 @@ const Index = ({ shopOrigin, settings }) => {
       </Layout.Section>
 
       <Layout.Section>
-        <Card title="Headline text">
-          <Card.Section>
-            <TextField value={headlineText} onChange={handleMinAgeChange} />
-          </Card.Section>
+        <Card title="Headline">
+          <Stack>
+            <Card.Section title="Text">
+              <TextField
+                value={styleSettings.headlineText}
+                onChange={handleHeadlineTextChange}
+              />
+            </Card.Section>
+            <Card.Section title="Size">
+              <TextField
+                value={styleSettings.headlineTextSize}
+                onChange={handleHeadlineTextSizeChange}
+              />
+            </Card.Section>
+            <Card.Section title="Color">
+              {handlePopupColorPicker(
+                headlineColorActive,
+                handleHeadlineColorActivateChange,
+                handleHeadlineTextColorChange,
+                "headlineTextColor"
+              )}
+              {/* {headlineTextColorPopover} */}
+            </Card.Section>
+          </Stack>
         </Card>
       </Layout.Section>
 
       <Layout.Section>
-        <Card title="Headline text size (px)">
-          <Card.Section>
-            <TextField
-              value={headlineTextSize}
-              type="number"
-              inputMode="numeric"
-              onChange={handleHeadlineTextSizeChange}
-            />
-          </Card.Section>
+        <Card title="Sub-headline">
+          <Stack>
+            <Card.Section title="Text">
+              <TextField
+                value={styleSettings.subHeadlineText}
+                onChange={handleSubHeadlineTextChange}
+              />
+            </Card.Section>
+            <Card.Section title="Size">
+              <TextField
+                value={styleSettings.subHeadlineTextSize}
+                onChange={handleSubHeadlineTextSizeChange}
+              />
+            </Card.Section>
+            <Card.Section title="Color">
+              {handlePopupColorPicker(
+                subHeadlineColorActive,
+                handleSubHeadlineColorActivateChange,
+                handleSubHeadlineTextColorChange,
+                "subHeadlineTextColor"
+              )}
+              {/* {subHeadlineTextColorPopover} */}
+            </Card.Section>
+          </Stack>
         </Card>
       </Layout.Section>
 
       <Layout.Section>
-        <Card title="Sub-headline text">
-          <Card.Section>
-            <TextField
-              value={subHeadlineText}
-              onChange={handleSubHeadlineTextChange}
-            />
-          </Card.Section>
+        <Card title="Submit button">
+          <Stack>
+            <Card.Section title="Label">
+              <TextField
+                value={styleSettings.submitBtnLabel}
+                onChange={handleSubmitBtnLabelChange}
+              />
+            </Card.Section>
+            <Card.Section title="Text Color">
+              {handlePopupColorPicker(
+                submitBtnLabelColorActivate,
+                handleSubmitBtnLabelColorActivateChange,
+                handleSubmitBtnLabelColorChange,
+                "submitBtnLabelColor"
+              )}
+            </Card.Section>
+            <Card.Section title="Background color">
+              {handlePopupColorPicker(
+                submitBtnBgColorActivate,
+                handleSubmitBtnBgColorActivateChange,
+                handleSubmitBtnBgColorChange,
+                "submitBtnBgColor"
+              )}
+            </Card.Section>
+          </Stack>
         </Card>
       </Layout.Section>
 
       <Layout.Section>
-        <Card title="Sub-headline text size (px)">
-          <Card.Section>
-            <TextField
-              value={subHeadlineTextSize}
-              type="number"
-              inputMode="numeric"
-              onChange={handleSubHeadlineTextSizeChange}
-            />
-          </Card.Section>
-        </Card>
-      </Layout.Section>
-
-      <Layout.Section>
-        <Card title="Submit button label">
-          <Card.Section>
-            <TextField
-              value={submitBtnLabel}
-              onChange={handleSubmitBtnLabelChange}
-            />
-          </Card.Section>
-        </Card>
-      </Layout.Section>
-
-      <Layout.Section>
-        <Card title="Cancel button label">
-          <Card.Section>
-            <TextField
-              value={cancelBtnLabel}
-              onChange={handleCancelBtnLabelChange}
-            />
-          </Card.Section>
+        <Card title="Cancel button ">
+          <Stack>
+            <Card.Section title="Label">
+              <TextField
+                value={styleSettings.cancelBtnLabel}
+                onChange={handleCancelBtnLabelChange}
+              />
+            </Card.Section>
+            <Card.Section title="Text Color">
+              {handlePopupColorPicker(
+                cancelBtnLabelColorActivate,
+                handleCancelBtnLabelColorActivateChange,
+                handleCancelBtnLabelColorChange,
+                "cancelBtnLabelColor"
+              )}
+            </Card.Section>
+            <Card.Section title="Background color">
+              {handlePopupColorPicker(
+                cancelBtnBgColorActivate,
+                handleCancelBtnBgColorActivateChange,
+                handleCancelBtnBgColorChange,
+                "cancelBtnBgColor"
+              )}
+            </Card.Section>
+          </Stack>
         </Card>
       </Layout.Section>
 
@@ -736,7 +867,7 @@ const Index = ({ shopOrigin, settings }) => {
   );
 
   // ADVANCE SETTINGS SECTION
-  const advanceSettings = (
+  const advanceSettingsTab = (
     <Layout>
       <Layout.Section>
         <Card title="Remember visitors for (days)">
@@ -793,11 +924,11 @@ const Index = ({ shopOrigin, settings }) => {
               >
                 <Card.Section>
                   {tabSelected == 0
-                    ? layoutSettings
+                    ? layoutSettingsTab
                     : tabSelected == 1
-                    ? styleSettings
+                    ? styleSettingsTab
                     : tabSelected == 2
-                    ? advanceSettings
+                    ? advanceSettingsTab
                     : null}
                 </Card.Section>
               </Tabs>
@@ -809,14 +940,76 @@ const Index = ({ shopOrigin, settings }) => {
           <Sticky>
             <Page title="Layout Preview">
               <Frame>
-                <div
-                  className="helloDiv"
-                  style={{
-                    backgroundColor: "darkgray",
-                    width: "100%",
-                    height: "50%",
-                  }}
-                ></div>
+                <div className="otAgeVerifier">
+                  <link
+                    rel="stylesheet"
+                    type="text/css"
+                    href="https://minhlocal.omegatheme.com/age-verification-omega/pages/index.css"
+                  />
+                  <link
+                    href="https://fonts.googleapis.com/css?family=Oswald:400,700"
+                    rel="stylesheet"
+                  />
+                  <div
+                    id="av-overlay-wrap"
+                    style={{ backgroundColor: "rgba(0,0,0,.8)" }}
+                  >
+                    <div
+                      id="av-overlay-form"
+                      style={{ backgroundColor: bgColorPicker }}
+                    >
+                      {currentLogo.data ? (
+                        <div className="logo-image">
+                          <img src={currentLogo.data} />
+                        </div>
+                      ) : null}
+
+                      <h1
+                        className="headline_text"
+                        style={{
+                          fontSize: styleSettings.headlineTextSize + "px",
+                          color: rgbString(styleSettings.headlineTextColor),
+                        }}
+                      >
+                        {styleSettings.headlineText}
+                      </h1>
+                      <p
+                        className="subhead_text"
+                        id="subhead_text"
+                        style={{
+                          fontSize: styleSettings.subHeadlineTextSize + "px",
+                          color: rgbString(styleSettings.subHeadlineTextColor),
+                        }}
+                      >
+                        {styleSettings.subHeadlineText}
+                      </p>
+
+                      <div className="av_date_submit_form">
+                        <div className="av_date_submit">
+                          <a
+                            id="av_submit_form"
+                            style={{
+                              background: submitBtnBgColor,
+                              color: textColor,
+                            }}
+                          >
+                            {submitBtnLabel}
+                          </a>
+                        </div>
+                        <div className="av_date_cancel">
+                          <a
+                            style={{
+                              background: cancelBtnBgColor,
+                              color: textColor,
+                            }}
+                          >
+                            {cancelBtnLabel}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </Frame>
             </Page>
           </Sticky>
