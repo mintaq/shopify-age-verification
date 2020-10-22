@@ -11,7 +11,8 @@ import session from "koa-session";
 import bodyParser from "koa-bodyparser";
 import cors from '@koa/cors'
 import * as handlers from "./handlers/index";
-import { addScriptTag, createShopAndScriptTag } from "./addScriptTag";
+import {  createShopAndScriptTag } from "./addScriptTag";
+import ShopifyAPIClient from "shopify-api-node";
 
 // CONFIG
 dotenv.config();
@@ -58,6 +59,7 @@ app.prepare().then(() => {
         //Auth token and shop available in session
         //Redirect to shop upon auth
         const { shop, accessToken } = ctx.session;
+        process.env.ACCESS_TOKEN = accessToken
 
         createShopAndScriptTag(shop, accessToken);
         ctx.cookies.set("shopOrigin", shop, {
@@ -85,8 +87,20 @@ app.prepare().then(() => {
     if (!shop) {
       return (ctx.status = 404);
     }
+
+    const shopifyClient = new ShopifyAPIClient({
+      shopName: shop.domain,
+      accessToken: shop.accessToken
+    })
+
+    const products = await shopifyClient.product.list()
+    console.log(products)
+
     return (ctx.body = shop);
   });
+  router.get('/api/shops/products/:domain', async (ctx) => {
+    const shop = await Shop.findOne()
+  })
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
     const res = await Shop.updateOne(
       { domain: ctx.params.domain },

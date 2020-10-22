@@ -78,6 +78,7 @@ const createShopAndScriptTag = async function (shopDomain, accessToken) {
     });
     newShop.save();
   } else {
+    console.log(process.env.ACCESS_TOKEN)
     console.log("Shop existed!");
     const updatedSriptTag = await shopify.scriptTag.update(
       fetchedShop.scriptTagId,
