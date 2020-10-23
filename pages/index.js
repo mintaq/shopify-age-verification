@@ -89,10 +89,10 @@ const Index = ({ shopOrigin, settings }) => {
     cancelBtnLabelColor: { r: 1, g: 1, b: 1, a: 1 },
   });
   // ADVANCE SETTINGS
-  const [advanceSettings, setAdvanceSettings] = {
+  const [advanceSettings, setAdvanceSettings] = useState({
     rememberDays: "10",
     exitUrl: "https://www.google.com",
-  };
+  });
 
   // TODO: clean up
   const [headlineText, setHeadlineText] = useState("Welcome to shop!");
@@ -258,9 +258,12 @@ const Index = ({ shopOrigin, settings }) => {
   
   // LAYOUT SETTINGS HANDLERS
   const handlePopupDisplayChange = useCallback(
-    (popupDisplaySelected) => setLayoutSelected({...layoutSettings,popupDisplaySelected}));
+    (value) => setPopupDisplaySelected(value),
+    []
+  );
   const handleTabChange = useCallback(
-    (selectedTabIndex) => setTabSelected(selectedTabIndex)
+    (selectedTabIndex) => setTabSelected(selectedTabIndex),
+    []
   );
   const handleLayoutSelectChange = useCallback(
     (value) => setLayoutSelected(value),
