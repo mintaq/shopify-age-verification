@@ -24,7 +24,7 @@
     box-sizing: border-box;
     background-color: #fff;
     border-radius: 4px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.35);
+    /* box-shadow: 0 0 30px rgba(0,0,0,0.35); */
     margin: 0;
     padding: 15px;
     /*z-index: 99999999999 !important;*/
@@ -42,6 +42,7 @@
 
 h1.headline_text {
     text-transform: uppercase;
+    margin: 10px;
 }
 
 select.av_datepicker {

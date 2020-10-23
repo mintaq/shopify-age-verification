@@ -7,7 +7,6 @@ import {
   TextField,
   Select,
   Tabs,
-  ColorPicker,
   Stack,
   Popover,
   Modal,
@@ -17,43 +16,53 @@ import {
   Sticky,
   DisplayText,
   TextContainer,
-  hsbToRgb,
-  rgbString,
-  rgbToHsb,
+  Scrollable,
+  ResourceList,
+  ResourceItem,
+  TextStyle,
 } from "@shopify/polaris";
+// TODO: CLEAN UP
 // import ColorPicker from 'material-ui-color-picker'
 // import {ColorPicker} from 'material-ui-color'
+import { SketchPicker } from "react-color";
 import { DropzoneAreaBase } from "material-ui-dropzone";
 import SkeletonPageComp from "../components/SkeletonPageComp";
+import ReactSelect from "react-select";
 import styled from "styled-components";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import axios from "axios";
+// import TestResourceList from '../components/TestResourceList'
 import classes from "./index.css";
 
-const StickyLayoutSection = ({ children }) => (
-  <StickySection className="Polaris-Layout__Section Polaris-Layout__Section--secondary">
-    {children}
-  </StickySection>
-);
-
-const StickySection = styled.div`
-  position: sticky;
-  top: 2rem;
-`;
-
 const Index = ({ shopOrigin, settings }) => {
-  const app = useAppBridge();
+  // const app = useAppBridge();
+  const [listProducts, setListProducts] = useState([]);
+  const [blockProducts, setBlockProducts] = useState([]);
   const [tabSelected, setTabSelected] = useState(0);
   const [loading, setLoading] = useState(true);
   const [enableAppToastActivate, setEnableToastActivate] = useState(false);
   const [disableAppToastActivate, setDisableToastActivate] = useState(false);
   const [saveToastActivate, setSaveToastActivate] = useState(false);
   const [disableModalActivate, setDisableModalActivate] = useState(false);
-  // LAYOUT SETTINGS
-  const [popupDisplaySelected, setPopupDisplaySelected] = useState("allPages");
-  const [currentLogo, setCurrentLogo] = useState({});
+  const [uploadBgImage, setUploadBgImage] = useState({});
   const [uploadLogo, setUploadLogo] = useState({});
+  // LAYOUT SETTINGS
   const [appStatus, setAppStatus] = useState("enable");
+  const [layoutSettings, setLayoutSettings] = useState({
+    popupDisplaySelected: "allPages",
+    bgImage: {},
+    logo: {},
+    layoutSelected: "transparent",
+    requireAgeSelected: "yes",
+    minimumAge: "16",
+    submitBtnLabel: "OK",
+    cancelBtnLabel: "Cancel",
+  });
+  
+  // TODO: CLEAN UP
+  const [popupDisplaySelected, setPopupDisplaySelected] = useState("allPages");
+  const [bgImage, setBgImage] = useState({});
+  const [logo, setLogo] = useState({});
   const [layoutSelected, setLayoutSelected] = useState("transparent");
   const [requireAgeSelected, setRequireAgeSelected] = useState("yes");
   const [minimumAge, setMinimumAge] = useState("16");
@@ -61,23 +70,29 @@ const Index = ({ shopOrigin, settings }) => {
   const [submitBtnLabel, setSubmitBtnLabel] = useState("OK");
   const [cancelBtnLabel, setCancelBtnLabel] = useState("Cancel");
   const [exitUrl, setExitUrl] = useState("https://www.google.com");
+  
   // STYLE SETTINGS
   const [styleSettings, setStyleSettings] = useState({
     headlineText: "Welcome to shop!",
     headlineTextSize: "30",
     subHeadlineText: "You must at least 16 to visit this site!",
     subHeadlineTextSize: "16",
-    overlayBgColor: { alpha: 1, red: 255, blue: 48, green: 48 },
-    popupBgColor: { alpha: 1, red: 255, blue: 48, green: 48 },
-    headlineTextColor: { red: 1, green: 0, blue: 0, alpha: 1 },
-    subHeadlineTextColor: { alpha: 1, red: 0, blue: 0, green: 0 },
+    overlayBgColor: { r: 31, g: 26, b: 26, a: 1 },
+    popupBgColor: { r: 241, g: 241, b: 241, a: 1 },
+    headlineTextColor: { r: 1, g: 1, b: 1, a: 1 },
+    subHeadlineTextColor: { r: 1, g: 1, b: 1, a: 1 },
     submitBtnLabel: "OK",
     cancelBtnLabel: "Cancel",
-    submitBtnBgColor: { alpha: 1, red: 255, blue: 48, green: 48 },
-    cancelBtnBgColor: { alpha: 1, red: 255, blue: 48, green: 48 },
-    submitBtnLabelColor: { alpha: 1, red: 0, blue: 0, green: 0 },
-    cancelBtnLabelColor: { alpha: 1, red: 0, blue: 0, green: 0 },
+    submitBtnBgColor: { r: 241, g: 27, b: 27, a: 1 },
+    cancelBtnBgColor: { r: 108, g: 89, b: 89, a: 1 },
+    submitBtnLabelColor: { r: 1, g: 1, b: 1, a: 1 },
+    cancelBtnLabelColor: { r: 1, g: 1, b: 1, a: 1 },
   });
+  // ADVANCE SETTINGS
+  const [advanceSettings, setAdvanceSettings] = {
+    rememberDays: "10",
+    exitUrl: "https://www.google.com",
+  };
 
   // TODO: clean up
   const [headlineText, setHeadlineText] = useState("Welcome to shop!");
@@ -205,10 +220,13 @@ const Index = ({ shopOrigin, settings }) => {
         return;
       }
 
-      // console.log(process.env.ACCESS_TOKEN)
+      const products = await axios.get(`/api/products/${shopOrigin}`);
+      console.log(products);
 
-      // const products = await axios.get('https://minh-testapp.myshopify.com/admin/api/2020-10/products.json');
-      // console.log('products,', products)
+      let mapProd = products.data.map((obj) => {
+        return { id: obj.id, title: obj.title, image: obj.image.src };
+      });
+      setListProducts(mapProd);
 
       setAppStatus(res.data.appStatus);
 
@@ -236,14 +254,13 @@ const Index = ({ shopOrigin, settings }) => {
     fetchShop();
   }, []);
 
-  // HANDLERS
+  // TODO: NEED FIX
+  
+  // LAYOUT SETTINGS HANDLERS
   const handlePopupDisplayChange = useCallback(
-    (value) => setPopupDisplaySelected(value),
-    []
-  );
+    (popupDisplaySelected) => setLayoutSelected({...layoutSettings,popupDisplaySelected}));
   const handleTabChange = useCallback(
-    (selectedTabIndex) => setTabSelected(selectedTabIndex),
-    []
+    (selectedTabIndex) => setTabSelected(selectedTabIndex)
   );
   const handleLayoutSelectChange = useCallback(
     (value) => setLayoutSelected(value),
@@ -331,18 +348,8 @@ const Index = ({ shopOrigin, settings }) => {
     });
   };
 
-  // TODO: NEED FIXED
-  const handleRgbChange = (value) => {
-    const rgbValues = value
-      .replace(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/, "")
-      .split(",");
-    console.log(rgbValues);
-    const color = {
-      red: Number.parseFloat(rgbValues[0]),
-      green: Number.parseFloat(rgbValues[1]),
-      blue: Number.parseFloat(rgbValues[2]),
-      alpha: Number.parseFloat(rgbValues[3]),
-    };
+  const convertRgbToString = (value) => {
+    let color = `rgba(${value.r},${value.g},${value.b},${value.a})`;
     return color;
   };
 
@@ -376,12 +383,21 @@ const Index = ({ shopOrigin, settings }) => {
   };
 
   const handleSubmitLogo = () => {
-    setCurrentLogo(uploadLogo);
-    setUploadLogo({})
+    setLogo(uploadLogo);
+    setUploadLogo({});
   };
 
   const handleRemoveLogo = () => {
-    setCurrentLogo({});
+    setLogo({});
+  };
+
+  const handleSubmitBgImage = () => {
+    setBgImage(uploadBgImage);
+    setUploadBgImage({});
+  };
+
+  const handleRemoveBgImage = () => {
+    setBgImage({});
   };
 
   const disableModal = (
@@ -425,6 +441,65 @@ const Index = ({ shopOrigin, settings }) => {
     />
   ) : null;
 
+  const renderListProducts = (item, _, index) => {
+    const { id, title, image } = item;
+    const media = <Thumbnail source={image} />;
+
+    return (
+      <ResourceItem id={id} media={media} sortOrder={index}>
+        <h3>
+          <TextStyle variation="strong">{title}</TextStyle>
+        </h3>
+      </ResourceItem>
+    );
+  };
+
+  const promotedBulkActions = [
+    {
+      content: "Edit customers",
+      onAction: () => console.log("Todo: implement bulk edit"),
+    },
+  ];
+
+  const bulkActions = [
+    {
+      content: "Add tags",
+      onAction: () => console.log("Todo: implement bulk add tags"),
+    },
+    {
+      content: "Remove tags",
+      onAction: () => console.log("Todo: implement bulk remove tags"),
+    },
+    {
+      content: "Delete customers",
+      onAction: () => console.log("Todo: implement bulk delete"),
+    },
+  ];
+
+  const CustomClearText = () => "clear all";
+  const ClearIndicator = (props) => {
+    const {
+      children = <CustomClearText />,
+      getStyles,
+      innerProps: { ref, ...restInnerProps },
+    } = props;
+    return (
+      <div
+        {...restInnerProps}
+        ref={ref}
+        style={getStyles("clearIndicator", props)}
+      >
+        <div style={{ padding: "0px 5px" }}>{children}</div>
+      </div>
+    );
+  };
+
+  const ClearIndicatorStyles = (base, state) => ({
+    ...base,
+    cursor: "pointer",
+    color: state.isFocused ? "blue" : "black",
+  });
+
   // LAYOUT SETTINGS SECTION
   const layoutSettingsTab = (
     <Layout>
@@ -440,12 +515,73 @@ const Index = ({ shopOrigin, settings }) => {
         </Card>
       </Layout.Section>
 
+      {layoutSelected == "withBackground" ? (
+        <>
+          <Layout.Section>
+            <Card title="Background Image">
+              <Card.Section>
+                <Stack spacing="loose" vertical>
+                  {bgImage.data ? (
+                    <Thumbnail source={bgImage.data} size="large" alt="Logo" />
+                  ) : (
+                    <TextContainer>
+                      <p>Please upload your background image!</p>
+                    </TextContainer>
+                  )}
+                  <Stack distribution="trailing">
+                    <Button
+                      primary
+                      disabled={bgImage.data ? false : true}
+                      onClick={handleRemoveBgImage}
+                    >
+                      Remove
+                    </Button>
+                  </Stack>
+                </Stack>
+              </Card.Section>
+            </Card>
+          </Layout.Section>
+
+          <Layout.Section>
+            <Card
+              title="Upload new background image"
+              primaryFooterAction={{
+                content: "Submit",
+                onAction: () => handleSubmitBgImage(),
+              }}
+            >
+              <Card.Section>
+                <DropzoneAreaBase
+                  acceptedFiles={["image/*"]}
+                  onAdd={(fileObjs) => setUploadBgImage(fileObjs[0])}
+                  onDelete={(fileObj) => setUploadBgImage({})}
+                  dropzoneText={"Drag and drop logo here or Click (<1MB)"}
+                  filesLimit={1}
+                  maxFileSize={10000000}
+                />
+              </Card.Section>
+              <Card.Section title="Preview uploaded background image">
+                {uploadBgImage.data ? (
+                  <Thumbnail
+                    source={uploadBgImage.data}
+                    size="large"
+                    alt="Logo"
+                  />
+                ) : (
+                  <DisplayText size="large">...</DisplayText>
+                )}
+              </Card.Section>
+            </Card>
+          </Layout.Section>
+        </>
+      ) : null}
+
       <Layout.Section>
         <Card title="Logo">
           <Card.Section>
             <Stack spacing="loose" vertical>
-              {currentLogo.data ? (
-                <Thumbnail source={currentLogo.data} size="large" alt="Logo" />
+              {logo.data ? (
+                <Thumbnail source={logo.data} size="large" alt="Logo" />
               ) : (
                 <TextContainer>
                   <p>Please upload your new logo!</p>
@@ -454,7 +590,7 @@ const Index = ({ shopOrigin, settings }) => {
               <Stack distribution="trailing">
                 <Button
                   primary
-                  disabled={currentLogo.data ? false : true}
+                  disabled={logo.data ? false : true}
                   onClick={handleRemoveLogo}
                 >
                   Remove
@@ -530,6 +666,33 @@ const Index = ({ shopOrigin, settings }) => {
         </Card>
       </Layout.Section>
 
+      {popupDisplaySelected == "specificProducts" ? (
+        <Layout.Section>
+          <Card title="Select products:">
+            {/* <Scrollable style={{ height: "350px" }}> */}
+            <ResourceList
+              items={listProducts}
+              renderItem={renderListProducts}
+              selectedItems={blockProducts}
+              onSelectionChange={setBlockProducts}
+              showHeader={false}
+              // promotedBulkActions={promotedBulkActions}
+              // bulkActions={bulkActions}
+            />
+            {/* </Scrollable> */}
+          </Card>
+          {/* TODO: NEED TEST */}
+          {/* <TestResourceList/> */}
+          {/* <ReactSelect 
+            closeMenuOnSelect={false}
+            components={{ClearIndicator}}
+            styles={{clearIndicator: ClearIndicatorStyles}}
+            isMulti
+            options={listProducts}
+          /> */}
+        </Layout.Section>
+      ) : null}
+
       <Layout.Section>
         <Button fullWidth primary={true} onClick={handleSaveSetting}>
           Save
@@ -547,14 +710,13 @@ const Index = ({ shopOrigin, settings }) => {
             width: "7rem",
             borderRadius: "0.3rem",
             border: "0.5px solid darkgrey",
-            background: rgbString(styleSettings[styleSettingsState]),
+            background: convertRgbToString(styleSettings[styleSettingsState]),
           }}
         />
       </Button>
     );
   };
 
-  // TODO: FIX handleRgbChange
   const handlePopupColorPicker = (
     activateState,
     activateSetter,
@@ -569,23 +731,12 @@ const Index = ({ shopOrigin, settings }) => {
           styleSettingsState
         )}
         onClose={() => activateSetter(false)}
+        fullHeight={true}
       >
         <Popover.Section>
-          <ColorPicker
-            onChange={(color) => {
-              stateHandler(hsbToRgb(color));
-            }}
-            color={rgbToHsb(styleSettings[styleSettingsState])}
-            allowAlpha
-          />
-        </Popover.Section>
-        <Popover.Section>
-          <TextField
-            value={rgbString(styleSettings[styleSettingsState])}
-            onChange={(v) => {
-              console.log(handleRgbChange(v));
-              stateHandler(handleRgbChange(v));
-            }}
+          <SketchPicker
+            color={styleSettings[styleSettingsState]}
+            onChange={(color) => stateHandler(color.rgb)}
           />
         </Popover.Section>
       </Popover>
@@ -605,7 +756,7 @@ const Index = ({ shopOrigin, settings }) => {
             width: "7rem",
             borderRadius: "0.3rem",
             border: "0.5px solid darkgrey",
-            background: rgbString(styleSettings.overlayBgColor),
+            background: convertRgbToString(styleSettings.overlayBgColor),
           }}
         />
       </Button>
@@ -624,7 +775,7 @@ const Index = ({ shopOrigin, settings }) => {
             width: "7rem",
             borderRadius: "0.3rem",
             border: "0.5px solid darkgrey",
-            background: rgbString(styleSettings.popupBgColor),
+            background: convertRgbToString(styleSettings.popupBgColor),
           }}
         />
       </Button>
@@ -637,23 +788,13 @@ const Index = ({ shopOrigin, settings }) => {
       active={overlayBgColorActivate}
       activator={overlayBgColorActivator}
       onClose={() => setOverlayBgColorActivate(false)}
+      fullHeight={true}
     >
       <Popover.Section>
-        <ColorPicker
-          onChange={(color) => {
-            handleOverlayBgColorChange(hsbToRgb(color));
-          }}
-          color={rgbToHsb(styleSettings.overlayBgColor)}
-          allowAlpha
+        <SketchPicker
+          color={styleSettings.overlayBgColor}
+          onChange={(color) => handleOverlayBgColorChange(color.rgb)}
         />
-      </Popover.Section>
-      <Popover.Section>
-        {/* <TextField
-          value={rgb_textColor}
-          onChange={() =>
-            handleBgColorPickerChange(handleRgbChange(rgb_textColor))
-          }
-        /> */}
       </Popover.Section>
     </Popover>
   );
@@ -663,23 +804,13 @@ const Index = ({ shopOrigin, settings }) => {
       active={popupBgColorActivate}
       activator={popupBgColorActivator}
       onClose={() => setPopupBgColorActivate(false)}
+      fullHeight={true}
     >
       <Popover.Section>
-        <ColorPicker
-          onChange={(color) => {
-            handlePopupBgColorChange(hsbToRgb(color));
-          }}
-          color={rgbToHsb(styleSettings.popupBgColor)}
-          allowAlpha
+        <SketchPicker
+          color={styleSettings.popupBgColor}
+          onChange={(color) => handlePopupBgColorChange(color.rgb)}
         />
-      </Popover.Section>
-      <Popover.Section>
-        {/* <TextField
-          value={rgb_submitBtnBgColor}
-          onChange={() =>
-            handleBgColorPickerChange(handleRgbChange(rgb_submitBtnBgColor))
-          }
-        /> */}
       </Popover.Section>
     </Popover>
   );
@@ -859,6 +990,11 @@ const Index = ({ shopOrigin, settings }) => {
     </Layout>
   );
 
+  const avOverlayWrapStyle =
+    layoutSelected == "withBackground" && bgImage.data
+      ? { backgroundImage: `url(${bgImage.data})` }
+      : { backgroundColor: convertRgbToString(styleSettings.overlayBgColor) };
+
   const finalRender = loading ? (
     <SkeletonPageComp />
   ) : (
@@ -910,17 +1046,18 @@ const Index = ({ shopOrigin, settings }) => {
                     href="https://fonts.googleapis.com/css?family=Oswald:400,700"
                     rel="stylesheet"
                   />
-                  <div
-                    id="av-overlay-wrap"
-                    style={{ backgroundColor: rgbString(styleSettings.overlayBgColor) }}
-                  >
+                  <div id="av-overlay-wrap" style={avOverlayWrapStyle}>
                     <div
                       id="av-overlay-form"
-                      style={{ backgroundColor: rgbString(styleSettings.popupBgColor) }}
+                      style={{
+                        backgroundColor: convertRgbToString(
+                          styleSettings.popupBgColor
+                        ),
+                      }}
                     >
-                      {currentLogo.data ? (
+                      {logo.data ? (
                         <div className="logo-image">
-                          <img src={currentLogo.data} />
+                          <img src={logo.data} />
                         </div>
                       ) : null}
 
@@ -928,7 +1065,9 @@ const Index = ({ shopOrigin, settings }) => {
                         className="headline_text"
                         style={{
                           fontSize: styleSettings.headlineTextSize + "px",
-                          color: rgbString(styleSettings.headlineTextColor),
+                          color: convertRgbToString(
+                            styleSettings.headlineTextColor
+                          ),
                         }}
                       >
                         {styleSettings.headlineText}
@@ -938,7 +1077,9 @@ const Index = ({ shopOrigin, settings }) => {
                         id="subhead_text"
                         style={{
                           fontSize: styleSettings.subHeadlineTextSize + "px",
-                          color: rgbString(styleSettings.subHeadlineTextColor),
+                          color: convertRgbToString(
+                            styleSettings.subHeadlineTextColor
+                          ),
                         }}
                       >
                         {styleSettings.subHeadlineText}
@@ -949,8 +1090,12 @@ const Index = ({ shopOrigin, settings }) => {
                           <a
                             id="av_submit_form"
                             style={{
-                              background: rgbString(styleSettings.submitBtnBgColor),
-                              color: rgbString(styleSettings.submitBtnLabelColor),
+                              background: convertRgbToString(
+                                styleSettings.submitBtnBgColor
+                              ),
+                              color: convertRgbToString(
+                                styleSettings.submitBtnLabelColor
+                              ),
                             }}
                           >
                             {styleSettings.submitBtnLabel}
@@ -959,8 +1104,12 @@ const Index = ({ shopOrigin, settings }) => {
                         <div className="av_date_cancel">
                           <a
                             style={{
-                              background: rgbString(styleSettings.cancelBtnBgColor),
-                              color: rgbString(styleSettings.cancelBtnLabelColor),
+                              background: convertRgbToString(
+                                styleSettings.cancelBtnBgColor
+                              ),
+                              color: convertRgbToString(
+                                styleSettings.cancelBtnLabelColor
+                              ),
                             }}
                           >
                             {styleSettings.cancelBtnLabel}

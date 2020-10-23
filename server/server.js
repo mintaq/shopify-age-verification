@@ -9,9 +9,9 @@ import next from "next";
 import Router from "koa-router";
 import session from "koa-session";
 import bodyParser from "koa-bodyparser";
-import cors from '@koa/cors'
+import cors from "@koa/cors";
 import * as handlers from "./handlers/index";
-import {  createShopAndScriptTag } from "./addScriptTag";
+import { createShopAndScriptTag } from "./addScriptTag";
 import ShopifyAPIClient from "shopify-api-node";
 
 // CONFIG
@@ -38,7 +38,7 @@ const Shop = mongoose.model("shops");
 app.prepare().then(() => {
   const server = new Koa();
   const router = new Router();
-  server.use(cors())
+  server.use(cors());
   server.use(
     session(
       {
@@ -59,7 +59,7 @@ app.prepare().then(() => {
         //Auth token and shop available in session
         //Redirect to shop upon auth
         const { shop, accessToken } = ctx.session;
-        process.env.ACCESS_TOKEN = accessToken
+        process.env.ACCESS_TOKEN = accessToken;
 
         createShopAndScriptTag(shop, accessToken);
         ctx.cookies.set("shopOrigin", shop, {
@@ -88,19 +88,24 @@ app.prepare().then(() => {
       return (ctx.status = 404);
     }
 
-    const shopifyClient = new ShopifyAPIClient({
-      shopName: shop.domain,
-      accessToken: shop.accessToken
-    })
-
-    const products = await shopifyClient.product.list()
-    console.log(products)
-
     return (ctx.body = shop);
   });
-  router.get('/api/shops/products/:domain', async (ctx) => {
-    const shop = await Shop.findOne()
-  })
+  router.get("/api/products/:domain", async (ctx) => {
+    const shop = await Shop.findOne({ domain: ctx.params.domain });
+    if (!shop) {
+      return (ctx.status = 404);
+    }
+
+    const shopifyClient = new ShopifyAPIClient({
+      shopName: shop.domain,
+      accessToken: shop.accessToken,
+    });
+
+    const products = await shopifyClient.product.list();
+    console.log(products);
+
+    return (ctx.body = products);
+  });
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
     const res = await Shop.updateOne(
       { domain: ctx.params.domain },
