@@ -76,7 +76,7 @@ app.prepare().then(() => {
       version: ApiVersion.October19,
     })
   );
-  server.use(bodyParser());
+  server.use(bodyParser({ jsonLimit: "10mb" }));
   // server.use(async (ctx) => {
   //   ctx.body = ctx.request.body;
   // });
@@ -91,22 +91,28 @@ app.prepare().then(() => {
     return (ctx.body = shop);
   });
   router.get("/api/products/:domain", async (ctx) => {
-    const shop = await Shop.findOne({ domain: ctx.params.domain });
-    if (!shop) {
+    const fetchedShop = await Shop.findOne({ domain: ctx.params.domain });
+    if (!fetchedShop) {
       return (ctx.status = 404);
     }
 
+    const { shop, accessToken } = ctx.session;
+    console.log(ctx.session);
+    console.log(shop.domain);
+    console.log(shop.accessToken);
+
     const shopifyClient = new ShopifyAPIClient({
-      shopName: shop.domain,
-      accessToken: shop.accessToken,
+      shopName: shop,
+      accessToken: accessToken,
     });
 
     const products = await shopifyClient.product.list();
-    console.log(products);
+    console.log(products[0].title);
 
     return (ctx.body = products);
   });
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
+    console.log(ctx.request.body);
     const res = await Shop.updateOne(
       { domain: ctx.params.domain },
       ctx.request.body

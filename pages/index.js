@@ -58,7 +58,7 @@ const Index = ({ shopOrigin, settings }) => {
     submitBtnLabel: "OK",
     cancelBtnLabel: "Cancel",
   });
-  
+
   // TODO: CLEAN UP
   const [popupDisplaySelected, setPopupDisplaySelected] = useState("allPages");
   const [bgImage, setBgImage] = useState({});
@@ -70,7 +70,7 @@ const Index = ({ shopOrigin, settings }) => {
   const [submitBtnLabel, setSubmitBtnLabel] = useState("OK");
   const [cancelBtnLabel, setCancelBtnLabel] = useState("Cancel");
   const [exitUrl, setExitUrl] = useState("https://www.google.com");
-  
+
   // STYLE SETTINGS
   const [styleSettings, setStyleSettings] = useState({
     headlineText: "Welcome to shop!",
@@ -220,8 +220,9 @@ const Index = ({ shopOrigin, settings }) => {
         return;
       }
 
+      console.log("gettings products...");
       const products = await axios.get(`/api/products/${shopOrigin}`);
-      console.log(products);
+      console.log(products.data[0].title);
 
       let mapProd = products.data.map((obj) => {
         return { id: obj.id, title: obj.title, image: obj.image.src };
@@ -255,27 +256,32 @@ const Index = ({ shopOrigin, settings }) => {
   }, []);
 
   // TODO: NEED FIX
-  
+
+  // GENERAL HANDLERS
+  const handleTabChange = useCallback((selectedTabIndex) =>
+    setTabSelected(selectedTabIndex)
+  );
+
   // LAYOUT SETTINGS HANDLERS
-  const handlePopupDisplayChange = useCallback(
-    (value) => setPopupDisplaySelected(value),
-    []
+  const handlePopupDisplayChange = useCallback((popupDisplaySelected) =>
+    setLayoutSettings({ ...layoutSettings, popupDisplaySelected })
   );
-  const handleTabChange = useCallback(
-    (selectedTabIndex) => setTabSelected(selectedTabIndex),
-    []
+
+  const handleLayoutSelectChange = useCallback((layoutSelected) =>
+    setLayoutSettings({ ...layoutSettings, layoutSelected })
   );
-  const handleLayoutSelectChange = useCallback(
-    (value) => setLayoutSelected(value),
-    []
+  const handleReqAgeSelectChange = useCallback((requireAgeSelected) =>
+    setLayoutSettings({ ...layoutSettings, requireAgeSelected })
   );
-  const handleReqAgeSelectChange = useCallback(
-    (value) => setRequireAgeSelected(value),
-    []
+  const handleMinAgeChange = useCallback((minimumAge) =>
+    setLayoutSettings({ ...layoutSettings, minimumAge })
   );
-  const handleMinAgeChange = useCallback((value) => setMinimumAge(value), []);
-  const handleDaysChange = useCallback((value) => setRememberDays(value), []);
-  const handleExitUrlChange = useCallback((value) => setExitUrl(value));
+  const handleBgImageChange = useCallback((bgImage) =>
+    setLayoutSettings({ ...layoutSettings, bgImage })
+  );
+  const handleLogoChange = useCallback((logo) =>
+    setLayoutSettings({ ...layoutSettings, logo })
+  );
 
   // STYLE SETTING HANDLERS
   const handleHeadlineTextChange = useCallback(
@@ -326,6 +332,15 @@ const Index = ({ shopOrigin, settings }) => {
     setStyleSettings({ ...styleSettings, cancelBtnLabelColor })
   );
 
+  // ADVANCE SETTINGS HANDLERS
+  const handleDaysChange = useCallback((rememberDays) =>
+    setLayoutSettings({ ...layoutSettings, rememberDays })
+  );
+  const handleExitUrlChange = useCallback((exitUrl) =>
+    setLayoutSettings({ ...layoutSettings, exitUrl })
+  );
+
+  // OTHERS HANDLERS
   const handleAppStatusChange = async () => {
     if (appStatus == "disable") {
       setAppStatus("enable");
@@ -379,28 +394,33 @@ const Index = ({ shopOrigin, settings }) => {
       cancelBtnBgColor,
     };
 
+    console.log(layoutSettings);
+
     const res = await axios.put(`/api/shops/${shopOrigin}`, {
-      settings: { ...settings },
-      customStyles: { ...customStyles },
+      layoutSettings,
+      styleSettings,
+      advanceSettings,
     });
   };
 
   const handleSubmitLogo = () => {
-    setLogo(uploadLogo);
+    setLayoutSettings(uploadLogo);
+    handleLogoChange(uploadLogo);
     setUploadLogo({});
   };
 
   const handleRemoveLogo = () => {
-    setLogo({});
+    handleLogoChange(null);
   };
 
   const handleSubmitBgImage = () => {
     setBgImage(uploadBgImage);
+    handleBgImageChange(uploadBgImage);
     setUploadBgImage({});
   };
 
   const handleRemoveBgImage = () => {
-    setBgImage({});
+    handleBgImageChange(null);
   };
 
   const disableModal = (
@@ -511,21 +531,25 @@ const Index = ({ shopOrigin, settings }) => {
           <Card.Section>
             <Select
               options={layoutOptions}
-              value={layoutSelected}
+              value={layoutSettings.layoutSelected}
               onChange={handleLayoutSelectChange}
             />
           </Card.Section>
         </Card>
       </Layout.Section>
 
-      {layoutSelected == "withBackground" ? (
+      {layoutSettings.layoutSelected == "withBackground" ? (
         <>
           <Layout.Section>
             <Card title="Background Image">
               <Card.Section>
                 <Stack spacing="loose" vertical>
-                  {bgImage.data ? (
-                    <Thumbnail source={bgImage.data} size="large" alt="Logo" />
+                  {layoutSettings.bgImage.data ? (
+                    <Thumbnail
+                      source={layoutSettings.bgImage.data}
+                      size="large"
+                      alt="Logo"
+                    />
                   ) : (
                     <TextContainer>
                       <p>Please upload your background image!</p>
@@ -534,7 +558,7 @@ const Index = ({ shopOrigin, settings }) => {
                   <Stack distribution="trailing">
                     <Button
                       primary
-                      disabled={bgImage.data ? false : true}
+                      disabled={layoutSettings.bgImage.data ? false : true}
                       onClick={handleRemoveBgImage}
                     >
                       Remove
@@ -583,8 +607,12 @@ const Index = ({ shopOrigin, settings }) => {
         <Card title="Logo">
           <Card.Section>
             <Stack spacing="loose" vertical>
-              {logo.data ? (
-                <Thumbnail source={logo.data} size="large" alt="Logo" />
+              {layoutSettings.logo.data ? (
+                <Thumbnail
+                  source={layoutSettings.logo.data}
+                  size="large"
+                  alt="Logo"
+                />
               ) : (
                 <TextContainer>
                   <p>Please upload your new logo!</p>
@@ -593,7 +621,7 @@ const Index = ({ shopOrigin, settings }) => {
               <Stack distribution="trailing">
                 <Button
                   primary
-                  disabled={logo.data ? false : true}
+                  disabled={layoutSettings.logo.data ? false : true}
                   onClick={handleRemoveLogo}
                 >
                   Remove
@@ -637,25 +665,27 @@ const Index = ({ shopOrigin, settings }) => {
           <Card.Section>
             <Select
               options={requireInputAgeOptions}
-              value={requireAgeSelected}
+              value={layoutSettings.requireAgeSelected}
               onChange={handleReqAgeSelectChange}
             />
           </Card.Section>
         </Card>
       </Layout.Section>
 
-      <Layout.Section>
-        <Card title="Minimum age to view site:">
-          <Card.Section>
-            <TextField
-              value={minimumAge}
-              type="number"
-              inputMode="numeric"
-              onChange={handleMinAgeChange}
-            />
-          </Card.Section>
-        </Card>
-      </Layout.Section>
+      {layoutSettings.requireAgeSelected === "yes" ? (
+        <Layout.Section>
+          <Card title="Minimum age to view site:">
+            <Card.Section>
+              <TextField
+                value={minimumAge}
+                type="number"
+                inputMode="numeric"
+                onChange={handleMinAgeChange}
+              />
+            </Card.Section>
+          </Card>
+        </Layout.Section>
+      ) : null}
 
       <Layout.Section>
         <Card title="Display popup in:">
@@ -993,9 +1023,37 @@ const Index = ({ shopOrigin, settings }) => {
     </Layout>
   );
 
+  const MONTHS = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  var months = MONTHS.map((month, index) => {
+    return (
+      <option key={index} value={index}>
+        {month}
+      </option>
+    );
+  });
+
   const avOverlayWrapStyle =
-    layoutSelected == "withBackground" && bgImage.data
-      ? { backgroundImage: `url(${bgImage.data})` }
+    layoutSettings.layoutSelected == "withBackground" &&
+    layoutSettings.bgImage.data
+      ? {
+          backgroundImage: `url(${layoutSettings.bgImage.data})`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }
       : { backgroundColor: convertRgbToString(styleSettings.overlayBgColor) };
 
   const finalRender = loading ? (
@@ -1039,7 +1097,7 @@ const Index = ({ shopOrigin, settings }) => {
           <Sticky>
             <Page title="Layout Preview">
               <Frame>
-                <div className="otAgeVerifier">
+                <div className="otAgeVerification">
                   <link
                     rel="stylesheet"
                     type="text/css"
@@ -1049,18 +1107,18 @@ const Index = ({ shopOrigin, settings }) => {
                     href="https://fonts.googleapis.com/css?family=Oswald:400,700"
                     rel="stylesheet"
                   />
-                  <div id="av-overlay-wrap" style={avOverlayWrapStyle}>
+                  <div id="ot-av-overlay-wrap" style={avOverlayWrapStyle}>
                     <div
-                      id="av-overlay-form"
+                      id="ot-av-overlay-form"
                       style={{
                         backgroundColor: convertRgbToString(
                           styleSettings.popupBgColor
                         ),
                       }}
                     >
-                      {logo.data ? (
+                      {layoutSettings.logo.data ? (
                         <div className="logo-image">
-                          <img src={logo.data} />
+                          <img src={layoutSettings.logo.data} />
                         </div>
                       ) : null}
 
@@ -1087,37 +1145,50 @@ const Index = ({ shopOrigin, settings }) => {
                       >
                         {styleSettings.subHeadlineText}
                       </p>
-
-                      <div className="av_date_submit_form">
-                        <div className="av_date_submit">
-                          <a
-                            id="av_submit_form"
-                            style={{
-                              background: convertRgbToString(
-                                styleSettings.submitBtnBgColor
-                              ),
-                              color: convertRgbToString(
-                                styleSettings.submitBtnLabelColor
-                              ),
-                            }}
-                          >
-                            {styleSettings.submitBtnLabel}
-                          </a>
+                      {layoutSettings.requireAgeSelected === "yes" ? (
+                        <div className="ot-av-datepicker-fields">
+                          <select className="av-month">${months}</select>
+                          <input
+                            type="text"
+                            className="av-day"
+                            maxLength="2"
+                            placeholder="01"
+                          />
+                          <input
+                            type="text"
+                            className="av-year"
+                            maxLength="4"
+                            placeholder="1998"
+                          />
                         </div>
-                        <div className="av_date_cancel">
-                          <a
-                            style={{
-                              background: convertRgbToString(
-                                styleSettings.cancelBtnBgColor
-                              ),
-                              color: convertRgbToString(
-                                styleSettings.cancelBtnLabelColor
-                              ),
-                            }}
-                          >
-                            {styleSettings.cancelBtnLabel}
-                          </a>
-                        </div>
+                      ) : null}
+                      <div className="ot-av-submit-form">
+                        <button
+                          className="ot-av-submit-btn"
+                          style={{
+                            background: convertRgbToString(
+                              styleSettings.submitBtnBgColor
+                            ),
+                            color: convertRgbToString(
+                              styleSettings.submitBtnLabelColor
+                            ),
+                          }}
+                        >
+                          {styleSettings.submitBtnLabel}
+                        </button>
+                        <button
+                          className="ot-av-cancel-btn"
+                          style={{
+                            background: convertRgbToString(
+                              styleSettings.cancelBtnBgColor
+                            ),
+                            color: convertRgbToString(
+                              styleSettings.cancelBtnLabelColor
+                            ),
+                          }}
+                        >
+                          {styleSettings.cancelBtnLabel}
+                        </button>
                       </div>
                     </div>
                   </div>

@@ -52,13 +52,15 @@ const addScriptTag = (shop, accessToken) => {
     });
 };
 
-const BASE_SCRIPT_URL =
-  "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js";
-
 // const BASE_SCRIPT_URL =
-//   "https://scrip-tag.000webhostapp.com/age-verfication-script-tag.js";
+//   "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js";
+
+const BASE_SCRIPT_URL =
+  "https://scrip-tag.000webhostapp.com/age-verfication-script-tag.js";
 
 const createShopAndScriptTag = async function (shopDomain, accessToken) {
+  console.log(shopDomain);
+  console.log(accessToken);
   const shopify = new ShopifyAPIClient({
     shopName: shopDomain,
     accessToken: accessToken,
@@ -78,7 +80,7 @@ const createShopAndScriptTag = async function (shopDomain, accessToken) {
     });
     newShop.save();
   } else {
-    console.log(process.env.ACCESS_TOKEN)
+    // console.log(process.env.ACCESS_TOKEN)
     console.log("Shop existed!");
     const updatedSriptTag = await shopify.scriptTag.update(
       fetchedShop.scriptTagId,
