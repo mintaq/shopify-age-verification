@@ -100,10 +100,10 @@ let _otThis = {
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV_Server = "https://ae816b785b75.ngrok.io";
-var rootLinkAgeV_File =
-  "https://minhlocal.omegatheme.com/age-verification-omega";
-// var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
+var rootLinkAgeV_Server = "https://851430a840ab.ngrok.io";
+// var rootLinkAgeV_File =
+//   "https://minhlocal.omegatheme.com/age-verification-omega";
+var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
 
 if (typeof $ == "undefined") {
   javascript: (function (e, s) {
@@ -126,8 +126,8 @@ async function ageV_init() {
   $ = jQuery.noConflict();
   $("head").append(`
     <link href='${rootLinkAgeV_File}/age-verification.css?v=${Math.floor(
-      Math.random() * 100000
-    )}' rel='stylesheet' type='text/css'>
+    Math.random() * 100000
+  )}' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/css?family=Oswald:400,700"  rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js" ></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" ></script>
@@ -137,7 +137,9 @@ async function ageV_init() {
 
   if (localStorage.getItem("otAgeVerification") == "enable") {
     $("body").addClass("stopScrolling");
-    $("body").append("<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>");
+    $("body").append(
+      "<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>"
+    );
   }
   $.ajax({
     url: `${rootLinkAgeV_Server}/api/shops/${omega_ageV_shopDomain}`,
@@ -148,7 +150,7 @@ async function ageV_init() {
     ageV_settings = result;
     if (ageV_settings.appStatus === "enable") {
       // $("body").addClass("stopScrolling");
-      $('.otInitBlock').fadeOut()
+      $(".otInitBlock").fadeOut();
       $("body").append("<div class='otAgeVerification'></div>");
       omega_displayAgeVerifyModal();
     }

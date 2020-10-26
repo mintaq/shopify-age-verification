@@ -45,6 +45,7 @@
     "js-cookie": "^2.2.1",
     "koa": "^2.8.2",
     "koa-bodyparser": "^4.3.0",
+    "koa-cookies": "^2.0.10",
     "koa-mongo": "^1.9.2",
     "koa-router": "^9.0.4",
     "koa-session": "^6.1.0",

@@ -31,8 +31,8 @@ import ReactSelect from "react-select";
 import styled from "styled-components";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import axios from "axios";
-import lscache from 'lscache'
-import {setCookie} from 'nookies'
+// import lscache from 'lscache'
+import { setCookie } from "nookies";
 // import TestResourceList from '../components/TestResourceList'
 import classes from "./index.css";
 import { Select as TestSelect } from "antd";
@@ -319,17 +319,17 @@ const Index = ({ shopOrigin, settings }) => {
   };
 
   const handleSubmitLogo = () => {
-    console.log('listProducts',listProducts);
-    console.log('blockProducts',blockProducts)
+    console.log("listProducts", listProducts);
+    console.log("blockProducts", blockProducts);
     setLayoutSettings(uploadLogo);
     handleLogoChange(uploadLogo);
     setUploadLogo(null);
 
-    setCookie(null, 'otAgeVerification', appStatus, {
-      maxAge: 60*60, 
-    })
+    setCookie(null, "otAgeVerification", "enable", {
+      maxAge: 60 * 60,
+    });
 
-    localStorage.setItem('otAgeVerification', appStatus)
+    localStorage.setItem("otAgeVerification", appStatus);
     // lscache.set('otAgeVerification', {appStatus})
     // console.log(document.cookie)
   };

@@ -52,11 +52,11 @@ const addScriptTag = (shop, accessToken) => {
     });
 };
 
-const BASE_SCRIPT_URL =
-  "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js";
-
 // const BASE_SCRIPT_URL =
-//   "https://scrip-tag.000webhostapp.com/age-verfication-script-tag.js";
+//   "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js";
+
+const BASE_SCRIPT_URL =
+  "https://scrip-tag.000webhostapp.com/age-verfication-script-tag.js";
 
 const createShopAndScriptTag = async function (shopDomain, accessToken) {
   console.log(shopDomain);

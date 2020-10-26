@@ -10,6 +10,7 @@ import Router from "koa-router";
 import session from "koa-session";
 import bodyParser from "koa-bodyparser";
 import cors from "@koa/cors";
+import { clearCookie, setCookie } from "koa-cookies";
 import * as handlers from "./handlers/index";
 import { createShopAndScriptTag } from "./addScriptTag";
 import ShopifyAPIClient from "shopify-api-node";
@@ -87,6 +88,7 @@ app.prepare().then(() => {
     if (!shop) {
       return (ctx.status = 404);
     }
+    setCookie("otAgeVerification", "enable")(ctx);
 
     return (ctx.body = shop);
   });
@@ -113,10 +115,17 @@ app.prepare().then(() => {
   });
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
     console.log(ctx.request.body);
+    console.log(ctx.cookies);
+
     const res = await Shop.updateOne(
       { domain: ctx.params.domain },
       ctx.request.body
     );
+    if (ctx.request.body.appStatus) {
+      console.log(ctx.request.body.appStatus);
+      // ctx.cookies.set('otAgeVerification', ctx.request.body.appStatus, {httpOnly: false});
+      setCookie("otAgeVerification", ctx.request.body.appStatus)(ctx);
+    }
     ctx.res.statusCode = 200;
   });
   router.get("(.*)", verifyRequest(), async (ctx) => {
