@@ -31,6 +31,8 @@ import ReactSelect from "react-select";
 import styled from "styled-components";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import axios from "axios";
+import lscache from 'lscache'
+import {setCookie} from 'nookies'
 // import TestResourceList from '../components/TestResourceList'
 import classes from "./index.css";
 import { Select as TestSelect } from "antd";
@@ -46,8 +48,8 @@ const Index = ({ shopOrigin, settings }) => {
   const [disableAppToastActivate, setDisableToastActivate] = useState(false);
   const [saveToastActivate, setSaveToastActivate] = useState(false);
   const [disableModalActivate, setDisableModalActivate] = useState(false);
-  const [uploadBgImage, setUploadBgImage] = useState({});
-  const [uploadLogo, setUploadLogo] = useState({});
+  const [uploadBgImage, setUploadBgImage] = useState(null);
+  const [uploadLogo, setUploadLogo] = useState(null);
 
   // LAYOUT SETTINGS STATE
   const [appStatus, setAppStatus] = useState("enable");
@@ -136,10 +138,10 @@ const Index = ({ shopOrigin, settings }) => {
   ];
 
   const popupDisplayOptions = [
-    { label: "All pages", value: "allPages" },
     { label: "Only in home page", value: "onlyHomePage" },
     { label: "Only in collection page", value: "onlyCollectionPage" },
     { label: "Specific products", value: "specificProducts" },
+    { label: "All pages", value: "allPages" },
   ];
 
   const tabs = [
@@ -176,7 +178,7 @@ const Index = ({ shopOrigin, settings }) => {
 
       const products = await axios.get(`/api/products/${shopOrigin}`);
 
-      console.log(products);
+      // console.log(products);
 
       let mapProd = products.data.map((obj) => {
         return {
@@ -317,10 +319,19 @@ const Index = ({ shopOrigin, settings }) => {
   };
 
   const handleSubmitLogo = () => {
-    console.log(listProducts);
+    console.log('listProducts',listProducts);
+    console.log('blockProducts',blockProducts)
     setLayoutSettings(uploadLogo);
     handleLogoChange(uploadLogo);
-    setUploadLogo({});
+    setUploadLogo(null);
+
+    setCookie(null, 'otAgeVerification', appStatus, {
+      maxAge: 60*60, 
+    })
+
+    localStorage.setItem('otAgeVerification', appStatus)
+    // lscache.set('otAgeVerification', {appStatus})
+    // console.log(document.cookie)
   };
 
   const handleRemoveLogo = () => {
@@ -329,7 +340,7 @@ const Index = ({ shopOrigin, settings }) => {
 
   const handleSubmitBgImage = () => {
     handleBgImageChange(uploadBgImage);
-    setUploadBgImage({});
+    setUploadBgImage(null);
   };
 
   const handleRemoveBgImage = () => {
@@ -467,7 +478,7 @@ const Index = ({ shopOrigin, settings }) => {
             <Card title="Background Image">
               <Card.Section>
                 <Stack spacing="loose" vertical>
-                  {layoutSettings.bgImage.data ? (
+                  {layoutSettings.bgImage != null ? (
                     <Thumbnail
                       source={layoutSettings.bgImage.data}
                       size="large"
@@ -481,7 +492,7 @@ const Index = ({ shopOrigin, settings }) => {
                   <Stack distribution="trailing">
                     <Button
                       primary
-                      disabled={layoutSettings.bgImage.data ? false : true}
+                      disabled={layoutSettings.bgImage != null ? false : true}
                       onClick={handleRemoveBgImage}
                     >
                       Remove
@@ -505,13 +516,13 @@ const Index = ({ shopOrigin, settings }) => {
                   acceptedFiles={["image/*"]}
                   onAdd={(fileObjs) => setUploadBgImage(fileObjs[0])}
                   onDelete={(fileObj) => setUploadBgImage({})}
-                  dropzoneText={"Drag and drop logo here or Click (<1MB)"}
+                  dropzoneText={"Drag and drop logo here or Click (<10MB)"}
                   filesLimit={1}
                   maxFileSize={10000000}
                 />
               </Card.Section>
               <Card.Section title="Preview uploaded background image">
-                {uploadBgImage.data ? (
+                {uploadBgImage != null ? (
                   <Thumbnail
                     source={uploadBgImage.data}
                     size="large"
@@ -530,7 +541,7 @@ const Index = ({ shopOrigin, settings }) => {
         <Card title="Logo">
           <Card.Section>
             <Stack spacing="loose" vertical>
-              {layoutSettings.logo.data ? (
+              {layoutSettings.logo != null ? (
                 <Thumbnail
                   source={layoutSettings.logo.data}
                   size="large"
@@ -544,7 +555,7 @@ const Index = ({ shopOrigin, settings }) => {
               <Stack distribution="trailing">
                 <Button
                   primary
-                  disabled={layoutSettings.logo.data ? false : true}
+                  disabled={layoutSettings.logo != null ? false : true}
                   onClick={handleRemoveLogo}
                 >
                   Remove
@@ -574,7 +585,7 @@ const Index = ({ shopOrigin, settings }) => {
             />
           </Card.Section>
           <Card.Section title="Preview uploaded logo">
-            {uploadLogo.data ? (
+            {uploadLogo != null ? (
               <Thumbnail source={uploadLogo.data} size="large" alt="Logo" />
             ) : (
               <DisplayText size="large">...</DisplayText>
@@ -625,7 +636,7 @@ const Index = ({ shopOrigin, settings }) => {
       {layoutSettings.popupDisplaySelected == "specificProducts" ? (
         <Layout.Section>
           <Card title="Select products:">
-            <TestSelect
+            {/* <TestSelect
               mode="multiple"
               allowClear
               style={{ width: "100%" }}
@@ -634,15 +645,16 @@ const Index = ({ shopOrigin, settings }) => {
               onChange={handleSelectChange}
             >
               {optionChildren}
-            </TestSelect>
+            </TestSelect> */}
             {/* <Scrollable style={{ height: "350px" }}> */}
-            {/* <ResourceList
+            <ResourceList
               items={listProducts}
               renderItem={renderListProducts}
               selectedItems={blockProducts}
               onSelectionChange={setBlockProducts}
-              showHeader={false}
-            /> */}
+              bulkActions={bulkActions}
+              showHeader={true}
+            />
             {/* </Scrollable> */}
           </Card>
           {/* TODO: NEED TEST */}
@@ -981,7 +993,7 @@ const Index = ({ shopOrigin, settings }) => {
 
   const avOverlayWrapStyle =
     layoutSettings.layoutSelected == "withBackground" &&
-    layoutSettings.bgImage.data
+    layoutSettings.bgImage != null
       ? {
           backgroundImage: `url(${layoutSettings.bgImage.data})`,
           backgroundRepeat: "no-repeat",
@@ -1050,7 +1062,7 @@ const Index = ({ shopOrigin, settings }) => {
                         ),
                       }}
                     >
-                      {layoutSettings.logo.data ? (
+                      {layoutSettings.logo != null ? (
                         <div className="ot-logo-image">
                           <img src={layoutSettings.logo.data} />
                         </div>

@@ -100,9 +100,10 @@ let _otThis = {
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV = " https://985d777ec478.ngrok.io";
-var rootHrefLink = "https://scrip-tag.000webhostapp.com";
-// var rootLinkAgeV = 'https://minhlocal.omegatheme.com/age-verification-omega'
+var rootLinkAgeV_Server = "https://ae816b785b75.ngrok.io";
+var rootLinkAgeV_File =
+  "https://minhlocal.omegatheme.com/age-verification-omega";
+// var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
 
 if (typeof $ == "undefined") {
   javascript: (function (e, s) {
@@ -123,25 +124,31 @@ if (typeof $ == "undefined") {
 
 async function ageV_init() {
   $ = jQuery.noConflict();
+  $("head").append(`
+    <link href='${rootLinkAgeV_File}/age-verification.css?v=${Math.floor(
+      Math.random() * 100000
+    )}' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Oswald:400,700"  rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js" ></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.12.0/js/all.js" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+  `);
+
+  if (localStorage.getItem("otAgeVerification") == "enable") {
+    $("body").addClass("stopScrolling");
+    $("body").append("<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>");
+  }
   $.ajax({
-    url: `${rootLinkAgeV}/api/shops/${omega_ageV_shopDomain}`,
+    url: `${rootLinkAgeV_Server}/api/shops/${omega_ageV_shopDomain}`,
     type: "GET",
     dataType: "json",
   }).done((result) => {
     // window.ageV_res = result;
     ageV_settings = result;
     if (ageV_settings.appStatus === "enable") {
-      $("head").append(`
-      <link href='${rootHrefLink}/age-verification.css?v=${Math.floor(
-        Math.random() * 100000
-      )}' rel='stylesheet' type='text/css'>
-      <link href="https://fonts.googleapis.com/css?family=Oswald:400,700"  rel="stylesheet" />
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js" ></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" ></script>
-      <script defer src="https://use.fontawesome.com/releases/v5.12.0/js/all.js" ></script>
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
-      `);
-      $("body").addClass("stopScrolling");
+      // $("body").addClass("stopScrolling");
+      $('.otInitBlock').fadeOut()
       $("body").append("<div class='otAgeVerification'></div>");
       omega_displayAgeVerifyModal();
     }
@@ -155,7 +162,6 @@ function convertRgbToString(value) {
 }
 
 function omega_displayAgeVerifyModal() {
-  // $("body").addClass("bootstrapiso");
   const { layoutSettings, styleSettings, advanceSettings } = ageV_settings;
   var layoutCSS = "";
   var styleCSS = "";
