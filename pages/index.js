@@ -33,6 +33,8 @@ import { useAppBridge } from "@shopify/app-bridge-react";
 import axios from "axios";
 // import TestResourceList from '../components/TestResourceList'
 import classes from "./index.css";
+import { Select as TestSelect } from "antd";
+const { Option } = TestSelect;
 
 const Index = ({ shopOrigin, settings }) => {
   // const app = useAppBridge();
@@ -46,7 +48,8 @@ const Index = ({ shopOrigin, settings }) => {
   const [disableModalActivate, setDisableModalActivate] = useState(false);
   const [uploadBgImage, setUploadBgImage] = useState({});
   const [uploadLogo, setUploadLogo] = useState({});
-  // LAYOUT SETTINGS
+
+  // LAYOUT SETTINGS STATE
   const [appStatus, setAppStatus] = useState("enable");
   const [layoutSettings, setLayoutSettings] = useState({
     popupDisplaySelected: "allPages",
@@ -59,19 +62,7 @@ const Index = ({ shopOrigin, settings }) => {
     cancelBtnLabel: "Cancel",
   });
 
-  // TODO: CLEAN UP
-  const [popupDisplaySelected, setPopupDisplaySelected] = useState("allPages");
-  const [bgImage, setBgImage] = useState({});
-  const [logo, setLogo] = useState({});
-  const [layoutSelected, setLayoutSelected] = useState("transparent");
-  const [requireAgeSelected, setRequireAgeSelected] = useState("yes");
-  const [minimumAge, setMinimumAge] = useState("16");
-  const [rememberDays, setRememberDays] = useState("10");
-  const [submitBtnLabel, setSubmitBtnLabel] = useState("OK");
-  const [cancelBtnLabel, setCancelBtnLabel] = useState("Cancel");
-  const [exitUrl, setExitUrl] = useState("https://www.google.com");
-
-  // STYLE SETTINGS
+  // STYLE SETTINGS STATE
   const [styleSettings, setStyleSettings] = useState({
     headlineText: "Welcome to shop!",
     headlineTextSize: "30",
@@ -88,42 +79,11 @@ const Index = ({ shopOrigin, settings }) => {
     submitBtnLabelColor: { r: 1, g: 1, b: 1, a: 1 },
     cancelBtnLabelColor: { r: 1, g: 1, b: 1, a: 1 },
   });
-  // ADVANCE SETTINGS
+
+  // ADVANCE SETTINGS STATE
   const [advanceSettings, setAdvanceSettings] = useState({
     rememberDays: "10",
     exitUrl: "https://www.google.com",
-  });
-
-  // TODO: clean up
-  const [headlineText, setHeadlineText] = useState("Welcome to shop!");
-  const [headlineTextSize, setHeadlineTextSize] = useState("30");
-  const [subHeadlineText, setSubHeadlineText] = useState(
-    "You must at least 16 to visit this site!"
-  );
-  const [subHeadlineTextSize, setSubHeadlineTextSize] = useState("16");
-  const [bgColorPicker, setBgColorPicker] = useState({
-    hue: 120,
-    brightness: 1,
-    saturation: 1,
-    alpha: 0.8,
-  });
-  const [textColor, setTextColor] = useState({
-    hue: 120,
-    brightness: 1,
-    saturation: 1,
-    alpha: 0.8,
-  });
-  const [submitBtnBgColor, setSubmitBtnBgColor] = useState({
-    hue: 120,
-    brightness: 1,
-    saturation: 1,
-    alpha: 0.8,
-  });
-  const [cancelBtnBgColor, setCancelBtnBgColor] = useState({
-    hue: 120,
-    brightness: 1,
-    saturation: 1,
-    alpha: 0.8,
   });
 
   // ACTIVATOR AND HANDLERS
@@ -145,7 +105,6 @@ const Index = ({ shopOrigin, settings }) => {
     cancelBtnLabelColorActivate,
     setCancelBtnLabelColorActivate,
   ] = useState(false);
-
   const handleHeadlineColorActivateChange = useCallback((v) =>
     setHeadlineColorActivate(v)
   );
@@ -165,10 +124,7 @@ const Index = ({ shopOrigin, settings }) => {
     setCancelBtnBgColorActivate(v)
   );
 
-  if (loading) {
-    // console.log("react");
-  }
-
+  // OPTIONS ARRAYS
   const requireInputAgeOptions = [
     { label: "Yes", value: "yes" },
     { label: "No", value: "no" },
@@ -210,52 +166,37 @@ const Index = ({ shopOrigin, settings }) => {
     },
   ];
 
-  // TODO: FIX STATE AND CLEAN UP
-  // FETCH SHOP SETTINGS
   useEffect(() => {
     async function fetchShop() {
-      const res = await axios.get(`/api/shops/${shopOrigin}`);
-      if (!res) {
-        console.log("Error", res);
+      const shopSettings = await axios.get(`/api/shops/${shopOrigin}`);
+      if (!shopSettings) {
+        console.log("Error", shopSettings);
         return;
       }
 
-      console.log("gettings products...");
       const products = await axios.get(`/api/products/${shopOrigin}`);
-      console.log(products.data[0].title);
+
+      console.log(products);
 
       let mapProd = products.data.map((obj) => {
-        return { id: obj.id, title: obj.title, image: obj.image.src };
+        return {
+          id: obj.id,
+          text: obj.title,
+          image: obj.image.src,
+          value: obj.title,
+        };
       });
+
       setListProducts(mapProd);
-
-      setAppStatus(res.data.appStatus);
-
-      const settings = res.data.settings;
-      setLayoutSelected(settings.layoutSelected);
-      setRequireAgeSelected(settings.requireAgeSelected);
-      setMinimumAge(settings.minimumAge);
-      setRememberDays(settings.rememberDays);
-      setSubmitBtnLabel(settings.submitBtnLabel);
-      setCancelBtnLabel(settings.cancelBtnLabel);
-      setExitUrl(settings.exitUrl);
-
-      const customStyles = res.data.customStyles;
-      setBgColorPicker(customStyles.bgColorPicker);
-      setHeadlineText(customStyles.headlineText);
-      setHeadlineTextSize(customStyles.headlineTextSize);
-      setSubHeadlineText(customStyles.subHeadlineText);
-      setSubHeadlineTextSize(customStyles.subHeadlineTextSize);
-      setTextColor(customStyles.textColor);
-      setSubmitBtnBgColor(customStyles.submitBtnBgColor);
-      setCancelBtnBgColor(customStyles.cancelBtnBgColor);
+      setAppStatus(shopSettings.data.appStatus);
+      setLayoutSettings({ ...shopSettings.data.layoutSettings });
+      setStyleSettings({ ...shopSettings.data.styleSettings });
+      setAdvanceSettings({ ...shopSettings.data.advanceSettings });
 
       setLoading(false);
     }
     fetchShop();
   }, []);
-
-  // TODO: NEED FIX
 
   // GENERAL HANDLERS
   const handleTabChange = useCallback((selectedTabIndex) =>
@@ -266,7 +207,6 @@ const Index = ({ shopOrigin, settings }) => {
   const handlePopupDisplayChange = useCallback((popupDisplaySelected) =>
     setLayoutSettings({ ...layoutSettings, popupDisplaySelected })
   );
-
   const handleLayoutSelectChange = useCallback((layoutSelected) =>
     setLayoutSettings({ ...layoutSettings, layoutSelected })
   );
@@ -284,19 +224,14 @@ const Index = ({ shopOrigin, settings }) => {
   );
 
   // STYLE SETTING HANDLERS
-  const handleHeadlineTextChange = useCallback(
-    (headlineText) => setStyleSettings({ ...styleSettings, headlineText }),
-    []
+  const handleHeadlineTextChange = useCallback((headlineText) =>
+    setStyleSettings({ ...styleSettings, headlineText })
   );
-  const handleHeadlineTextSizeChange = useCallback(
-    (headlineTextSize) =>
-      setStyleSettings({ ...styleSettings, headlineTextSize }),
-    []
+  const handleHeadlineTextSizeChange = useCallback((headlineTextSize) =>
+    setStyleSettings({ ...styleSettings, headlineTextSize })
   );
-  const handleSubHeadlineTextChange = useCallback(
-    (subHeadlineText) =>
-      setStyleSettings({ ...styleSettings, subHeadlineText }),
-    []
+  const handleSubHeadlineTextChange = useCallback((subHeadlineText) =>
+    setStyleSettings({ ...styleSettings, subHeadlineText })
   );
   const handleSubHeadlineTextSizeChange = useCallback((subHeadlineTextSize) =>
     setStyleSettings({ ...styleSettings, subHeadlineTextSize })
@@ -334,10 +269,10 @@ const Index = ({ shopOrigin, settings }) => {
 
   // ADVANCE SETTINGS HANDLERS
   const handleDaysChange = useCallback((rememberDays) =>
-    setLayoutSettings({ ...layoutSettings, rememberDays })
+    setAdvanceSettings({ ...advanceSettings, rememberDays })
   );
   const handleExitUrlChange = useCallback((exitUrl) =>
-    setLayoutSettings({ ...layoutSettings, exitUrl })
+    setAdvanceSettings({ ...advanceSettings, exitUrl })
   );
 
   // OTHERS HANDLERS
@@ -373,30 +308,8 @@ const Index = ({ shopOrigin, settings }) => {
 
   const handleSaveSetting = async () => {
     setSaveToastActivate(true);
-    const settings = {
-      layoutSelected,
-      requireAgeSelected,
-      minimumAge,
-      rememberDays,
-      submitBtnLabel,
-      cancelBtnLabel,
-      exitUrl,
-    };
 
-    const customStyles = {
-      headlineText,
-      headlineTextSize,
-      subHeadlineText,
-      subHeadlineTextSize,
-      bgColorPicker,
-      textColor,
-      submitBtnBgColor,
-      cancelBtnBgColor,
-    };
-
-    console.log(layoutSettings);
-
-    const res = await axios.put(`/api/shops/${shopOrigin}`, {
+    await axios.put(`/api/shops/${shopOrigin}`, {
       layoutSettings,
       styleSettings,
       advanceSettings,
@@ -404,6 +317,7 @@ const Index = ({ shopOrigin, settings }) => {
   };
 
   const handleSubmitLogo = () => {
+    console.log(listProducts);
     setLayoutSettings(uploadLogo);
     handleLogoChange(uploadLogo);
     setUploadLogo({});
@@ -414,7 +328,6 @@ const Index = ({ shopOrigin, settings }) => {
   };
 
   const handleSubmitBgImage = () => {
-    setBgImage(uploadBgImage);
     handleBgImageChange(uploadBgImage);
     setUploadBgImage({});
   };
@@ -439,7 +352,7 @@ const Index = ({ shopOrigin, settings }) => {
     ></Modal>
   );
 
-  // TOAST
+  // TOASTS
   const enableToast = enableAppToastActivate ? (
     <Toast
       content="App enabled!"
@@ -522,6 +435,16 @@ const Index = ({ shopOrigin, settings }) => {
     cursor: "pointer",
     color: state.isFocused ? "blue" : "black",
   });
+
+  const optionChildren = [];
+  for (let i = 0; i < listProducts.length; i++) {
+    optionChildren.push(
+      <Option key={listProducts[i].id}>{listProducts[i].title}</Option>
+    );
+  }
+  const handleSelectChange = (v) => {
+    console.log(`selected ${v}`);
+  };
 
   // LAYOUT SETTINGS SECTION
   const layoutSettingsTab = (
@@ -677,7 +600,7 @@ const Index = ({ shopOrigin, settings }) => {
           <Card title="Minimum age to view site:">
             <Card.Section>
               <TextField
-                value={minimumAge}
+                value={layoutSettings.minimumAge}
                 type="number"
                 inputMode="numeric"
                 onChange={handleMinAgeChange}
@@ -692,26 +615,34 @@ const Index = ({ shopOrigin, settings }) => {
           <Card.Section>
             <Select
               options={popupDisplayOptions}
-              value={popupDisplaySelected}
+              value={layoutSettings.popupDisplaySelected}
               onChange={handlePopupDisplayChange}
             />
           </Card.Section>
         </Card>
       </Layout.Section>
 
-      {popupDisplaySelected == "specificProducts" ? (
+      {layoutSettings.popupDisplaySelected == "specificProducts" ? (
         <Layout.Section>
           <Card title="Select products:">
+            <TestSelect
+              mode="multiple"
+              allowClear
+              style={{ width: "100%" }}
+              placeholder="Please select"
+              defaultValue={["Blue Silk Tuxedo"]}
+              onChange={handleSelectChange}
+            >
+              {optionChildren}
+            </TestSelect>
             {/* <Scrollable style={{ height: "350px" }}> */}
-            <ResourceList
+            {/* <ResourceList
               items={listProducts}
               renderItem={renderListProducts}
               selectedItems={blockProducts}
               onSelectionChange={setBlockProducts}
               showHeader={false}
-              // promotedBulkActions={promotedBulkActions}
-              // bulkActions={bulkActions}
-            />
+            /> */}
             {/* </Scrollable> */}
           </Card>
           {/* TODO: NEED TEST */}
@@ -998,7 +929,7 @@ const Index = ({ shopOrigin, settings }) => {
         <Card title="Remember visitors for (days)">
           <Card.Section>
             <TextField
-              value={rememberDays}
+              value={advanceSettings.rememberDays}
               type="number"
               inputMode="numeric"
               onChange={handleDaysChange}
@@ -1010,7 +941,10 @@ const Index = ({ shopOrigin, settings }) => {
       <Layout.Section>
         <Card title="Exit URL">
           <Card.Section>
-            <TextField value={exitUrl} onChange={handleExitUrlChange} />
+            <TextField
+              value={advanceSettings.exitUrl}
+              onChange={handleExitUrlChange}
+            />
           </Card.Section>
         </Card>
       </Layout.Section>
@@ -1117,13 +1051,13 @@ const Index = ({ shopOrigin, settings }) => {
                       }}
                     >
                       {layoutSettings.logo.data ? (
-                        <div className="logo-image">
+                        <div className="ot-logo-image">
                           <img src={layoutSettings.logo.data} />
                         </div>
                       ) : null}
 
                       <h1
-                        className="headline_text"
+                        className="ot-headline_text"
                         style={{
                           fontSize: styleSettings.headlineTextSize + "px",
                           color: convertRgbToString(
@@ -1134,8 +1068,7 @@ const Index = ({ shopOrigin, settings }) => {
                         {styleSettings.headlineText}
                       </h1>
                       <p
-                        className="subhead_text"
-                        id="subhead_text"
+                        className="ot-subhead_text"
                         style={{
                           fontSize: styleSettings.subHeadlineTextSize + "px",
                           color: convertRgbToString(

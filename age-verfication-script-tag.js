@@ -100,7 +100,7 @@ let _otThis = {
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV = "https://d8cfcd121df6.ngrok.io";
+var rootLinkAgeV = " https://985d777ec478.ngrok.io";
 var rootHrefLink = "https://scrip-tag.000webhostapp.com";
 // var rootLinkAgeV = 'https://minhlocal.omegatheme.com/age-verification-omega'
 
