@@ -78,7 +78,6 @@ const shopSchema = new mongoose.Schema(
       rememberDays: { type: String, default: "10" },
       exitUrl: { type: String, default: "https://www.google.com" },
     },
-    scriptTagId: { type: String, default: "" },
     themeId: { type: Number },
     appStatus: { type: String, default: "enable" },
   },

@@ -31,7 +31,25 @@ const {
 } = process.env;
 
 // MONGODB
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
+const options = {
+  useMongoClient: true,
+  useNewUrlParser: true,
+  autoIndex: false, // Don't build indexes
+  reconnectTries: 100, // Never stop trying to reconnect
+  reconnectInterval: 500, // Reconnect every 500ms
+  poolSize: 10, // Maintain up to 10 socket connections
+  // If not connected, return errors immediately rather than waiting for reconnect
+  bufferMaxEntries: 0,
+};
+mongoose
+  .connect(MONGODB_URI, { useNewUrlParser: true })
+  .then(() => {
+    console.log("connected to mongoDB");
+  })
+  .catch((err) => {
+    console.log("err", err);
+  });
+
 import "./models/shop";
 const Shop = mongoose.model("shops");
 
@@ -121,11 +139,7 @@ app.prepare().then(() => {
       { domain: ctx.params.domain },
       ctx.request.body
     );
-    if (ctx.request.body.appStatus) {
-      console.log(ctx.request.body.appStatus);
-      // ctx.cookies.set('otAgeVerification', ctx.request.body.appStatus, {httpOnly: false});
-      setCookie("otAgeVerification", ctx.request.body.appStatus)(ctx);
-    }
+
     ctx.res.statusCode = 200;
   });
   router.get("(.*)", verifyRequest(), async (ctx) => {

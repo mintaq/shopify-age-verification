@@ -5,11 +5,11 @@ import "./models/shop";
 
 const Shop = mongoose.model("shops");
 
-const BASE_SCRIPT_URL =
-  "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js";
-
 // const BASE_SCRIPT_URL =
-//   "https://scrip-tag.000webhostapp.com/age-verfication-script-tag.js";
+//   "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js";
+
+const BASE_SCRIPT_URL =
+  "https://scrip-tag.000webhostapp.com/age-verfication-script-tag.js";
 
 const createShopAndAddScript = async function (shopDomain, accessToken) {
   console.log(shopDomain);
@@ -33,10 +33,11 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
       key: "layout/theme.liquid",
       value: `<script type="text/javascript" async="" src="https://scrip-tag.000webhostapp.com/age-verfication-script-tag.js?v=1234"></script>`,
     });
-    console.log(updatedThemeId);
 
     const newShop = new Shop({
       domain: shopDomain,
+      accessToken,
+      themeId: id,
     });
     newShop.save();
   } else {
@@ -44,9 +45,7 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
     console.log("Shop existed!");
 
     const testTheme = await shopify.theme.list();
-    console.log(testTheme);
     let { id } = testTheme.find((theme) => theme.role === "main");
-    console.log(id);
 
     const layoutLiquidRes = await axios.get(
       `https://${fetchedShop.domain}/admin/api/2020-10/themes/${id}/assets.json?asset[key]=layout/theme.liquid`,
@@ -57,9 +56,8 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
         },
       }
     );
-    console.log(layoutLiquidRes);
     const layoutLiquid = layoutLiquidRes.data.asset.value.split("</head>");
-    const newlayoutLiquid =
+    const newLayoutLiquid =
       layoutLiquid[0] +
       `<script type="text/javascript" async="" src="https://scrip-tag.000webhostapp.com/age-verfication-script-tag.js?v=1234"></script>\n` +
       "</head>\n" +
@@ -70,26 +68,17 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
       {
         asset: {
           key: "layout/theme.liquid",
-          value: newlayoutLiquid,
+          value: newLayoutLiquid,
         },
       },
       {
         headers: {
           "X-Shopify-Access-Token": accessToken,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
       }
     );
     console.log(axiosThemeRes);
-
-    // const updatedThemeId = await shopify.asset.update(
-    //   id,
-    //   {
-    //     key: "layout/theme.liquid",
-    //     value: `<script type="text/javascript" async="" src="https://scrip-tag.000webhostapp.com/age-verfication-script-tag.js?v=1234"></script>`
-    //   }
-    // )
-    // console.log(updatedThemeId);
 
     // const updatedSriptTag = await shopify.scriptTag.update(
     //   fetchedShop.scriptTagId,
@@ -98,10 +87,7 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
     //   }
     // );
 
-    // await Shop.updateOne(
-    //   { domain: shopDomain },
-    //   { scriptTagId: updatedSriptTag.id + "" }
-    // );
+    await Shop.updateOne({ domain: shopDomain }, { themeId: id, accessToken });
     return;
   }
 };
