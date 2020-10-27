@@ -1,3 +1,4 @@
+// var $
 let ageV_settings;
 let _otSettings = {
   storage: "sessionStorage",
@@ -79,6 +80,11 @@ let _otThis = {
     }
   },
   handleSuccess() {
+    setCookie(
+      "_otRememberDays",
+      "1",
+      Number.parseInt(ageV_settings.advanceSettings.rememberDays)
+    );
     $("body").removeClass("stopScrolling");
     $(".otAgeVerification").fadeOut();
   },
@@ -96,185 +102,288 @@ let _otThis = {
     }
   },
 };
+let _lsBlockLocations = localStorage.getItem("_otBlockLocations").split(",");
+let _lsBlockProducts = localStorage.getItem("_otBlockProducts").split(",");
+let _lsAppStatus = localStorage.getItem("_otAgeVerification");
+let _isVerified = getCookie("_otRememberDays");
 
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV_Server = "https://851430a840ab.ngrok.io";
-// var rootLinkAgeV_File =
-//   "https://minhlocal.omegatheme.com/age-verification-omega";
-var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
+var rootLinkAgeV_Server = "https://da8b61c0afdb.ngrok.io";
+var rootLinkAgeV_File =
+  "https://minhlocal.omegatheme.com/age-verification-omega";
+// var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
 
-if (typeof $ == "undefined") {
-  javascript: (function (e, s) {
-    e.src = s;
-    e.onload = function () {
-      $ = jQuery.noConflict();
-      ageV_init();
-    };
-    document.head.appendChild(e);
-  })(
-    document.createElement("script"),
-    "https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"
-  );
-  ageV_init();
-} else {
-  ageV_init();
-}
+// ******* INIT
+(function () {
+  var loadScript = function (url, callback) {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
 
-async function ageV_init() {
-  $ = jQuery.noConflict();
-  $("head").append(`
-    <link href='${rootLinkAgeV_File}/age-verification.css?v=${Math.floor(
-    Math.random() * 100000
-  )}' rel='stylesheet' type='text/css'>
-    <link href="https://fonts.googleapis.com/css?family=Oswald:400,700"  rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js" ></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" ></script>
-    <script defer src="https://use.fontawesome.com/releases/v5.12.0/js/all.js" ></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
-  `);
-
-  if (localStorage.getItem("otAgeVerification") == "enable") {
-    $("body").addClass("stopScrolling");
-    $("body").append(
-      "<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>"
-    );
-  }
-  $.ajax({
-    url: `${rootLinkAgeV_Server}/api/shops/${omega_ageV_shopDomain}`,
-    type: "GET",
-    dataType: "json",
-  }).done((result) => {
-    // window.ageV_res = result;
-    ageV_settings = result;
-    if (ageV_settings.appStatus === "enable") {
-      // $("body").addClass("stopScrolling");
-      $(".otInitBlock").fadeOut();
-      $("body").append("<div class='otAgeVerification'></div>");
-      omega_displayAgeVerifyModal();
+    // If the browser is Internet Explorer.
+    if (script.readyState) {
+      script.onreadystatechange = function () {
+        if (script.readyState == "loaded" || script.readyState == "complete") {
+          script.onreadystatechange = null;
+          callback();
+        }
+      };
+      // For any other browser.
+    } else {
+      script.onload = function () {
+        callback();
+      };
     }
-  });
-}
+
+    script.src = url;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  };
+
+  var myAppJavaScript = function ($) {
+    $("head").append(`
+        <link href='${rootLinkAgeV_File}/age-verification.css?v=${Math.floor(
+      Math.random() * 100000
+    )}' rel='stylesheet' type='text/css'>
+        <link href="https://fonts.googleapis.com/css?family=Oswald:400,700"  rel="stylesheet" />
+      `);
+
+    if (_lsAppStatus == "enable" && !_isVerified) {
+      if (
+        (_lsBlockLocations.includes("all") ||
+          _lsBlockLocations.includes(__st.p)) &&
+        __st.p != "product"
+      ) {
+        $("body").addClass("stopScrolling");
+        $("body").append(
+          "<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>"
+        );
+      } else if (_lsBlockLocations.includes("product") && __st.p == "product") {
+        if (_lsBlockProducts.includes(__st.rid + "")) {
+          $("body").addClass("stopScrolling");
+          $("body").append(
+            "<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>"
+          );
+        }
+      }
+    }
+
+    $.ajax({
+      url: `${rootLinkAgeV_Server}/api/shops/${omega_ageV_shopDomain}`,
+      type: "GET",
+      dataType: "json",
+    }).done((result) => {
+      ageV_settings = result;
+      setLocalStorage();
+      if (_lsAppStatus == "enable" && !_isVerified) {
+        if (
+          (_lsBlockLocations.includes("all") ||
+            _lsBlockLocations.includes(__st.p)) &&
+          __st.p != "product"
+        ) {
+          $(".otInitBlock").fadeOut();
+          $("body").append("<div class='otAgeVerification'></div>");
+          omega_displayAgeVerifyModal();
+        } else if (
+          _lsBlockLocations.includes("product") &&
+          __st.p == "product"
+        ) {
+          if (_lsBlockProducts.includes(__st.rid + "")) {
+            $(".otInitBlock").fadeOut();
+            $("body").append("<div class='otAgeVerification'></div>");
+            omega_displayAgeVerifyModal();
+          }
+        }
+      }
+    });
+
+    function omega_displayAgeVerifyModal() {
+      const { layoutSettings, styleSettings, advanceSettings } = ageV_settings;
+      var layoutCSS = "";
+      var styleCSS = "";
+      var otLogo = "";
+
+      // BACKGROUND IMAGE
+      if (
+        layoutSettings.layoutSelected != "transparent" &&
+        layoutSettings.bgImage != null &&
+        layoutSettings.bgImage.data
+      ) {
+        layoutCSS += `.otAgeVerification #ot-av-overlay-wrap {
+            background-image: url(${layoutSettings.bgImage.data});
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+        }`;
+      } else {
+        layoutCSS += `.otAgeVerification #ot-av-overlay-wrap { 
+            background-color: ${convertRgbToString(
+              styleSettings.overlayBgColor
+            )};
+        }`;
+      }
+
+      // LOGO
+      if (layoutSettings.logo != null && layoutSettings.logo.data) {
+        otLogo = `<div class='ot-logo-image'><img src="${layoutSettings.logo.data}"/></div>`;
+      }
+
+      // OTHER STUFF
+      styleCSS += `
+        .otAgeVerification #ot-av-overlay-form {
+          background-color: ${convertRgbToString(styleSettings.popupBgColor)};
+        }
+        .otAgeVerification h1.ot-headline_text {
+          font-size: ${styleSettings.headlineTextSize}px;
+          color: ${convertRgbToString(styleSettings.headlineTextColor)};
+        }
+        .otAgeVerification .ot-subhead_text {
+          font-size: ${styleSettings.subHeadlineTextSize}px;
+          color: ${convertRgbToString(styleSettings.subHeadlineTextColor)};
+        }
+        .otAgeVerification .ot-av-submit-btn {
+          background-color: ${convertRgbToString(
+            styleSettings.submitBtnBgColor
+          )};
+          color: ${convertRgbToString(styleSettings.submitBtnLabelColor)};
+        }
+        .otAgeVerification .ot-av-cancel-btn {
+          background-color: ${convertRgbToString(
+            styleSettings.cancelBtnBgColor
+          )};
+          color: ${convertRgbToString(styleSettings.cancelBtnLabelColor)};
+        }
+      `;
+
+      // MAIN DIV
+      $(".otAgeVerification").append(`
+          <style>
+            ${layoutCSS}
+            ${styleCSS}
+          </style>
+          <div id='ot-av-overlay-wrap'>
+            <div id='ot-av-overlay-form'>
+              ${otLogo}
+              <h1 class='ot-headline_text'>${styleSettings.headlineText}</h1>
+              <p class='ot-subhead_text' id='ot-subhead_text'>${styleSettings.subHeadlineText}</p>
+            </div>
+          </div>
+      `);
+
+      if (layoutSettings.requireAgeSelected == "yes") {
+        const MONTHS = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+        var months = "";
+
+        for (let i = 0; i < MONTHS.length; i++) {
+          months += `<option value="${i + 1}">${MONTHS[i]}</option>`;
+        }
+
+        $(".otAgeVerification #ot-av-overlay-form").append(`
+          <div class='ot-av-datepicker-fields'>
+            <select class='av-month'>
+              ${months}
+            </select>
+            <input type='text' class='av-day' maxlength="2" placeholder="01"/>
+            <input type='text' class='av-year' maxlength="4" placeholder="1998"/>
+          </div>
+          <div class="ot-av-error"></div>
+          <div class='ot-av-submit-form'>
+            <button onclick='omega_ageCheckSubmit()' class='ot-av-submit-btn'>${styleSettings.submitBtnLabel}</button>
+            <button onclick="location.href = '${advanceSettings.exitUrl}'" class='ot-av-cancel-btn'>${styleSettings.cancelBtnLabel}</button>
+          </div>
+        `);
+      } else {
+        $(".otAgeVerification #ot-av-overlay-form").append(`
+          <div class="ot-av-error"></div>
+          <div class='ot-av-submit-form'>
+            <button onclick='omega_ageCheckSubmit()' class='ot-av-submit-btn'>${styleSettings.submitBtnLabel}</button>
+            <button onclick="location.href = '${advanceSettings.exitUrl}'" class='ot-av-cancel-btn'>${styleSettings.cancelBtnLabel}</button>
+          </div>
+        `);
+      }
+      $(".otAgeVerification").fadeIn();
+    }
+  };
+
+  if (typeof jQuery === "undefined" || parseFloat(jQuery.fn.jquery) < 1.7) {
+    loadScript(
+      "//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js",
+      function () {
+        jQuery191 = jQuery.noConflict(true);
+        myAppJavaScript(jQuery191);
+      }
+    );
+  } else {
+    myAppJavaScript(jQuery);
+  }
+})();
+// ********* DONE
+
 // }
+
+// HELPERS
+function setCookie(name, value, days) {
+  var expires = "";
+  if (days) {
+    var date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+function getCookie(name) {
+  var nameEQ = name + "=";
+  var ca = document.cookie.split(";");
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == " ") c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+}
+function eraseCookie(name) {
+  document.cookie = name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+}
+
+function setLocalStorage() {
+  const { layoutSettings, styleSettings } = ageV_settings;
+  // SET BLOCK PRODUCTS
+  if (Array.isArray(layoutSettings.popupDisplaySelected)) {
+    if (layoutSettings.blockProducts.length > 0) {
+      const blockProdRIds = [];
+      layoutSettings.blockProducts.map(({ rid }) => {
+        return blockProdRIds.push(rid);
+      });
+      localStorage.setItem("_otBlockProducts", blockProdRIds);
+    }
+  }
+  // SET BLOCK PAGES
+  if (Array.isArray(layoutSettings.popupDisplaySelected)) {
+    if (layoutSettings.popupDisplaySelected.length > 0) {
+      localStorage.setItem(
+        "_otBlockLocations",
+        layoutSettings.popupDisplaySelected
+      );
+    }
+  }
+}
 
 function convertRgbToString(value) {
   let color = `rgba(${value.r},${value.g},${value.b},${value.a})`;
   return color;
-}
-
-function omega_displayAgeVerifyModal() {
-  const { layoutSettings, styleSettings, advanceSettings } = ageV_settings;
-  var layoutCSS = "";
-  var styleCSS = "";
-  var otLogo = "";
-
-  // BACKGROUND IMAGE
-  if (
-    layoutSettings.layoutSelected != "transparent" &&
-    layoutSettings.bgImage != null &&
-    layoutSettings.bgImage.data
-  ) {
-    layoutCSS += `.otAgeVerification #ot-av-overlay-wrap {
-        background-image: url(${layoutSettings.bgImage.data});
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: cover;
-    }`;
-  } else {
-    layoutCSS += `.otAgeVerification #ot-av-overlay-wrap { 
-        background-color: ${convertRgbToString(styleSettings.overlayBgColor)};
-    }`;
-  }
-
-  // LOGO
-  if (layoutSettings.logo != null && layoutSettings.logo.data) {
-    otLogo = `<div class='ot-logo-image'><img src="${layoutSettings.logo.data}"/></div>`;
-  }
-
-  // OTHER STUFF
-  styleCSS += `
-    .otAgeVerification #ot-av-overlay-form {
-      background-color: ${convertRgbToString(styleSettings.popupBgColor)};
-    }
-    .otAgeVerification h1.ot-headline_text {
-      font-size: ${styleSettings.headlineTextSize}px;
-      color: ${convertRgbToString(styleSettings.headlineTextColor)};
-    }
-    .otAgeVerification .ot-subhead_text {
-      font-size: ${styleSettings.subHeadlineTextSize}px;
-      color: ${convertRgbToString(styleSettings.subHeadlineTextColor)};
-    }
-    .otAgeVerification .ot-av-submit-btn {
-      background-color: ${convertRgbToString(styleSettings.submitBtnBgColor)};
-      color: ${convertRgbToString(styleSettings.submitBtnLabelColor)};
-    }
-    .otAgeVerification .ot-av-cancel-btn {
-      background-color: ${convertRgbToString(styleSettings.cancelBtnBgColor)};
-      color: ${convertRgbToString(styleSettings.cancelBtnLabelColor)};
-    }
-  `;
-
-  // MAIN DIV
-  $(".otAgeVerification").append(`
-      <style>
-        ${layoutCSS}
-        ${styleCSS}
-      </style>
-      <div id='ot-av-overlay-wrap'>
-        <div id='ot-av-overlay-form'>
-          ${otLogo}
-          <h1 class='ot-headline_text'>${styleSettings.headlineText}</h1>
-          <p class='ot-subhead_text' id='ot-subhead_text'>${styleSettings.subHeadlineText}</p>
-        </div>
-      </div>
-  `);
-
-  if (layoutSettings.requireAgeSelected == "yes") {
-    const MONTHS = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    var months = "";
-
-    for (let i = 0; i < MONTHS.length; i++) {
-      months += `<option value="${i + 1}">${MONTHS[i]}</option>`;
-    }
-
-    $(".otAgeVerification #ot-av-overlay-form").append(`
-      <div class='ot-av-datepicker-fields'>
-        <select class='av-month'>
-          ${months}
-        </select>
-        <input type='text' class='av-day' maxlength="2" placeholder="01"/>
-        <input type='text' class='av-year' maxlength="4" placeholder="1998"/>
-      </div>
-      <div class="ot-av-error"></div>
-      <div class='ot-av-submit-form'>
-        <button onclick='omega_ageCheckSubmit()' class='ot-av-submit-btn'>${styleSettings.submitBtnLabel}</button>
-        <button onclick="location.href = '${advanceSettings.exitUrl}'" class='ot-av-cancel-btn'>${styleSettings.cancelBtnLabel}</button>
-      </div>
-    `);
-  } else {
-    $(".otAgeVerification #ot-av-overlay-form").append(`
-      <div class="ot-av-error"></div>
-      <div class='ot-av-submit-form'>
-        <button onclick='omega_ageCheckSubmit()' class='ot-av-submit-btn'>${styleSettings.submitBtnLabel}</button>
-        <button onclick="location.href = '${advanceSettings.exitUrl}'" class='ot-av-cancel-btn'>${styleSettings.cancelBtnLabel}</button>
-      </div>
-    `);
-  }
-  $(".otAgeVerification").fadeIn();
 }
 
 function omega_ageCheckSubmit() {

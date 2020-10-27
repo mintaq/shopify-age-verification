@@ -16,30 +16,20 @@ import {
   Sticky,
   DisplayText,
   TextContainer,
-  Scrollable,
-  ResourceList,
-  ResourceItem,
+  ChoiceList,
   TextStyle,
 } from "@shopify/polaris";
-// TODO: CLEAN UP
-// import ColorPicker from 'material-ui-color-picker'
-// import {ColorPicker} from 'material-ui-color'
 import { SketchPicker } from "react-color";
 import { DropzoneAreaBase } from "material-ui-dropzone";
 import SkeletonPageComp from "../components/SkeletonPageComp";
-import ReactSelect from "react-select";
 import styled from "styled-components";
-import { useAppBridge } from "@shopify/app-bridge-react";
+import { ResourcePicker } from "@shopify/app-bridge-react";
 import axios from "axios";
-// import lscache from 'lscache'
 import { setCookie } from "nookies";
-// import TestResourceList from '../components/TestResourceList'
 import classes from "./index.css";
-import { Select as TestSelect } from "antd";
-const { Option } = TestSelect;
 
-const Index = ({ shopOrigin, settings }) => {
-  // const app = useAppBridge();
+const Index = ({ shopOrigin }) => {
+  const [openResourcePicker, setOpenResourcePicker] = useState(false);
   const [listProducts, setListProducts] = useState([]);
   const [blockProducts, setBlockProducts] = useState([]);
   const [tabSelected, setTabSelected] = useState(0);
@@ -54,9 +44,10 @@ const Index = ({ shopOrigin, settings }) => {
   // LAYOUT SETTINGS STATE
   const [appStatus, setAppStatus] = useState("enable");
   const [layoutSettings, setLayoutSettings] = useState({
-    popupDisplaySelected: "allPages",
-    bgImage: {},
-    logo: {},
+    popupDisplaySelected: [],
+    blockProducts: [],
+    bgImage: null,
+    logo: null,
     layoutSelected: "transparent",
     requireAgeSelected: "yes",
     minimumAge: "16",
@@ -138,10 +129,10 @@ const Index = ({ shopOrigin, settings }) => {
   ];
 
   const popupDisplayOptions = [
-    { label: "Only in home page", value: "onlyHomePage" },
-    { label: "Only in collection page", value: "onlyCollectionPage" },
-    { label: "Specific products", value: "specificProducts" },
-    { label: "All pages", value: "allPages" },
+    { label: "In home page", value: "home" },
+    { label: "In collection page", value: "collection" },
+    { label: "Specific products", value: "product" },
+    { label: "All pages", value: "all" },
   ];
 
   const tabs = [
@@ -224,6 +215,9 @@ const Index = ({ shopOrigin, settings }) => {
   const handleLogoChange = useCallback((logo) =>
     setLayoutSettings({ ...layoutSettings, logo })
   );
+  const handleBlockProductsChange = useCallback((blockProducts) => {
+    setLayoutSettings({ ...layoutSettings, blockProducts });
+  });
 
   // STYLE SETTING HANDLERS
   const handleHeadlineTextChange = useCallback((headlineText) =>
@@ -286,7 +280,6 @@ const Index = ({ shopOrigin, settings }) => {
         appStatus: "enable",
       });
     } else setDisableModalActivate(true);
-    // setAppStatus(appStatus == "enable" ? "disable" : "enable");
   };
 
   const handleDisableModalClose = () => {
@@ -330,7 +323,6 @@ const Index = ({ shopOrigin, settings }) => {
     });
 
     localStorage.setItem("otAgeVerification", appStatus);
-    // lscache.set('otAgeVerification', {appStatus})
     // console.log(document.cookie)
   };
 
@@ -345,6 +337,18 @@ const Index = ({ shopOrigin, settings }) => {
 
   const handleRemoveBgImage = () => {
     handleBgImageChange(null);
+  };
+
+  const handleResourcePickerSelection = ({ id, selection }) => {
+    let blockProducts = [];
+    selection.map(({ id }) => {
+      let idSplit = id.split("/");
+      let rid = idSplit[idSplit.length - 1];
+      return blockProducts.push({ rid, id });
+    });
+
+    handleBlockProductsChange(blockProducts);
+    setOpenResourcePicker(false);
   };
 
   const disableModal = (
@@ -387,75 +391,6 @@ const Index = ({ shopOrigin, settings }) => {
       duration={4500}
     />
   ) : null;
-
-  const renderListProducts = (item, _, index) => {
-    const { id, title, image } = item;
-    const media = <Thumbnail source={image} />;
-
-    return (
-      <ResourceItem id={id} media={media} sortOrder={index}>
-        <h3>
-          <TextStyle variation="strong">{title}</TextStyle>
-        </h3>
-      </ResourceItem>
-    );
-  };
-
-  const promotedBulkActions = [
-    {
-      content: "Edit customers",
-      onAction: () => console.log("Todo: implement bulk edit"),
-    },
-  ];
-
-  const bulkActions = [
-    {
-      content: "Add tags",
-      onAction: () => console.log("Todo: implement bulk add tags"),
-    },
-    {
-      content: "Remove tags",
-      onAction: () => console.log("Todo: implement bulk remove tags"),
-    },
-    {
-      content: "Delete customers",
-      onAction: () => console.log("Todo: implement bulk delete"),
-    },
-  ];
-
-  const CustomClearText = () => "clear all";
-  const ClearIndicator = (props) => {
-    const {
-      children = <CustomClearText />,
-      getStyles,
-      innerProps: { ref, ...restInnerProps },
-    } = props;
-    return (
-      <div
-        {...restInnerProps}
-        ref={ref}
-        style={getStyles("clearIndicator", props)}
-      >
-        <div style={{ padding: "0px 5px" }}>{children}</div>
-      </div>
-    );
-  };
-
-  const ClearIndicatorStyles = (base, state) => ({
-    ...base,
-    cursor: "pointer",
-    color: state.isFocused ? "blue" : "black",
-  });
-
-  const optionChildren = [];
-  for (let i = 0; i < listProducts.length; i++) {
-    optionChildren.push(
-      <Option key={listProducts[i].id}>{listProducts[i].title}</Option>
-    );
-  }
-  const handleSelectChange = (v) => {
-    console.log(`selected ${v}`);
-  };
 
   // LAYOUT SETTINGS SECTION
   const layoutSettingsTab = (
@@ -624,48 +559,39 @@ const Index = ({ shopOrigin, settings }) => {
       <Layout.Section>
         <Card title="Display popup in:">
           <Card.Section>
-            <Select
-              options={popupDisplayOptions}
-              value={layoutSettings.popupDisplaySelected}
-              onChange={handlePopupDisplayChange}
+            <ChoiceList
+              allowMultiple
+              choices={popupDisplayOptions}
+              // value={layoutSettings.popupDisplaySelected}
+              selected={layoutSettings.popupDisplaySelected}
+              onChange={(v) => {
+                handlePopupDisplayChange(v);
+              }}
             />
           </Card.Section>
         </Card>
       </Layout.Section>
 
-      {layoutSettings.popupDisplaySelected == "specificProducts" ? (
+      {layoutSettings.popupDisplaySelected.includes("product") ? (
         <Layout.Section>
           <Card title="Select products:">
-            {/* <TestSelect
-              mode="multiple"
-              allowClear
-              style={{ width: "100%" }}
-              placeholder="Please select"
-              defaultValue={["Blue Silk Tuxedo"]}
-              onChange={handleSelectChange}
+            <Button
+              primary
+              onClick={() => {
+                setOpenResourcePicker(true);
+              }}
             >
-              {optionChildren}
-            </TestSelect> */}
-            {/* <Scrollable style={{ height: "350px" }}> */}
-            <ResourceList
-              items={listProducts}
-              renderItem={renderListProducts}
-              selectedItems={blockProducts}
-              onSelectionChange={setBlockProducts}
-              bulkActions={bulkActions}
-              showHeader={true}
+              Open Resource Picker
+            </Button>
+            <ResourcePicker
+              resourceType="Product"
+              open={openResourcePicker}
+              initialSelectionIds={layoutSettings.blockProducts}
+              onSelection={(v) => handleResourcePickerSelection(v)}
+              showVariants={false}
+              onCancel={() => setOpenResourcePicker(false)}
             />
-            {/* </Scrollable> */}
           </Card>
-          {/* TODO: NEED TEST */}
-          {/* <TestResourceList/> */}
-          {/* <ReactSelect 
-            closeMenuOnSelect={false}
-            components={{ClearIndicator}}
-            styles={{clearIndicator: ClearIndicatorStyles}}
-            isMulti
-            options={listProducts}
-          /> */}
         </Layout.Section>
       ) : null}
 

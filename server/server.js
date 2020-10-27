@@ -12,7 +12,7 @@ import bodyParser from "koa-bodyparser";
 import cors from "@koa/cors";
 import { clearCookie, setCookie } from "koa-cookies";
 import * as handlers from "./handlers/index";
-import { createShopAndScriptTag } from "./addScriptTag";
+import { createShopAndAddScript } from "./addScriptToTheme";
 import ShopifyAPIClient from "shopify-api-node";
 
 // CONFIG
@@ -62,7 +62,7 @@ app.prepare().then(() => {
         const { shop, accessToken } = ctx.session;
         process.env.ACCESS_TOKEN = accessToken;
 
-        createShopAndScriptTag(shop, accessToken);
+        createShopAndAddScript(shop, accessToken);
         ctx.cookies.set("shopOrigin", shop, {
           httpOnly: false,
           secure: true,
@@ -99,9 +99,9 @@ app.prepare().then(() => {
     }
 
     const { shop, accessToken } = ctx.session;
-    console.log(ctx.session);
-    console.log(shop.domain);
-    console.log(shop.accessToken);
+    // console.log(ctx.session);
+    // console.log(shop.domain);
+    // console.log(shop.accessToken);
 
     const shopifyClient = new ShopifyAPIClient({
       shopName: shop,
@@ -109,13 +109,13 @@ app.prepare().then(() => {
     });
 
     const products = await shopifyClient.product.list();
-    console.log(products[0].title);
+    // console.log(products[0].title);
 
     return (ctx.body = products);
   });
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
-    console.log(ctx.request.body);
-    console.log(ctx.cookies);
+    // console.log(ctx.request.body);
+    // console.log(ctx.cookies);
 
     const res = await Shop.updateOne(
       { domain: ctx.params.domain },
