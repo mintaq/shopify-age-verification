@@ -78,7 +78,7 @@ app.prepare().then(() => {
         //Auth token and shop available in session
         //Redirect to shop upon auth
         const { shop, accessToken } = ctx.session;
-        process.env.ACCESS_TOKEN = accessToken;
+        // process.env.ACCESS_TOKEN = accessToken;
 
         createShopAndAddScript(shop, accessToken);
         ctx.cookies.set("shopOrigin", shop, {
@@ -101,40 +101,25 @@ app.prepare().then(() => {
   // });
 
   // ROUTES
-  router.get("/api/shops/:domain", async (ctx, next) => {
+  router.get("/api/shops/settings/:domain", async (ctx) => {
+    const settings = await Shop.findOne({ domain: ctx.params.domain }).select([
+      "-accessToken",
+      "-themeId",
+    ]);
+    if (!settings) return (ctx.status = 404);
+
+    return (ctx.body = settings);
+  });
+  router.get("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
     const shop = await Shop.findOne({ domain: ctx.params.domain });
     if (!shop) {
       return (ctx.status = 404);
     }
-    setCookie("otAgeVerification", "enable")(ctx);
+    // setCookie("otAgeVerification", "enable")(ctx);
 
     return (ctx.body = shop);
-  });
-  router.get("/api/products/:domain", async (ctx) => {
-    const fetchedShop = await Shop.findOne({ domain: ctx.params.domain });
-    if (!fetchedShop) {
-      return (ctx.status = 404);
-    }
-
-    const { shop, accessToken } = ctx.session;
-    // console.log(ctx.session);
-    // console.log(shop.domain);
-    // console.log(shop.accessToken);
-
-    const shopifyClient = new ShopifyAPIClient({
-      shopName: shop,
-      accessToken: accessToken,
-    });
-
-    const products = await shopifyClient.product.list();
-    // console.log(products[0].title);
-
-    return (ctx.body = products);
-  });
+  });  
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
-    // console.log(ctx.request.body);
-    // console.log(ctx.cookies);
-
     const res = await Shop.updateOne(
       { domain: ctx.params.domain },
       ctx.request.body

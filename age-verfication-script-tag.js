@@ -102,18 +102,18 @@ let _otThis = {
     }
   },
 };
-let _lsBlockLocations = localStorage.getItem("_otBlockLocations").split(",");
-let _lsBlockProducts = localStorage.getItem("_otBlockProducts").split(",");
-let _lsAppStatus = localStorage.getItem("_otAgeVerification");
+let _lsBlockLocations;
+let _lsBlockProducts;
+let _lsAppStatus;
 let _isVerified = getCookie("_otRememberDays");
 
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV_Server = "https://da8b61c0afdb.ngrok.io";
-var rootLinkAgeV_File =
-  "https://minhlocal.omegatheme.com/age-verification-omega";
-// var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
+var rootLinkAgeV_Server = "https://minhlocal.omegatheme.com";
+// var rootLinkAgeV_File =
+//   "https://minhlocal.omegatheme.com/age-verification-omega";
+var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
 
 // ******* INIT
 (function () {
@@ -148,33 +148,34 @@ var rootLinkAgeV_File =
         <link href="https://fonts.googleapis.com/css?family=Oswald:400,700"  rel="stylesheet" />
       `);
 
-    if (_lsAppStatus == "enable" && !_isVerified) {
-      if (
-        (_lsBlockLocations.includes("all") ||
-          _lsBlockLocations.includes(__st.p)) &&
-        __st.p != "product"
-      ) {
-        $("body").addClass("stopScrolling");
-        $("body").append(
-          "<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>"
-        );
-      } else if (_lsBlockLocations.includes("product") && __st.p == "product") {
-        if (_lsBlockProducts.includes(__st.rid + "")) {
-          $("body").addClass("stopScrolling");
-          $("body").append(
-            "<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>"
-          );
-        }
-      }
-    }
+    // if (_lsAppStatus == "enable" && !_isVerified) {
+    //   if (
+    //     (_lsBlockLocations.includes("all") ||
+    //       _lsBlockLocations.includes(__st.p)) &&
+    //     __st.p != "product"
+    //   ) {
+    //     $("body").addClass("stopScrolling");
+    //     $("body").append(
+    //       "<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>"
+    //     );
+    //   } else if (_lsBlockLocations.includes("product") && __st.p == "product") {
+    //     if (_lsBlockProducts.includes(__st.rid + "")) {
+    //       $("body").addClass("stopScrolling");
+    //       $("body").append(
+    //         "<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>"
+    //       );
+    //     }
+    //   }
+    // }
 
     $.ajax({
-      url: `${rootLinkAgeV_Server}/api/shops/${omega_ageV_shopDomain}`,
+      url: `${rootLinkAgeV_Server}/api/shops/settings/${omega_ageV_shopDomain}`,
       type: "GET",
       dataType: "json",
     }).done((result) => {
       ageV_settings = result;
       setLocalStorage();
+      getLocalStorage();
       if (_lsAppStatus == "enable" && !_isVerified) {
         if (
           (_lsBlockLocations.includes("all") ||
@@ -182,6 +183,7 @@ var rootLinkAgeV_File =
           __st.p != "product"
         ) {
           $(".otInitBlock").fadeOut();
+          $("body").addClass("stopScrolling");
           $("body").append("<div class='otAgeVerification'></div>");
           omega_displayAgeVerifyModal();
         } else if (
@@ -190,6 +192,7 @@ var rootLinkAgeV_File =
         ) {
           if (_lsBlockProducts.includes(__st.rid + "")) {
             $(".otInitBlock").fadeOut();
+            $("body").addClass("stopScrolling");
             $("body").append("<div class='otAgeVerification'></div>");
             omega_displayAgeVerifyModal();
           }
@@ -359,7 +362,14 @@ function eraseCookie(name) {
 }
 
 function setLocalStorage() {
-  const { layoutSettings, styleSettings } = ageV_settings;
+  const { layoutSettings, appStatus } = ageV_settings;
+  // SET APP STATUS
+  if (appStatus === "enable") {
+    localStorage.setItem("_otAgeVerification", "enable");
+  } else {
+    localStorage.setItem("_otAgeVerification", "disable");
+  }
+
   // SET BLOCK PRODUCTS
   if (Array.isArray(layoutSettings.popupDisplaySelected)) {
     if (layoutSettings.blockProducts.length > 0) {
@@ -380,6 +390,11 @@ function setLocalStorage() {
     }
   }
 }
+function getLocalStorage() {
+  _lsBlockLocations = localStorage.getItem("_otBlockLocations").split(",");
+  _lsBlockProducts = localStorage.getItem("_otBlockProducts").split(",");
+  _lsAppStatus = localStorage.getItem("_otAgeVerification");
+}
 
 function convertRgbToString(value) {
   let color = `rgba(${value.r},${value.g},${value.b},${value.a})`;
@@ -387,13 +402,17 @@ function convertRgbToString(value) {
 }
 
 function omega_ageCheckSubmit() {
-  _otThis.getValues();
-  if (_otThis.validateValues() === true) {
-    _otThis.setAge();
-    if (_otThis.age >= ageV_settings.layoutSettings.minimumAge) {
-      _otThis.handleSuccess();
-    } else {
-      _otThis.handleUnderAge();
+  if (ageV_settings.layoutSettings.requireAgeSelected === "yes") {
+    _otThis.getValues();
+    if (_otThis.validateValues() === true) {
+      _otThis.setAge();
+      if (_otThis.age >= ageV_settings.layoutSettings.minimumAge) {
+        _otThis.handleSuccess();
+      } else {
+        _otThis.handleUnderAge();
+      }
     }
+  } else {
+    _otThis.handleSuccess();
   }
 }

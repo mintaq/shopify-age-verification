@@ -30,8 +30,6 @@ import classes from "./index.css";
 
 const Index = ({ shopOrigin }) => {
   const [openResourcePicker, setOpenResourcePicker] = useState(false);
-  const [listProducts, setListProducts] = useState([]);
-  const [blockProducts, setBlockProducts] = useState([]);
   const [tabSelected, setTabSelected] = useState(0);
   const [loading, setLoading] = useState(true);
   const [enableAppToastActivate, setEnableToastActivate] = useState(false);
@@ -167,20 +165,6 @@ const Index = ({ shopOrigin }) => {
         return;
       }
 
-      const products = await axios.get(`/api/products/${shopOrigin}`);
-
-      // console.log(products);
-
-      let mapProd = products.data.map((obj) => {
-        return {
-          id: obj.id,
-          text: obj.title,
-          image: obj.image.src,
-          value: obj.title,
-        };
-      });
-
-      setListProducts(mapProd);
       setAppStatus(shopSettings.data.appStatus);
       setLayoutSettings({ ...shopSettings.data.layoutSettings });
       setStyleSettings({ ...shopSettings.data.styleSettings });
@@ -312,17 +296,15 @@ const Index = ({ shopOrigin }) => {
   };
 
   const handleSubmitLogo = () => {
-    console.log("listProducts", listProducts);
-    console.log("blockProducts", blockProducts);
     setLayoutSettings(uploadLogo);
     handleLogoChange(uploadLogo);
     setUploadLogo(null);
 
-    setCookie(null, "otAgeVerification", "enable", {
-      maxAge: 60 * 60,
-    });
+    // setCookie(null, "otAgeVerification", "enable", {
+    //   maxAge: 60 * 60,
+    // });
 
-    localStorage.setItem("otAgeVerification", appStatus);
+    // localStorage.setItem("otAgeVerification", appStatus);
     // console.log(document.cookie)
   };
 
@@ -451,9 +433,9 @@ const Index = ({ shopOrigin }) => {
                   acceptedFiles={["image/*"]}
                   onAdd={(fileObjs) => setUploadBgImage(fileObjs[0])}
                   onDelete={(fileObj) => setUploadBgImage({})}
-                  dropzoneText={"Drag and drop logo here or Click (<10MB)"}
+                  dropzoneText={"Drag and drop logo here or Click (<1MB)"}
                   filesLimit={1}
-                  maxFileSize={10000000}
+                  maxFileSize={1000000}
                 />
               </Card.Section>
               <Card.Section title="Preview uploaded background image">
@@ -562,7 +544,6 @@ const Index = ({ shopOrigin }) => {
             <ChoiceList
               allowMultiple
               choices={popupDisplayOptions}
-              // value={layoutSettings.popupDisplaySelected}
               selected={layoutSettings.popupDisplaySelected}
               onChange={(v) => {
                 handlePopupDisplayChange(v);
@@ -645,7 +626,6 @@ const Index = ({ shopOrigin }) => {
     );
   };
 
-  //TODO: clean up
   const overlayBgColorActivator = (
     <Stack distribution="fillEvenly">
       <Stack.Item>
@@ -684,7 +664,6 @@ const Index = ({ shopOrigin }) => {
     </Stack>
   );
 
-  // TODO: fix TextField
   const overlayBgColorPopover = (
     <Popover
       active={overlayBgColorActivate}
@@ -973,7 +952,7 @@ const Index = ({ shopOrigin }) => {
                   <link
                     rel="stylesheet"
                     type="text/css"
-                    href="https://minhlocal.omegatheme.com/age-verification-omega/pages/index.css"
+                    href="https://scrip-tag.000webhostapp.com/index.css"
                   />
                   <link
                     href="https://fonts.googleapis.com/css?family=Oswald:400,700"
