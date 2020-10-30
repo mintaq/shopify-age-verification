@@ -13,6 +13,7 @@ import cors from "@koa/cors";
 import { clearCookie, setCookie } from "koa-cookies";
 import * as handlers from "./handlers/index";
 import { createShopAndAddScript } from "./addScriptToTheme";
+import resizeImage from './services/resizeImage'
 import ShopifyAPIClient from "shopify-api-node";
 
 // CONFIG
@@ -70,6 +71,7 @@ app.prepare().then(() => {
   server.keys = [SHOPIFY_API_SECRET];
   server.use(
     createShopifyAuth({
+      // prefix: '/shopify',
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET,
       scopes: [SCOPES],
@@ -102,6 +104,7 @@ app.prepare().then(() => {
 
   // ROUTES
   router.get("/api/shops/settings/:domain", async (ctx) => {
+    console.log(ctx.request.header.host)
     const settings = await Shop.findOne({ domain: ctx.params.domain }).select([
       "-accessToken",
       "-themeId",
@@ -118,8 +121,12 @@ app.prepare().then(() => {
     // setCookie("otAgeVerification", "enable")(ctx);
 
     return (ctx.body = shop);
-  });  
+  });
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
+    const {layoutSettings} = ctx.request.body
+    const {bgImage, logo} = layoutSettings
+    const resizeRes = await resizeImage(bgImage, logo)
+
     const res = await Shop.updateOne(
       { domain: ctx.params.domain },
       ctx.request.body
@@ -127,7 +134,25 @@ app.prepare().then(() => {
 
     ctx.res.statusCode = 200;
   });
+  // router.get("/eyy", async (ctx) => {
+  //   console.log(ctx.host);
+  //   ctx.response = false;
+  //   ctx.res.statusCode = 200;
+  // });
+
+  // server.use(
+  //   verifyRequest({
+  //     authRoute: "/auth",
+  //     fallbackRoute: "/auth",
+  //   })
+  // );
+  // router.get("/", async (ctx) => {
+  //   console.log(ctx.host);
+  //   ctx.response = false;
+  //   ctx.res.statusCode = 200;
+  // });
   router.get("(.*)", verifyRequest(), async (ctx) => {
+    console.log(ctx.host);
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
     ctx.res.statusCode = 200;

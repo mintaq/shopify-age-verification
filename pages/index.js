@@ -25,7 +25,7 @@ import SkeletonPageComp from "../components/SkeletonPageComp";
 import styled from "styled-components";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import axios from "axios";
-import { setCookie } from "nookies";
+// import sharp from "sharp";s
 import classes from "./index.css";
 
 const Index = ({ shopOrigin }) => {
@@ -295,17 +295,17 @@ const Index = ({ shopOrigin }) => {
     });
   };
 
-  const handleSubmitLogo = () => {
+  const handleSubmitLogo = async () => {
     setLayoutSettings(uploadLogo);
     handleLogoChange(uploadLogo);
     setUploadLogo(null);
 
-    // setCookie(null, "otAgeVerification", "enable", {
-    //   maxAge: 60 * 60,
-    // });
+    let buf = Buffer(uploadLogo.data);
+    let dataBase64 = Buffer.from(buf).toString("base64");
+    console.log(dataBase64);
 
-    // localStorage.setItem("otAgeVerification", appStatus);
-    // console.log(document.cookie)
+    // const data = await sharp(dataBase64).webp({ lossless: true }).toBuffer();
+    // console.log(data)
   };
 
   const handleRemoveLogo = () => {
