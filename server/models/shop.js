@@ -62,6 +62,20 @@ const shopSchema = new mongoose.Schema(
         b: { type: Number, default: 255 },
         a: { type: Number, default: 1 },
       },
+      customMonths: {
+        jan: { type: String, default: "January" },
+        feb: { type: String, default: "February" },
+        mar: { type: String, default: "March" },
+        apr: { type: String, default: "April" },
+        may: { type: String, default: "May" },
+        jun: { type: String, default: "June" },
+        jul: { type: String, default: "July" },
+        aug: { type: String, default: "August" },
+        sep: { type: String, default: "September" },
+        oct: { type: String, default: "October" },
+        nov: { type: String, default: "November" },
+        dec: { type: String, default: "December" },
+      },
     },
     layoutSettings: {
       popupDisplaySelected: { type: [String], default: ["home"] },
@@ -77,6 +91,7 @@ const shopSchema = new mongoose.Schema(
     advanceSettings: {
       rememberDays: { type: String, default: "10" },
       exitUrl: { type: String, default: "https://www.google.com" },
+      customCSS: { type: String, default: "" },
     },
     themeId: { type: Number },
     appStatus: { type: String, default: "enable" },

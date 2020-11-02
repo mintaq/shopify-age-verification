@@ -202,8 +202,10 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
 
     function omega_displayAgeVerifyModal() {
       const { layoutSettings, styleSettings, advanceSettings } = ageV_settings;
+      const { exitUrl } = advanceSettings;
       var layoutCSS = "";
       var styleCSS = "";
+      var customCSS = "";
       var otLogo = "";
 
       // BACKGROUND IMAGE
@@ -258,11 +260,14 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
         }
       `;
 
+      customCSS = advanceSettings.customCSS;
+
       // MAIN DIV
       $(".otAgeVerification").append(`
           <style>
             ${layoutCSS}
             ${styleCSS}
+            ${customCSS}
           </style>
           <div id='ot-av-overlay-wrap'>
             <div id='ot-av-overlay-form'>
@@ -274,24 +279,14 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
       `);
 
       if (layoutSettings.requireAgeSelected == "yes") {
-        const MONTHS = [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ];
+        const { customMonths } = styleSettings;
         var months = "";
 
-        for (let i = 0; i < MONTHS.length; i++) {
-          months += `<option value="${i + 1}">${MONTHS[i]}</option>`;
+        const customMonthsKeys = Object.keys(customMonths);
+        for (let i = 0; i < customMonthsKeys.length; i++) {
+          months += `<option value="${i + 1}">${
+            customMonths[customMonthsKeys[i]]
+          }</option>`;
         }
 
         $(".otAgeVerification #ot-av-overlay-form").append(`
@@ -304,16 +299,28 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
           </div>
           <div class="ot-av-error"></div>
           <div class='ot-av-submit-form'>
-            <button onclick='omega_ageCheckSubmit()' class='ot-av-submit-btn'>${styleSettings.submitBtnLabel}</button>
-            <button onclick="location.href = '${advanceSettings.exitUrl}'" class='ot-av-cancel-btn'>${styleSettings.cancelBtnLabel}</button>
+            <button onclick='omega_ageCheckSubmit()' class='ot-av-submit-btn'>${
+              styleSettings.submitBtnLabel
+            }</button>
+            <button onclick="window.location.replace('${
+              exitUrl === "" ? "https://www.google.com" : exitUrl
+            }')" class='ot-av-cancel-btn'>${
+              styleSettings.cancelBtnLabel
+            }</button>
           </div>
         `);
       } else {
         $(".otAgeVerification #ot-av-overlay-form").append(`
           <div class="ot-av-error"></div>
           <div class='ot-av-submit-form'>
-            <button onclick='omega_ageCheckSubmit()' class='ot-av-submit-btn'>${styleSettings.submitBtnLabel}</button>
-            <button onclick="location.href = '${advanceSettings.exitUrl}'" class='ot-av-cancel-btn'>${styleSettings.cancelBtnLabel}</button>
+            <button onclick='omega_ageCheckSubmit()' class='ot-av-submit-btn'>${
+              styleSettings.submitBtnLabel
+            }</button>
+            <button onclick="window.location.replace('${
+              exitUrl === "" ? "https://www.google.com" : exitUrl
+            }')" class='ot-av-cancel-btn'>${
+              styleSettings.cancelBtnLabel
+            }</button>
           </div>
         `);
       }

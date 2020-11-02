@@ -27,6 +27,7 @@ import { ResourcePicker } from "@shopify/app-bridge-react";
 import axios from "axios";
 // import sharp from "sharp";s
 import classes from "./index.css";
+import { list } from "material-components-web";
 
 const Index = ({ shopOrigin }) => {
   const [openResourcePicker, setOpenResourcePicker] = useState(false);
@@ -69,12 +70,14 @@ const Index = ({ shopOrigin }) => {
     cancelBtnBgColor: { r: 108, g: 89, b: 89, a: 1 },
     submitBtnLabelColor: { r: 1, g: 1, b: 1, a: 1 },
     cancelBtnLabelColor: { r: 1, g: 1, b: 1, a: 1 },
+    customMonths: {},
   });
 
   // ADVANCE SETTINGS STATE
   const [advanceSettings, setAdvanceSettings] = useState({
     rememberDays: "10",
     exitUrl: "https://www.google.com",
+    customCSS: "",
   });
 
   // ACTIVATOR AND HANDLERS
@@ -155,6 +158,21 @@ const Index = ({ shopOrigin }) => {
       panelID: "advance-settings-content",
       render: advanceSettingsTab,
     },
+  ];
+
+  const MONTHS = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   useEffect(() => {
@@ -246,6 +264,15 @@ const Index = ({ shopOrigin }) => {
   const handleCancelBtnLabelColorChange = useCallback((cancelBtnLabelColor) =>
     setStyleSettings({ ...styleSettings, cancelBtnLabelColor })
   );
+  const handleCustomMonthsChange = useCallback((customMonths) => {
+    setStyleSettings({ ...styleSettings, customMonths });
+  });
+  const handleOneMonthChange = useCallback((month, value) => {
+    setStyleSettings({
+      ...styleSettings,
+      customMonths: { ...styleSettings.customMonths, [month]: value },
+    });
+  });
 
   // ADVANCE SETTINGS HANDLERS
   const handleDaysChange = useCallback((rememberDays) =>
@@ -254,7 +281,9 @@ const Index = ({ shopOrigin }) => {
   const handleExitUrlChange = useCallback((exitUrl) =>
     setAdvanceSettings({ ...advanceSettings, exitUrl })
   );
-
+  const handleCustomCSSChange = useCallback((customCSS) => {
+    setAdvanceSettings({ ...advanceSettings, customCSS });
+  });
   // OTHERS HANDLERS
   const handleAppStatusChange = async () => {
     if (appStatus == "disable") {
@@ -696,6 +725,25 @@ const Index = ({ shopOrigin }) => {
     </Popover>
   );
 
+  const listMonths = Object.keys(styleSettings.customMonths);
+  let renderCustomMonths = [];
+  for (let i = 0; i < listMonths.length - 1; i += 2) {
+    renderCustomMonths.push(
+      <Stack distribution="fillEvenly" spacing="tight">
+        <TextField
+          value={styleSettings.customMonths[listMonths[i]]}
+          placeholder={MONTHS[i]}
+          onChange={(v) => handleOneMonthChange(listMonths[i], v)}
+        />
+        <TextField
+          value={styleSettings.customMonths[listMonths[i + 1]]}
+          placeholder={MONTHS[i + 1]}
+          onChange={(v) => handleOneMonthChange(listMonths[i + 1], v)}
+        />
+      </Stack>
+    );
+  }
+
   // STYLE SETTINGS SECTION
   const styleSettingsTab = (
     <Layout>
@@ -831,6 +879,18 @@ const Index = ({ shopOrigin }) => {
         </Card>
       </Layout.Section>
 
+      {layoutSettings.requireAgeSelected === "yes" ? (
+        <Layout.Section>
+          <Card title="Custom months">
+            <Card.Section>
+              <Stack vertical={true} alignment="center">
+                {renderCustomMonths}
+              </Stack>
+            </Card.Section>
+          </Card>
+        </Layout.Section>
+      ) : null}
+
       <Layout.Section>
         <Button fullWidth primary={true} onClick={handleSaveSetting}>
           Save
@@ -847,6 +907,7 @@ const Index = ({ shopOrigin }) => {
           <Card.Section>
             <TextField
               value={advanceSettings.rememberDays}
+              placeholder="0"
               type="number"
               inputMode="numeric"
               onChange={handleDaysChange}
@@ -860,7 +921,20 @@ const Index = ({ shopOrigin }) => {
           <Card.Section>
             <TextField
               value={advanceSettings.exitUrl}
+              placeholder="https://www.google.com"
               onChange={handleExitUrlChange}
+            />
+          </Card.Section>
+        </Card>
+      </Layout.Section>
+
+      <Layout.Section>
+        <Card title="Custom CSS">
+          <Card.Section>
+            <TextField
+              value={advanceSettings.customCSS}
+              onChange={handleCustomCSSChange}
+              multiline={5}
             />
           </Card.Section>
         </Card>
@@ -874,24 +948,10 @@ const Index = ({ shopOrigin }) => {
     </Layout>
   );
 
-  const MONTHS = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  var months = MONTHS.map((month, index) => {
+  var months = listMonths.map((month, index) => {
     return (
-      <option key={index} value={index}>
-        {month}
+      <option key={index} value={styleSettings.customMonths[month]}>
+        {styleSettings.customMonths[month]}
       </option>
     );
   });
