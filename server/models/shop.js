@@ -95,6 +95,7 @@ const shopSchema = new mongoose.Schema(
     },
     themeId: { type: Number },
     appStatus: { type: String, default: "enable" },
+    confirmation_url: { type: String, default: "" },
   },
   { timestamps: true }
 );

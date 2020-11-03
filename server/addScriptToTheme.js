@@ -20,14 +20,18 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
       themeId: id,
     });
     const savedShop = await newShop.save();
-    console.log(savedShop)
+    console.log(typeof savedShop);
+    return savedShop;
   } else {
     console.log("Shop existed!");
 
     const id = await updateScriptInTheme(shopDomain, accessToken);
 
-    await Shop.updateOne({ domain: shopDomain }, { themeId: id, accessToken });
-    return;
+    const updatedShop = await Shop.updateOne(
+      { domain: shopDomain },
+      { themeId: id, accessToken }
+    );
+    return updatedShop;
   }
 };
 

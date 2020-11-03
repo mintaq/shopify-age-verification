@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import "isomorphic-fetch";
 import createShopifyAuth, { verifyRequest } from "@shopify/koa-shopify-auth";
 import graphQLProxy, { ApiVersion } from "@shopify/koa-shopify-graphql-proxy";
+import { receiveWebhook, registerWebhook } from "@shopify/koa-shopify-webhooks";
 import Koa from "koa";
 import mongoose from "mongoose";
 import next from "next";
@@ -14,6 +15,7 @@ import { clearCookie, setCookie } from "koa-cookies";
 import * as handlers from "./handlers/index";
 import { createShopAndAddScript } from "./addScriptToTheme";
 import resizeImage from "./services/resizeImage";
+import getSubscriptionUrl from "./getSubscriptionUrl";
 import ShopifyAPIClient from "shopify-api-node";
 
 // CONFIG
@@ -29,6 +31,7 @@ const {
   SHOPIFY_API_KEY,
   SCOPES,
   MONGODB_URI,
+  HOST
 } = process.env;
 
 // MONGODB
@@ -82,13 +85,28 @@ app.prepare().then(() => {
         const { shop, accessToken } = ctx.session;
         // process.env.ACCESS_TOKEN = accessToken;
 
-        createShopAndAddScript(shop, accessToken);
+        await createShopAndAddScript(shop, accessToken);
         ctx.cookies.set("shopOrigin", shop, {
           httpOnly: false,
           secure: true,
           sameSite: "none",
         });
-        ctx.redirect("/");
+
+        const registration = await registerWebhook({
+          address: `${HOST}/webhooks/products/create`,
+          topic: "PRODUCTS_CREATE",
+          accessToken,
+          shop,
+          apiVersion: ApiVersion.October19,
+        });
+
+        if (registration.success) {
+          console.log("Successfully registered webhook!");
+        } else {
+          console.log("Failed to register webhook", registration.result);
+        }
+
+        await getSubscriptionUrl(ctx, accessToken, shop);
       },
     })
   );
