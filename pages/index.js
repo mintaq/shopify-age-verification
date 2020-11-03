@@ -177,7 +177,7 @@ const Index = ({ shopOrigin }) => {
 
   useEffect(() => {
     async function fetchShop() {
-      const shopSettings = await axios.get(`/api/shops/${shopOrigin}`);
+      const shopSettings = await axios.get(`/api/shops/settings/${shopOrigin}`);
       if (!shopSettings) {
         console.log("Error", shopSettings);
         return;
@@ -284,6 +284,7 @@ const Index = ({ shopOrigin }) => {
   const handleCustomCSSChange = useCallback((customCSS) => {
     setAdvanceSettings({ ...advanceSettings, customCSS });
   });
+
   // OTHERS HANDLERS
   const handleAppStatusChange = async () => {
     if (appStatus == "disable") {
@@ -455,6 +456,7 @@ const Index = ({ shopOrigin }) => {
               primaryFooterAction={{
                 content: "Submit",
                 onAction: () => handleSubmitBgImage(),
+                disabled: uploadBgImage != null ? false : true,
               }}
             >
               <Card.Section>
@@ -474,9 +476,9 @@ const Index = ({ shopOrigin }) => {
                     size="large"
                     alt="Logo"
                   />
-                ) : (
-                  <DisplayText size="large">...</DisplayText>
-                )}
+                ) : null
+                // <DisplayText size="large">Please upload your background image!</DisplayText>
+                }
               </Card.Section>
             </Card>
           </Layout.Section>
@@ -518,6 +520,7 @@ const Index = ({ shopOrigin }) => {
           primaryFooterAction={{
             content: "Submit",
             onAction: () => handleSubmitLogo(),
+            disabled: uploadLogo != null ? false : true,
           }}
         >
           <Card.Section>
@@ -533,9 +536,9 @@ const Index = ({ shopOrigin }) => {
           <Card.Section title="Preview uploaded logo">
             {uploadLogo != null ? (
               <Thumbnail source={uploadLogo.data} size="large" alt="Logo" />
-            ) : (
-              <DisplayText size="large">...</DisplayText>
-            )}
+            ) : null
+            // <DisplayText size="large">Please upload your logo!</DisplayText>
+            }
           </Card.Section>
         </Card>
       </Layout.Section>
@@ -729,7 +732,7 @@ const Index = ({ shopOrigin }) => {
   let renderCustomMonths = [];
   for (let i = 0; i < listMonths.length - 1; i += 2) {
     renderCustomMonths.push(
-      <Stack distribution="fillEvenly" spacing="tight">
+      <Stack key={i} distribution="fillEvenly" spacing="tight">
         <TextField
           value={styleSettings.customMonths[listMonths[i]]}
           placeholder={MONTHS[i]}

@@ -19,7 +19,8 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
       accessToken,
       themeId: id,
     });
-    newShop.save();
+    const savedShop = await newShop.save();
+    console.log(savedShop)
   } else {
     console.log("Shop existed!");
 
