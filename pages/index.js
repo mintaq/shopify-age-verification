@@ -30,6 +30,8 @@ import classes from "./index.css";
 import { list } from "material-components-web";
 
 const Index = ({ shopOrigin }) => {
+  const [installedShop, setInstalledShop] = useState({});
+  const [chargeStatus, setChargeStatus] = useState(true);
   const [openResourcePicker, setOpenResourcePicker] = useState(false);
   const [tabSelected, setTabSelected] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -177,18 +179,32 @@ const Index = ({ shopOrigin }) => {
 
   useEffect(() => {
     async function fetchShop() {
-      const shopSettings = await axios.get(`/api/shops/settings/${shopOrigin}`);
-      if (!shopSettings) {
-        console.log("Error", shopSettings);
-        return;
+      const installedShopRes = await axios.get(
+        `/api/shops/installed/${shopOrigin}`
+      );
+      if (!installedShopRes) return;
+      setInstalledShop({ ...installedShopRes.data });
+
+      const isActive = await checkAppChargeStatus();
+      if (isActive) {
+        const shopSettings = await axios.get(
+          `/api/shops/settings/${shopOrigin}`
+          );
+          if (!shopSettings) {
+          console.log("Error", shopSettings);
+          return;
+        }
+        
+        setAppStatus(shopSettings.data.appStatus);
+        setLayoutSettings({ ...shopSettings.data.layoutSettings });
+        setStyleSettings({ ...shopSettings.data.styleSettings });
+        setAdvanceSettings({ ...shopSettings.data.advanceSettings });
+        setChargeStatus(true);
+        setLoading(false);
+      } else {
+        setChargeStatus(false);
+        setLoading(false);
       }
-
-      setAppStatus(shopSettings.data.appStatus);
-      setLayoutSettings({ ...shopSettings.data.layoutSettings });
-      setStyleSettings({ ...shopSettings.data.styleSettings });
-      setAdvanceSettings({ ...shopSettings.data.advanceSettings });
-
-      setLoading(false);
     }
     fetchShop();
   }, []);
@@ -197,6 +213,24 @@ const Index = ({ shopOrigin }) => {
   const handleTabChange = useCallback((selectedTabIndex) =>
     setTabSelected(selectedTabIndex)
   );
+
+  const checkAppChargeStatus = async () => {
+    let _isOnTrial;
+    let _isActive;
+    const nowDate = new Date().getTime();
+    const _7daysMs = 7 * 24 * 60 * 60 * 1000;
+    const installedDate = new Date(installedShop.createdAt).getTime();
+
+    nowDate - installedDate < _7daysMs
+      ? (_isOnTrial = false)
+      : (_isOnTrial = true);
+
+    installedShop.status === "active"
+      ? (_isActive = true)
+      : (_isActive = false);
+
+    return _isActive || _isOnTrial;
+  };
 
   // LAYOUT SETTINGS HANDLERS
   const handlePopupDisplayChange = useCallback((popupDisplaySelected) =>
@@ -972,7 +1006,7 @@ const Index = ({ shopOrigin }) => {
 
   const finalRender = loading ? (
     <SkeletonPageComp />
-  ) : (
+  ) : chargeStatus ? (
     <Frame>
       <Layout>
         <Layout.Section oneHalf>
@@ -1112,6 +1146,8 @@ const Index = ({ shopOrigin }) => {
         </Layout.Section>
       </Layout>
     </Frame>
+  ) : (
+    <div>asdfF</div>
   );
 
   return finalRender;

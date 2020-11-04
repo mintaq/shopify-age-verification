@@ -32,7 +32,7 @@ const {
   SCOPES,
   MONGODB_URI,
   HOST,
-  API_VERSION
+  API_VERSION,
 } = process.env;
 
 // MONGODB
@@ -56,7 +56,10 @@ mongoose
   });
 
 import "./models/shop";
+import "./models/InstalledShop";
+
 const Shop = mongoose.model("shops");
+const InstalledShop = mongoose.model("installed_shops");
 
 // SERVER
 app.prepare().then(() => {
@@ -92,7 +95,7 @@ app.prepare().then(() => {
 
         // REGISTER WEBHOOK
         const registration = await registerWebhook({
-          address: `${HOST}/webhooks/products/create`,
+          address: `${HOST}/webhooks/app/uninstalled`,
           topic: "APP_UNINSTALLED",
           accessToken,
           shop,
@@ -121,6 +124,15 @@ app.prepare().then(() => {
   // });
 
   // ROUTES
+  router.get("/api/shops/installed/:domain", async (ctx) => {
+    const installedShop = await InstalledShop.findOne({
+      shop: ctx.params.domain,
+    });
+    if (!installedShop) return (ctx.status = 404);
+
+    return (ctx.body = installedShop);
+  });
+
   router.get("/api/shops/settings/:domain", async (ctx) => {
     console.log(ctx.request.header.host);
     const settings = await Shop.findOne({ domain: ctx.params.domain }).select([
@@ -131,6 +143,7 @@ app.prepare().then(() => {
 
     return (ctx.body = settings);
   });
+
   router.get("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
     const shop = await Shop.findOne({ domain: ctx.params.domain });
     if (!shop) {
@@ -159,14 +172,21 @@ app.prepare().then(() => {
     ctx.res.statusCode = 200;
   });
 
-  const webhook = receiveWebhook({ secret: SHOPIFY_API_SECRET_KEY });
+  const webhook = receiveWebhook({ secret: SHOPIFY_API_SECRET });
 
-  router.post("/webhooks/products/create", webhook, (ctx) => {
+  router.post("/webhooks/app/uninstalled", webhook, async (ctx) => {
     console.log("received webhook: ", ctx.state.webhook);
+    const { payload } = ctx.state.webhook;
+    await Shop.deleteOne({ domain: payload.domain });
+    await InstalledShop.updateOne(
+      { shop: payload.domain },
+      { date_uninstalled: new Date() }
+    );
   });
 
   router.get("(.*)", verifyRequest(), async (ctx) => {
     console.log(ctx.host);
+    console.log("cookie: ", ctx.cookies.get('shopOrigin'));
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
     ctx.res.statusCode = 200;

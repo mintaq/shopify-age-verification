@@ -1,5 +1,6 @@
 // var $
 let ageV_settings;
+let ageV_installedShop;
 let _otSettings = {
   storage: "sessionStorage",
   storageExpires: null,
@@ -79,6 +80,21 @@ let _otThis = {
       return false;
     }
   },
+  checkOnTrial() {
+    const createdDateMs = new Date(ageV_installedShop.createdAt).getTime();
+    const _7daysMs = 7 * 24 * 60 * 60 * 1000;
+    const nowDate = new Date().getTime();
+
+    nowDate - createdDateMs < _7daysMs
+      ? (_isOnTrial = false)
+      : (_isOnTrial = true);
+  },
+  checkChargeStatus() {
+    const { status } = ageV_installedShop;
+
+    if (status === "active") _isActivated = true;
+    else _isActivated = false;
+  },
   handleSuccess() {
     setCookie(
       "_otRememberDays",
@@ -106,6 +122,8 @@ let _lsBlockLocations;
 let _lsBlockProducts;
 let _lsAppStatus;
 let _isVerified = getCookie("_otRememberDays");
+let _isActivated;
+let _isOnTrial;
 
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
@@ -167,6 +185,21 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
     //     }
     //   }
     // }
+
+    $.ajax({
+      url: `${rootLinkAgeV_Server}/api/shops/installed/${omega_ageV_shopDomain}`,
+      type: "GET",
+      dataType: "json",
+    }).done((result) => {
+      ageV_installedShop = result;
+
+      _otThis.checkOnTrial();
+      _otThis.checkChargeStatus();
+    });
+
+    if (!_isOnTrial || !_isActivated) {
+      return;
+    }
 
     $.ajax({
       url: `${rootLinkAgeV_Server}/api/shops/settings/${omega_ageV_shopDomain}`,
@@ -305,8 +338,8 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
             <button onclick="window.location.replace('${
               exitUrl === "" ? "https://www.google.com" : exitUrl
             }')" class='ot-av-cancel-btn'>${
-              styleSettings.cancelBtnLabel
-            }</button>
+          styleSettings.cancelBtnLabel
+        }</button>
           </div>
         `);
       } else {
@@ -319,8 +352,8 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
             <button onclick="window.location.replace('${
               exitUrl === "" ? "https://www.google.com" : exitUrl
             }')" class='ot-av-cancel-btn'>${
-              styleSettings.cancelBtnLabel
-            }</button>
+          styleSettings.cancelBtnLabel
+        }</button>
           </div>
         `);
       }
