@@ -16,6 +16,7 @@ import * as handlers from "./handlers/index";
 import { createShopAndAddScript } from "./addScriptToTheme";
 // import resizeImage from "./services/resizeImage";
 import getSubscriptionUrl from "./getSubscriptionUrl";
+import acceptedCharge from './acceptedCharge';
 import ShopifyAPIClient from "shopify-api-node";
 
 // CONFIG
@@ -183,6 +184,17 @@ app.prepare().then(() => {
       { date_uninstalled: new Date() }
     );
   });
+
+  router.get('/check_charge', async (ctx) => {
+    console.log(ctx.request)
+    // console.log(ctx.query.charge_id)
+    // const shop = ctx.cookies.get('shopOrigin')
+    const { shop, accessToken } = ctx.session;
+
+    await acceptedCharge(ctx, accessToken, shop, ctx.query.charge_id)
+
+    // ctx.redirect('/')
+  })
 
   router.get("(.*)", verifyRequest(), async (ctx) => {
     console.log(ctx.host);

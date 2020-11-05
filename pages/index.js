@@ -44,6 +44,7 @@ const Index = ({ shopOrigin }) => {
 
   // LAYOUT SETTINGS STATE
   const [appStatus, setAppStatus] = useState("enable");
+  const [prevDisplayOpts, setPrevDisplayOpts] = useState([]);
   const [layoutSettings, setLayoutSettings] = useState({
     popupDisplaySelected: [],
     blockProducts: [],
@@ -132,10 +133,10 @@ const Index = ({ shopOrigin }) => {
   ];
 
   const popupDisplayOptions = [
+    { label: "All pages", value: "all" },
     { label: "In home page", value: "home" },
     { label: "In collection page", value: "collection" },
     { label: "Specific products", value: "product" },
-    { label: "All pages", value: "all" },
   ];
 
   const tabs = [
@@ -189,16 +190,19 @@ const Index = ({ shopOrigin }) => {
       if (isActive) {
         const shopSettings = await axios.get(
           `/api/shops/settings/${shopOrigin}`
-          );
-          if (!shopSettings) {
+        );
+        if (!shopSettings) {
           console.log("Error", shopSettings);
           return;
         }
-        
+
         setAppStatus(shopSettings.data.appStatus);
         setLayoutSettings({ ...shopSettings.data.layoutSettings });
         setStyleSettings({ ...shopSettings.data.styleSettings });
         setAdvanceSettings({ ...shopSettings.data.advanceSettings });
+        setPrevDisplayOpts(
+          shopSettings.data.layoutSettings.popupDisplaySelected
+        );
         setChargeStatus(true);
         setLoading(false);
       } else {
@@ -233,9 +237,45 @@ const Index = ({ shopOrigin }) => {
   };
 
   // LAYOUT SETTINGS HANDLERS
-  const handlePopupDisplayChange = useCallback((popupDisplaySelected) =>
-    setLayoutSettings({ ...layoutSettings, popupDisplaySelected })
-  );
+  const handlePopupDisplayChange = useCallback((popupDisplaySelected) => {
+    if (
+      prevDisplayOpts.includes("all") &&
+      (!popupDisplaySelected.includes("home") ||
+        !popupDisplaySelected.includes("collection") ||
+        !popupDisplaySelected.includes("product"))
+    ) {
+      setPrevDisplayOpts(popupDisplaySelected);
+      popupDisplaySelected = popupDisplaySelected.filter(
+        (word) => word != "all"
+      );
+      setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
+    } else if (
+      !prevDisplayOpts.includes("all") &&
+      popupDisplaySelected.includes("home") &&
+      popupDisplaySelected.includes("collection") &&
+      popupDisplaySelected.includes("product")
+    ) {
+      setPrevDisplayOpts(popupDisplaySelected);
+      popupDisplaySelected = ["all", "home", "collection", "product"];
+      setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
+    } else if (
+      !prevDisplayOpts.includes("all") &&
+      popupDisplaySelected.includes("all")
+    ) {
+      setPrevDisplayOpts(popupDisplaySelected);
+      popupDisplaySelected = ["all", "home", "collection", "product"];
+      setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
+    } else if (
+      prevDisplayOpts.includes("all") &&
+      !popupDisplaySelected.includes("all")
+    ) {
+      setPrevDisplayOpts(popupDisplaySelected);
+      popupDisplaySelected = [];
+      setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
+    }
+    setPrevDisplayOpts(popupDisplaySelected);
+    setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
+  });
   const handleLayoutSelectChange = useCallback((layoutSelected) =>
     setLayoutSettings({ ...layoutSettings, layoutSelected })
   );
@@ -621,23 +661,30 @@ const Index = ({ shopOrigin }) => {
 
       {layoutSettings.popupDisplaySelected.includes("product") ? (
         <Layout.Section>
-          <Card title="Select products:">
-            <Button
-              primary
-              onClick={() => {
-                setOpenResourcePicker(true);
-              }}
-            >
-              Open Resource Picker
-            </Button>
-            <ResourcePicker
-              resourceType="Product"
-              open={openResourcePicker}
-              initialSelectionIds={layoutSettings.blockProducts}
-              onSelection={(v) => handleResourcePickerSelection(v)}
-              showVariants={false}
-              onCancel={() => setOpenResourcePicker(false)}
-            />
+          <Card>
+            <Card.Section>
+              <Stack alignment="center">
+                <Stack.Item>
+                  <span>Select specific products:</span>
+                </Stack.Item>
+                <Button
+                  primary
+                  onClick={() => {
+                    setOpenResourcePicker(true);
+                  }}
+                >
+                  Open Resource Picker
+                </Button>
+              </Stack>
+              <ResourcePicker
+                resourceType="Product"
+                open={openResourcePicker}
+                initialSelectionIds={layoutSettings.blockProducts}
+                onSelection={(v) => handleResourcePickerSelection(v)}
+                showVariants={false}
+                onCancel={() => setOpenResourcePicker(false)}
+              />
+            </Card.Section>
           </Card>
         </Layout.Section>
       ) : null}

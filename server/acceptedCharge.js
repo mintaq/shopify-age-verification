@@ -17,13 +17,13 @@ const InstalledShop = mongoose.model("installed_shops");
 const _7daysMs = new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
 const TRIAL_END = new Date(_7daysMs).toISOString();
 
-const getSubscriptionUrl = async (ctx, accessToken, shop) => {
-  const fetchedShop = await Shop.findOne({domain: shop})
-  const fetchedInstalledShop = await InstalledShop.findOne({shop})
+const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
+  const fetchedShop = await Shop.findOne({ domain: shop });
+  const fetchedInstalledShop = await InstalledShop.findOne({ shop });
 
-  if (!fetchedInstalledShop && !fetchedShop) return
+  if (!fetchedInstalledShop && !fetchedShop) return;
 
-  const {confirmation_url} = fetchedInstalledShop;
+  const { confirmation_url } = fetchedInstalledShop;
 
   if (confirmation_url) {
     return ctx.redirect(confirmation_url);
@@ -31,16 +31,19 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
 
   const postBody = {
     recurring_application_charge: {
+      id: charge_id,
       name: CHARGE_TITLE,
       price: PRICE,
+      status: "accepted",
       return_url: HOST,
       test: true,
       trial_days: TRIAL_TIME,
+      decorated_return_url: HOST + `?charge_id=${charge_id}`,
     },
   };
 
   const response = await fetch(
-    `https://${shop}/admin/api/2020-10/recurring_application_charges.json`,
+    `https://${shop}/admin/api/2020-10/recurring_application_charges/${charge_id}/activate.json`,
     {
       method: "POST",
       headers: {
@@ -53,14 +56,10 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
 
   const responseJson = await response.json();
   console.log(responseJson);
-  const confirmationUrl =
-    responseJson.recurring_application_charge.confirmation_url;
-  const status = responseJson.recurring_application_charge.status;
 
-  await Shop.updateOne({ domain: shop }, { confirmation_url: confirmationUrl });
-  await InstalledShop.updateOne({ shop }, { status });
+  await InstalledShop.updateOne({ shop }, { status: "active" });
 
-  return ctx.redirect(confirmationUrl);
+  return ctx.redirect("/");
 };
 
-module.exports = getSubscriptionUrl;
+module.exports = acceptedCharge;
