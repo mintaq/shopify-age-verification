@@ -14,7 +14,7 @@ import cors from "@koa/cors";
 import { clearCookie, setCookie } from "koa-cookies";
 import * as handlers from "./handlers/index";
 import { createShopAndAddScript } from "./addScriptToTheme";
-import resizeImage from "./services/resizeImage";
+// import resizeImage from "./services/resizeImage";
 import getSubscriptionUrl from "./getSubscriptionUrl";
 import ShopifyAPIClient from "shopify-api-node";
 
@@ -156,16 +156,16 @@ app.prepare().then(() => {
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
     const { layoutSettings } = ctx.request.body;
     const { bgImage, logo } = layoutSettings;
-    const resizeBgImage = await resizeImage(bgImage);
-    const resizeLogo = await resizeImage(logo);
+    // const resizeBgImage = await resizeImage(bgImage);
+    // const resizeLogo = await resizeImage(logo);
 
-    if (resizeBgImage) {
-      ctx.request.body.layoutSettings.bgImage = { ...resizeBgImage };
-    }
+    // if (resizeBgImage) {
+    //   ctx.request.body.layoutSettings.bgImage = { ...resizeBgImage };
+    // }
 
-    if (resizeLogo) {
-      ctx.request.body.layoutSettings.logo = { ...resizeLogo };
-    }
+    // if (resizeLogo) {
+    //   ctx.request.body.layoutSettings.logo = { ...resizeLogo };
+    // }
 
     await Shop.updateOne({ domain: ctx.params.domain }, ctx.request.body);
 
