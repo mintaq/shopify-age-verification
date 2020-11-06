@@ -180,6 +180,9 @@ const Index = ({ shopOrigin }) => {
 
   useEffect(() => {
     async function fetchShop() {
+      const mysqlData = await axios.get(`https://minh.omegatheme.com/api/mysql/shops/settings/${shopOrigin}`)
+      console.log('MysqlData', mysqlData.data)
+
       const installedShopRes = await axios.get(
         `/api/shops/installed/${shopOrigin}`
       );
