@@ -58,6 +58,7 @@
     "material-ui-popup-state": "^1.7.0",
     "mdbreact": "^4.27.0",
     "mongoose": "^5.10.9",
+    "mysql": "^2.18.1",
     "next": "^8.1.0",
     "next-env": "^1.1.0",
     "nookies": "^2.4.1",
