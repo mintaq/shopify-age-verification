@@ -2,6 +2,11 @@ import ShopifyAPIClient from "shopify-api-node";
 import axios from "axios";
 import mongoose from "mongoose";
 import updateScriptInTheme from "./services/updateScriptInTheme";
+import {
+  getShopInstalled,
+  insertShopInstalled,
+  updateUserSettings,
+} from "./sql/sqlQueries";
 
 import "./models/shop";
 import "./models/InstalledShop";
@@ -17,6 +22,18 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
   const fetchedInstalledShop = await InstalledShop.findOne({
     shop: shopDomain,
   });
+  const shopInstalled = await getShopInstalled(shopDomain)[0];
+
+  // NEW
+  if (!shopInstalled) {
+    const id = await updateScriptInTheme(shopDomain, accessToken);
+    await insertShopInstalled({
+      shop: shopDomain,
+      date_installed: new Date().toISOString(),
+    });
+  }
+
+  // OLD
   if (!fetchedShop) {
     const id = await updateScriptInTheme(shopDomain, accessToken);
     if (!fetchedInstalledShop) {
@@ -41,6 +58,7 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
 
     const id = await updateScriptInTheme(shopDomain, accessToken);
 
+    await updateUserSettings(shopDomain, { access_token: accessToken });
     const updatedShop = await Shop.updateOne(
       { domain: shopDomain },
       { themeId: id, accessToken }

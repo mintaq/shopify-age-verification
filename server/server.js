@@ -14,10 +14,11 @@ import cors from "@koa/cors";
 import { clearCookie, setCookie } from "koa-cookies";
 import * as handlers from "./handlers/index";
 import { createShopAndAddScript } from "./addScriptToTheme";
-// import resizeImage from "./services/resizeImage";
+// import resizeImage from "./siervices/resizeImage";
 import getSubscriptionUrl from "./getSubscriptionUrl";
-import acceptedCharge from './acceptedCharge';
-import ShopifyAPIClient from "shopify-api-node";
+import acceptedCharge from "./acceptedCharge";
+import mysqlLib from "./sql/mysqlLib";
+import {getShopSettings} from './sql/sqlQueries'
 
 // CONFIG
 dotenv.config();
@@ -134,6 +135,10 @@ app.prepare().then(() => {
     return (ctx.body = installedShop);
   });
 
+  router.get("/api/mysql/shops/settings/:domain", async (ctx) => {
+    ctx.body = await getShopSettings(ctx.params.domain);
+  });
+
   router.get("/api/shops/settings/:domain", async (ctx) => {
     console.log(ctx.request.header.host);
     const settings = await Shop.findOne({ domain: ctx.params.domain }).select([
@@ -185,20 +190,15 @@ app.prepare().then(() => {
     );
   });
 
-  router.get('/check_charge', async (ctx) => {
-    console.log(ctx.request)
-    // console.log(ctx.query.charge_id)
-    // const shop = ctx.cookies.get('shopOrigin')
+  router.get("/check_charge", async (ctx) => {
     const { shop, accessToken } = ctx.session;
 
-    await acceptedCharge(ctx, accessToken, shop, ctx.query.charge_id)
-
-    // ctx.redirect('/')
-  })
+    await acceptedCharge(ctx, accessToken, shop, ctx.query.charge_id);
+  });
 
   router.get("(.*)", verifyRequest(), async (ctx) => {
     console.log(ctx.host);
-    console.log("cookie: ", ctx.cookies.get('shopOrigin'));
+    console.log("cookie: ", ctx.cookies.get("shopOrigin"));
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
     ctx.res.statusCode = 200;
