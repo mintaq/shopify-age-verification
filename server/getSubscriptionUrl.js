@@ -21,7 +21,6 @@ const InstalledShop = mongoose.model("installed_shops");
 
 const _7daysMs = 7 * 24 * 60 * 60 * 1000;
 const nowMs = new Date().getTime();
-// const _isOnTrial =
 
 const getSubscriptionUrl = async (ctx, accessToken, shop) => {
   // const fetchedShop = await Shop.findOne({ domain: shop });
@@ -30,8 +29,8 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
 
   // const {confirmation_url} = fetchedInstalledShop;
 
-  const userSettings = await getUserSettings(shop)[0];
-  const shopInstalled = await getShopInstalled(shop)[0];
+  const userSettings = await getUserSettings(shop);
+  const shopInstalled = await getShopInstalled(shop);
 
   if (!userSettings || !shopInstalled) return;
 
@@ -40,7 +39,9 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
   const _isOnTrial =
     nowMs - new Date(date_installed).getTime() < _7daysMs ? true : false;
 
-  if (confirmation_url && !_isOnTrial) return ctx.redirect(confirmation_url);
+    console.log(_isOnTrial)
+    console.log('time', new Date(date_installed).getTime())
+  if (confirmation_url && !_isOnTrial && status !== 'active') return ctx.redirect(confirmation_url);
 
   if (_isOnTrial || status === 'active') return ctx.redirect("/");
 

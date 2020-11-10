@@ -6,12 +6,12 @@ export const getShopSettings = (shop) => {
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
       connection.query(query, function (err, results, fields) {
+        connection.release();
         if (err) {
-          connection.release();
           reject(err);
         }
-        connection.release();
-        resolve(results);
+
+        resolve(results[0]);
       });
     });
   });
@@ -23,13 +23,12 @@ export const getUserSettings = (shop) => {
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
       connection.query(query, function (err, results, fields) {
+        connection.release();
         if (err) {
-          connection.release();
           reject(err);
         }
 
-        connection.release();
-        resolve(results);
+        resolve(results[0]);
       });
     });
   });
@@ -41,19 +40,18 @@ export const getShopInstalled = (shop) => {
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
       connection.query(query, function (err, results, fields) {
+        connection.release();
         if (err) {
-          connection.release();
           reject(err);
         }
 
-        connection.release();
-        resolve(results);
+        resolve(results[0]);
       });
     });
   });
 };
 
-export const insertShopInstalled = (shop, data) => {
+export const insertShopInstalled = (data) => {
   const dataKeys = Object.keys(data);
   let sql_Values = "";
   let sql_Fields = "";
@@ -70,12 +68,11 @@ export const insertShopInstalled = (shop, data) => {
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
       connection.query(query, function (err, results, fields) {
+        connection.release();
         if (err) {
-          connection.release();
           reject(err);
         }
 
-        connection.release();
         resolve(results);
       });
     });
@@ -97,53 +94,101 @@ export const updateUserSettings = (shop, data) => {
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
       connection.query(query, function (err, results, fields) {
+        connection.release();
         if (err) {
-          connection.release();
           reject(err);
         }
 
-        connection.release();
         resolve(results);
       });
     });
   });
 };
 
-export const updateTable = (table, data, where) => {
+export const updateTableRow = (table, data, where) => {
   const dataKeys = Object.keys(data);
   const whereKeys = Object.keys(where);
   let sql_Set = "";
   let sql_Where = "";
   let query = "";
 
+  // console.log(data)
+
   whereKeys.map((col, i) => {
-    sql_Where += `${col} = '${where[col]}'`;
+    sql_Where += `${col} = "${where[col]}"`;
   });
 
-  dataKeys.map((field, i) => {
-    let value = data[field];
+  for (let i = 0; i < dataKeys.length; i++) {
+    let value = data[dataKeys[i]];
+    let field = dataKeys[i];
+
     if (value === null) {
       sql_Set += `${field}=NULL`;
     } else if (!Number.isNaN(value) || value == true || value == false) {
       sql_Set += `${field}='${value}'`;
+    } else if (typeof value == "object") {
+      sql_Set += `${field}=${JSON.stringify(value)}`;
     } else {
       sql_Set += `${field}=${value}`;
     }
 
-    return (sql_Set += i == dataKeys.length - 1 ? "" : ", ");
-  });
+    sql_Set += i == dataKeys.length - 1 ? "" : ", ";
+  }
 
-  query = `UPDATE ${table} SET ${sql_Set} WHERE '${sql_Where}'`;
+  // dataKeys.map((field, i) => {
+  //   let value = data[field];
+  //   if (value === null) {
+  //     sql_Set += `${field}=NULL`;
+  //   } else if (!Number.isNaN(value) || value == true || value == false) {
+  //     sql_Set += `${field}='${value}'`;
+  //   } else if (typeof value == 'object') {
+  //     sql_Set += `${field}=${JSON.stringify(value)}`
+  //   } else {
+  //     sql_Set += `${field}=${value}`;
+  //   }
+
+  //   return (sql_Set += i == dataKeys.length - 1 ? "" : ", ");
+  // });
+
+  query = `UPDATE ${table} SET ${sql_Set} WHERE ${sql_Where}`;
+
+  // console.log(query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
       connection.query(query, function (err, results, fields) {
+        connection.release();
         if (err) {
-          connection.release();
           reject(err);
         }
 
+        resolve(results);
+      });
+    });
+  });
+};
+
+export const insertTableRow = (table, data) => {
+  const dataKeys = Object.keys(data);
+  let query = "";
+  let sql_Fields = "";
+  let sql_Values = "";
+
+  for (let i = 0; i < dataKeys.length; i++) {
+    sql_Fields += dataKeys[i] + i == dataKeys.length - 1 ? "" : ", ";
+    sql_Values += data[dataKeys[i]] + i == dataKeys.length - 1 ? "" : ", ";
+  }
+
+  query = `INSERT INTO ${table} (${sql_Fields}) VALUES (${sql_Values})`;
+
+  return new Promise(function (resolve, reject) {
+    mysqlLib.getConnection(function (err, connection) {
+      connection.query(query, function (err, results, fields) {
         connection.release();
+        if (err) {
+          reject(err);
+        }
+
         resolve(results);
       });
     });

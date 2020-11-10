@@ -25,9 +25,8 @@ import SkeletonPageComp from "../components/SkeletonPageComp";
 import styled from "styled-components";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import axios from "axios";
-// import sharp from "sharp";s
+// import sharp from "sharp";
 import classes from "./index.css";
-import { list } from "material-components-web";
 
 const Index = ({ shopOrigin }) => {
   const [installedShop, setInstalledShop] = useState({});
@@ -42,6 +41,7 @@ const Index = ({ shopOrigin }) => {
   const [uploadBgImage, setUploadBgImage] = useState(null);
   const [uploadLogo, setUploadLogo] = useState(null);
 
+  // TODO: check collection page
   // LAYOUT SETTINGS STATE
   const [appStatus, setAppStatus] = useState("enable");
   const [prevDisplayOpts, setPrevDisplayOpts] = useState([]);
@@ -56,6 +56,25 @@ const Index = ({ shopOrigin }) => {
     submitBtnLabel: "OK",
     cancelBtnLabel: "Cancel",
   });
+  // *** FROM MYSQL
+  const [app_enable, set__app_enable] = useState(1); // default: 1 | 1: enable
+  const [av_layout, set__av_layout] = useState(1); // default: 1 | 1: normal, 2: with bg image
+  const [logo, set__logo] = useState(null);
+  const [logo_name, set__logo_name] = useState(null);
+  const [popup_bg, set__popup_bg] = useState(null);
+  const [popup_bg_name, set__popup_bg_name] = useState(null);
+  const [input_age, set__input_age] = useState(1); // default: 1 | 1: yes
+  const [min_age, set__min_age] = useState(18);
+  const [logo_data, set__logo_data] = useState(null);
+  const [bgImage_data, set__bgImage_data] = useState(null);
+  // TODO: collection page
+  // NEW
+  const [page_show, set__page_show] = useState(0);
+  const [collection_page, set__collection_page] = useState([]);
+  const [specific_products, set__specific_products] = useState([]);
+  // OLD
+  const [popupDisplaySelected, set__popupDisplaySelected] = useState([]);
+  const [blockProducts, set__blockProducts] = useState([]);
 
   // STYLE SETTINGS STATE
   const [styleSettings, setStyleSettings] = useState({
@@ -76,12 +95,63 @@ const Index = ({ shopOrigin }) => {
     customMonths: {},
   });
 
+  // *** FROM MYSQL
+  const [headline_text, set__headline_text] = useState("Welcome to shop!");
+  const [headline_size, set__headline_size] = useState(30);
+  const [subhead_text, set__subhead_text] = useState(
+    "You must at least 16 to visit this site!"
+  );
+  const [subhead_size, set__subhead_size] = useState(16);
+  const [overlayBgColor, set__overlayBgColor] = useState({
+    r: 31,
+    g: 26,
+    b: 26,
+    a: 1,
+  });
+  const [popup_bgcolor, set__popup_bgcolor] = useState("");
+  const [headlineTextColor, set__headlineTextColor] = useState({
+    r: 1,
+    g: 1,
+    b: 1,
+    a: 1,
+  });
+  const [subHeadlineTextColor, set__subHeadlineTextColor] = useState({
+    r: 1,
+    g: 1,
+    b: 1,
+    a: 1,
+  });
+  const [submit_label, set__submit_label] = useState("OK");
+  const [cancel_label, set__cancel_label] = useState("Cancel");
+  const [submit_bgcolor, set__submit_bgcolor] = useState("");
+  const [cancel_bgcolor, set__cancel_bgcolor] = useState("");
+  const [submitBtnLabelColor, set__submitBtnLabelColor] = useState({
+    r: 1,
+    g: 1,
+    b: 1,
+    a: 1,
+  });
+  const [cancelBtnLabelColor, set__cancelBtnLabelColor] = useState({
+    r: 1,
+    g: 1,
+    b: 1,
+    a: 1,
+  });
+  const [text_color, set__text_color] = useState("");
+  const [custom_date, set__custom_date] = useState(null);
+  const [validate_error, set__validate_error] = useState(null);
+
   // ADVANCE SETTINGS STATE
   const [advanceSettings, setAdvanceSettings] = useState({
     rememberDays: "10",
     exitUrl: "https://www.google.com",
     customCSS: "",
   });
+
+  // *** FROM MYSQL
+  const [cache_time, set__cache_time] = useState(10);
+  const [exit_link, set__exit_link] = useState("https://www.google.com");
+  const [customcss, set__customcss] = useState("");
 
   // ACTIVATOR AND HANDLERS
   const [overlayBgColorActivate, setOverlayBgColorActivate] = useState(false);
@@ -128,8 +198,8 @@ const Index = ({ shopOrigin }) => {
   ];
 
   const layoutOptions = [
-    { label: "Transparent", value: "transparent" },
-    { label: "With Background Image", value: "withBackground" },
+    { label: "Transparent", value: 1 },
+    { label: "With Background Image", value: 2 },
   ];
 
   const popupDisplayOptions = [
@@ -180,8 +250,52 @@ const Index = ({ shopOrigin }) => {
 
   useEffect(() => {
     async function fetchShop() {
-      const mysqlData = await axios.get(`https://minh.omegatheme.com/api/mysql/shops/settings/${shopOrigin}`)
-      console.log('MysqlData', mysqlData.data)
+      const { data } = await axios.get(
+        `/api/mysql/shops/settings/${shopOrigin}`
+      );
+      console.log("MysqlData", data);
+      // console.log("overlayBgColor ", JSON.parse(data.overlayBgColor));
+
+      // *** LAYOUT STATES ***
+      set__app_enable(data.app_enable);
+      set__av_layout(data.av_layout);
+      set__logo(data.logo);
+      set__logo_name(data.logo_name);
+      set__popup_bg(data.popup_bg);
+      set__popup_bg_name(data.popup_bg_name);
+      set__input_age(data.input_age);
+      set__min_age(data.min_age);
+      set__page_show(data.page_show);
+      set__collection_page(data.collection_page);
+      set__specific_products(data.specific_products);
+      set__popupDisplaySelected(data.popupDisplaySelected);
+      set__blockProducts(data.blockProducts);
+      set__logo_data(data.logo_data);
+      set__bgImage_data(data.bgImage_data);
+
+      // *** STYLE STATES ***
+      set__headline_text(data.headline_text);
+      set__headline_size(data.headline_size);
+      set__subhead_text(data.subhead_text);
+      set__subhead_size(data.subhead_size);
+      set__overlayBgColor(colorConverter(data.overlayBgColor));
+      set__popup_bgcolor(colorConverter(data.popup_bgcolor));
+      set__headlineTextColor(colorConverter(data.headlineTextColor));
+      set__subHeadlineTextColor(colorConverter(data.subHeadlineTextColor));
+      set__submit_label(data.submit_label);
+      set__cancel_label(data.cancel_label);
+      set__submit_bgcolor(colorConverter(data.submit_bgcolor));
+      set__cancel_bgcolor(colorConverter(data.cancel_bgcolor));
+      set__submitBtnLabelColor(colorConverter(data.submitBtnLabelColor));
+      set__cancelBtnLabelColor(colorConverter(data.cancelBtnLabelColor));
+      set__text_color(colorConverter(data.text_color));
+      set__custom_date(data.custom_date);
+      set__validate_error(data.validate_error);
+
+      // *** ADVANCE STATES ***
+      set__cache_time(data.cache_time);
+      set__exit_link(data.exit_link);
+      set__customcss(data.customcss);
 
       const installedShopRes = await axios.get(
         `/api/shops/installed/${shopOrigin}`
@@ -239,6 +353,18 @@ const Index = ({ shopOrigin }) => {
     return _isActive || _isOnTrial;
   };
 
+  const colorConverter = (color) => {
+    if (color.includes("#")) {
+      return {
+        r: (color >> 16) & 0xff,
+        g: (color >> 8) & 0xff,
+        b: color & 0xff,
+        a: 1,
+      };
+    } else if (color != null && color != "") return JSON.parse(color);
+    else return "";
+  };
+
   // LAYOUT SETTINGS HANDLERS
   const handlePopupDisplayChange = useCallback((popupDisplaySelected) => {
     if (
@@ -279,8 +405,8 @@ const Index = ({ shopOrigin }) => {
     setPrevDisplayOpts(popupDisplaySelected);
     setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
   });
-  const handleLayoutSelectChange = useCallback((layoutSelected) =>
-    setLayoutSettings({ ...layoutSettings, layoutSelected })
+  const handleLayoutSelectChange = useCallback((av_layout) =>
+    set__av_layout(av_layout)
   );
   const handleReqAgeSelectChange = useCallback((requireAgeSelected) =>
     setLayoutSettings({ ...layoutSettings, requireAgeSelected })
@@ -288,59 +414,72 @@ const Index = ({ shopOrigin }) => {
   const handleMinAgeChange = useCallback((minimumAge) =>
     setLayoutSettings({ ...layoutSettings, minimumAge })
   );
-  const handleBgImageChange = useCallback((bgImage) =>
-    setLayoutSettings({ ...layoutSettings, bgImage })
+  const handleBgImageChange = useCallback(
+    (bgImage) => {
+      console.log(bgImage);
+      set__bgImage_data(bgImage);
+      setLayoutSettings({ ...layoutSettings, bgImage });
+    } //TODO: clean up
   );
-  const handleLogoChange = useCallback((logo) =>
-    setLayoutSettings({ ...layoutSettings, logo })
-  );
+  const handleLogoChange = useCallback((logo) => {
+    set__logo_data(logo);
+    setLayoutSettings({ ...layoutSettings, logo });
+  });
   const handleBlockProductsChange = useCallback((blockProducts) => {
     setLayoutSettings({ ...layoutSettings, blockProducts });
   });
 
   // STYLE SETTING HANDLERS
-  const handleHeadlineTextChange = useCallback((headlineText) =>
-    setStyleSettings({ ...styleSettings, headlineText })
+  const handleHeadlineTextChange = useCallback((headline_text) =>
+    set__headline_text(headline_text)
   );
-  const handleHeadlineTextSizeChange = useCallback((headlineTextSize) =>
-    setStyleSettings({ ...styleSettings, headlineTextSize })
+  const handleHeadlineTextSizeChange = useCallback((headline_size) =>
+    set__headline_size(headline_size)
   );
-  const handleSubHeadlineTextChange = useCallback((subHeadlineText) =>
-    setStyleSettings({ ...styleSettings, subHeadlineText })
+  const handleSubHeadlineTextChange = useCallback((subhead_text) =>
+    set__subhead_text(subhead_text)
   );
-  const handleSubHeadlineTextSizeChange = useCallback((subHeadlineTextSize) =>
-    setStyleSettings({ ...styleSettings, subHeadlineTextSize })
+  const handleSubHeadlineTextSizeChange = useCallback((subhead_size) =>
+    set__subhead_size(subhead_size)
   );
   const handleOverlayBgColorChange = useCallback((overlayBgColor) =>
-    setStyleSettings({ ...styleSettings, overlayBgColor })
+    set__overlayBgColor(overlayBgColor)
   );
-  const handlePopupBgColorChange = useCallback((popupBgColor) =>
-    setStyleSettings({ ...styleSettings, popupBgColor })
+  const handlePopupBgColorChange = useCallback((popup_bgcolor) =>
+    set__popup_bgcolor(popup_bgcolor)
   );
-  const handleHeadlineTextColorChange = useCallback((headlineTextColor) =>
-    setStyleSettings({ ...styleSettings, headlineTextColor })
-  );
-  const handleSubHeadlineTextColorChange = useCallback((subHeadlineTextColor) =>
-    setStyleSettings({ ...styleSettings, subHeadlineTextColor })
+  const handleHeadlineTextColorChange = useCallback((headlineTextColor) => {
+    set__headlineTextColor(headlineTextColor);
+    setStyleSettings({ ...styleSettings, headlineTextColor });
+  });
+  const handleSubHeadlineTextColorChange = useCallback(
+    (subHeadlineTextColor) => {
+      set__subHeadlineTextColor(subHeadlineTextColor);
+      setStyleSettings({ ...styleSettings, subHeadlineTextColor });
+    }
   );
   const handleSubmitBtnLabelChange = useCallback((submitBtnLabel) =>
     setStyleSettings({ ...styleSettings, submitBtnLabel })
   );
-  const handleSubmitBtnBgColorChange = useCallback((submitBtnBgColor) =>
-    setStyleSettings({ ...styleSettings, submitBtnBgColor })
-  );
-  const handleSubmitBtnLabelColorChange = useCallback((submitBtnLabelColor) =>
-    setStyleSettings({ ...styleSettings, submitBtnLabelColor })
-  );
+  const handleSubmitBtnBgColorChange = useCallback((submitBtnBgColor) => {
+    set__submit_bgcolor(submitBtnBgColor);
+    setStyleSettings({ ...styleSettings, submitBtnBgColor });
+  });
+  const handleSubmitBtnLabelColorChange = useCallback((submitBtnLabelColor) => {
+    set__submitBtnLabelColor(submitBtnLabelColor);
+    setStyleSettings({ ...styleSettings, submitBtnLabelColor });
+  });
   const handleCancelBtnLabelChange = useCallback((cancelBtnLabel) =>
     setStyleSettings({ ...styleSettings, cancelBtnLabel })
   );
-  const handleCancelBtnBgColorChange = useCallback((cancelBtnBgColor) =>
-    setStyleSettings({ ...styleSettings, cancelBtnBgColor })
-  );
-  const handleCancelBtnLabelColorChange = useCallback((cancelBtnLabelColor) =>
-    setStyleSettings({ ...styleSettings, cancelBtnLabelColor })
-  );
+  const handleCancelBtnBgColorChange = useCallback((cancelBtnBgColor) => {
+    set__cancel_bgcolor(cancelBtnBgColor);
+    setStyleSettings({ ...styleSettings, cancelBtnBgColor });
+  });
+  const handleCancelBtnLabelColorChange = useCallback((cancelBtnLabelColor) => {
+    set__cancelBtnLabelColor(cancelBtnLabelColor);
+    setStyleSettings({ ...styleSettings, cancelBtnLabelColor });
+  });
   const handleCustomMonthsChange = useCallback((customMonths) => {
     setStyleSettings({ ...styleSettings, customMonths });
   });
@@ -363,12 +502,31 @@ const Index = ({ shopOrigin }) => {
   });
 
   // OTHERS HANDLERS
+  const handleSaveSetting = async () => {
+    setSaveToastActivate(true);
+
+    // await axios.put(`/api/shops/${shopOrigin}`, {
+    //   layoutSettings,
+    //   styleSettings,
+    //   advanceSettings,
+    // });
+
+    await axios.put(`/api/shops/${shopOrigin}`, {
+      headline_text,
+      headline_size,
+      subhead_text,
+      subhead_size,
+      overlayBgColor: JSON.stringify(overlayBgColor),
+      bgImage_data: JSON.stringify(bgImage_data),
+    });
+  };
+
   const handleAppStatusChange = async () => {
-    if (appStatus == "disable") {
-      setAppStatus("enable");
+    if (app_enable != 1) {
+      set__app_enable(1);
       setEnableToastActivate(true);
       await axios.put(`/api/shops/${shopOrigin}`, {
-        appStatus: "enable",
+        app_enable: "enable",
       });
     } else setDisableModalActivate(true);
   };
@@ -381,9 +539,9 @@ const Index = ({ shopOrigin }) => {
   const handleDisableApp = async () => {
     setDisableModalActivate(false);
     setDisableToastActivate(true);
-    setAppStatus("disable");
+    set__app_enable(0);
     await axios.put(`/api/shops/${shopOrigin}`, {
-      appStatus: "disable",
+      app_enable: 0,
     });
   };
 
@@ -392,27 +550,14 @@ const Index = ({ shopOrigin }) => {
     return color;
   };
 
-  const handleSaveSetting = async () => {
-    setSaveToastActivate(true);
-
-    await axios.put(`/api/shops/${shopOrigin}`, {
-      layoutSettings,
-      styleSettings,
-      advanceSettings,
-    });
-  };
-
   const handleSubmitLogo = async () => {
     setLayoutSettings(uploadLogo);
     handleLogoChange(uploadLogo);
     setUploadLogo(null);
 
-    let buf = Buffer(uploadLogo.data);
-    let dataBase64 = Buffer.from(buf).toString("base64");
-    console.log(dataBase64);
-
-    // const data = await sharp(dataBase64).webp({ lossless: true }).toBuffer();
-    // console.log(data)
+    // let buf = Buffer(uploadLogo.data);
+    // let dataBase64 = Buffer.from(buf).toString("base64");
+    // console.log(dataBase64);
   };
 
   const handleRemoveLogo = () => {
@@ -489,22 +634,22 @@ const Index = ({ shopOrigin }) => {
           <Card.Section>
             <Select
               options={layoutOptions}
-              value={layoutSettings.layoutSelected}
+              value={av_layout}
               onChange={handleLayoutSelectChange}
             />
           </Card.Section>
         </Card>
       </Layout.Section>
 
-      {layoutSettings.layoutSelected == "withBackground" ? (
+      {av_layout == 2 ? (
         <>
           <Layout.Section>
             <Card title="Background Image">
               <Card.Section>
                 <Stack spacing="loose" vertical>
-                  {layoutSettings.bgImage != null ? (
+                  {bgImage_data != null && bgImage_data != "" ? (
                     <Thumbnail
-                      source={layoutSettings.bgImage.data}
+                      source={bgImage_data.data}
                       size="large"
                       alt="Logo"
                     />
@@ -516,7 +661,11 @@ const Index = ({ shopOrigin }) => {
                   <Stack distribution="trailing">
                     <Button
                       primary
-                      disabled={layoutSettings.bgImage != null ? false : true}
+                      disabled={
+                        bgImage_data != null && bgImage_data != ""
+                          ? false
+                          : true
+                      }
                       onClick={handleRemoveBgImage}
                     >
                       Remove
@@ -539,7 +688,10 @@ const Index = ({ shopOrigin }) => {
               <Card.Section>
                 <DropzoneAreaBase
                   acceptedFiles={["image/*"]}
-                  onAdd={(fileObjs) => setUploadBgImage(fileObjs[0])}
+                  onAdd={(fileObjs) => {
+                    console.log(fileObjs);
+                    setUploadBgImage(fileObjs[0]);
+                  }}
                   onDelete={(fileObj) => setUploadBgImage({})}
                   dropzoneText={"Drag and drop logo here or Click (<1MB)"}
                   filesLimit={1}
@@ -754,7 +906,7 @@ const Index = ({ shopOrigin }) => {
             width: "7rem",
             borderRadius: "0.3rem",
             border: "0.5px solid darkgrey",
-            background: convertRgbToString(styleSettings.overlayBgColor),
+            background: convertRgbToString(overlayBgColor),
           }}
         />
       </Button>
@@ -773,7 +925,7 @@ const Index = ({ shopOrigin }) => {
             width: "7rem",
             borderRadius: "0.3rem",
             border: "0.5px solid darkgrey",
-            background: convertRgbToString(styleSettings.popupBgColor),
+            background: convertRgbToString(popup_bgcolor),
           }}
         />
       </Button>
@@ -789,7 +941,7 @@ const Index = ({ shopOrigin }) => {
     >
       <Popover.Section>
         <SketchPicker
-          color={styleSettings.overlayBgColor}
+          color={overlayBgColor}
           onChange={(color) => handleOverlayBgColorChange(color.rgb)}
         />
       </Popover.Section>
@@ -805,7 +957,7 @@ const Index = ({ shopOrigin }) => {
     >
       <Popover.Section>
         <SketchPicker
-          color={styleSettings.popupBgColor}
+          color={popup_bgcolor}
           onChange={(color) => handlePopupBgColorChange(color.rgb)}
         />
       </Popover.Section>
@@ -851,14 +1003,14 @@ const Index = ({ shopOrigin }) => {
             <Stack.Item fill>
               <Card.Section title="Text">
                 <TextField
-                  value={styleSettings.headlineText}
+                  value={headline_text}
                   onChange={handleHeadlineTextChange}
                 />
               </Card.Section>
             </Stack.Item>
             <Card.Section title="Size">
               <TextField
-                value={styleSettings.headlineTextSize}
+                value={headline_size}
                 onChange={handleHeadlineTextSizeChange}
               />
             </Card.Section>
@@ -880,14 +1032,14 @@ const Index = ({ shopOrigin }) => {
             <Stack.Item fill>
               <Card.Section title="Text">
                 <TextField
-                  value={styleSettings.subHeadlineText}
+                  value={subhead_text}
                   onChange={handleSubHeadlineTextChange}
                 />
               </Card.Section>
             </Stack.Item>
             <Card.Section title="Size">
               <TextField
-                value={styleSettings.subHeadlineTextSize}
+                value={subhead_size}
                 onChange={handleSubHeadlineTextSizeChange}
               />
             </Card.Section>
@@ -1052,7 +1204,7 @@ const Index = ({ shopOrigin }) => {
           backgroundPosition: "center",
           backgroundSize: "cover",
         }
-      : { backgroundColor: convertRgbToString(styleSettings.overlayBgColor) };
+      : { backgroundColor: convertRgbToString(overlayBgColor) };
 
   const finalRender = loading ? (
     <SkeletonPageComp />
@@ -1063,7 +1215,7 @@ const Index = ({ shopOrigin }) => {
           <Page
             title="Settings"
             primaryAction={{
-              content: `${appStatus == "enable" ? "Disable" : "Enable"}`,
+              content: `${app_enable == 1 ? "Disable" : "Enable"}`,
               onAction: () => handleAppStatusChange(),
             }}
             separator
@@ -1109,9 +1261,7 @@ const Index = ({ shopOrigin }) => {
                     <div
                       id="ot-av-overlay-form"
                       style={{
-                        backgroundColor: convertRgbToString(
-                          styleSettings.popupBgColor
-                        ),
+                        backgroundColor: convertRgbToString(popup_bgcolor),
                       }}
                     >
                       {layoutSettings.logo != null ? (
@@ -1123,24 +1273,24 @@ const Index = ({ shopOrigin }) => {
                       <h1
                         className="ot-headline_text"
                         style={{
-                          fontSize: styleSettings.headlineTextSize + "px",
+                          fontSize: headline_size + "px",
                           color: convertRgbToString(
                             styleSettings.headlineTextColor
                           ),
                         }}
                       >
-                        {styleSettings.headlineText}
+                        {headline_text}
                       </h1>
                       <p
                         className="ot-subhead_text"
                         style={{
-                          fontSize: styleSettings.subHeadlineTextSize + "px",
+                          fontSize: subhead_size + "px",
                           color: convertRgbToString(
                             styleSettings.subHeadlineTextColor
                           ),
                         }}
                       >
-                        {styleSettings.subHeadlineText}
+                        {subhead_text}
                       </p>
                       {layoutSettings.requireAgeSelected === "yes" ? (
                         <div className="ot-av-datepicker-fields">
@@ -1166,9 +1316,7 @@ const Index = ({ shopOrigin }) => {
                             background: convertRgbToString(
                               styleSettings.submitBtnBgColor
                             ),
-                            color: convertRgbToString(
-                              styleSettings.submitBtnLabelColor
-                            ),
+                            color: convertRgbToString(submitBtnLabelColor),
                           }}
                         >
                           {styleSettings.submitBtnLabel}

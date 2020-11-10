@@ -13,12 +13,12 @@ import bodyParser from "koa-bodyparser";
 import cors from "@koa/cors";
 import { clearCookie, setCookie } from "koa-cookies";
 import * as handlers from "./handlers/index";
-import { createShopAndAddScript } from "./addScriptToTheme";
+import { createShopAndAddScript } from "./createShopAndAddScript";
 // import resizeImage from "./siervices/resizeImage";
 import getSubscriptionUrl from "./getSubscriptionUrl";
 import acceptedCharge from "./acceptedCharge";
 import mysqlLib from "./sql/mysqlLib";
-import {getShopSettings} from './sql/sqlQueries'
+import { getShopSettings, updateTableRow } from "./sql/sqlQueries";
 
 // CONFIG
 dotenv.config();
@@ -160,8 +160,8 @@ app.prepare().then(() => {
     return (ctx.body = shop);
   });
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
-    const { layoutSettings } = ctx.request.body;
-    const { bgImage, logo } = layoutSettings;
+    // const { layoutSettings } = ctx.request.body;
+    // const { bgImage, logo } = layoutSettings;
     // const resizeBgImage = await resizeImage(bgImage);
     // const resizeLogo = await resizeImage(logo);
 
@@ -173,7 +173,11 @@ app.prepare().then(() => {
     //   ctx.request.body.layoutSettings.logo = { ...resizeLogo };
     // }
 
-    await Shop.updateOne({ domain: ctx.params.domain }, ctx.request.body);
+    // await Shop.updateOne({ domain: ctx.params.domain }, ctx.request.body);
+    // console.log(ctx.request.body)
+    await updateTableRow("age_verifier_settings", ctx.request.body, {
+      shop: ctx.params.domain,
+    });
 
     ctx.res.statusCode = 200;
   });
