@@ -193,8 +193,8 @@ const Index = ({ shopOrigin }) => {
 
   // OPTIONS ARRAYS
   const requireInputAgeOptions = [
-    { label: "Yes", value: "yes" },
-    { label: "No", value: "no" },
+    { label: "Yes", value: 1 },
+    { label: "No", value: 0 },
   ];
 
   const layoutOptions = [
@@ -408,12 +408,10 @@ const Index = ({ shopOrigin }) => {
   const handleLayoutSelectChange = useCallback((av_layout) =>
     set__av_layout(av_layout)
   );
-  const handleReqAgeSelectChange = useCallback((requireAgeSelected) =>
-    setLayoutSettings({ ...layoutSettings, requireAgeSelected })
+  const handleReqAgeSelectChange = useCallback((input_age) =>
+    set__input_age(input_age)
   );
-  const handleMinAgeChange = useCallback((minimumAge) =>
-    setLayoutSettings({ ...layoutSettings, minimumAge })
-  );
+  const handleMinAgeChange = useCallback((min_age) => set__min_age(min_age));
   const handleBgImageChange = useCallback(
     (bgImage) => {
       console.log(bgImage);
@@ -458,8 +456,8 @@ const Index = ({ shopOrigin }) => {
       setStyleSettings({ ...styleSettings, subHeadlineTextColor });
     }
   );
-  const handleSubmitBtnLabelChange = useCallback((submitBtnLabel) =>
-    setStyleSettings({ ...styleSettings, submitBtnLabel })
+  const handleSubmitBtnLabelChange = useCallback((submit_label) =>
+    set__submit_label(submit_label)
   );
   const handleSubmitBtnBgColorChange = useCallback((submitBtnBgColor) => {
     set__submit_bgcolor(submitBtnBgColor);
@@ -491,14 +489,14 @@ const Index = ({ shopOrigin }) => {
   });
 
   // ADVANCE SETTINGS HANDLERS
-  const handleDaysChange = useCallback((rememberDays) =>
-    setAdvanceSettings({ ...advanceSettings, rememberDays })
+  const handleDaysChange = useCallback((cache_time) =>
+    set__cache_time(cache_time)
   );
-  const handleExitUrlChange = useCallback((exitUrl) =>
-    setAdvanceSettings({ ...advanceSettings, exitUrl })
+  const handleExitUrlChange = useCallback((exit_link) =>
+    set__exit_link(exit_link)
   );
-  const handleCustomCSSChange = useCallback((customCSS) => {
-    setAdvanceSettings({ ...advanceSettings, customCSS });
+  const handleCustomCSSChange = useCallback((customcss) => {
+    set__customcss(customcss);
   });
 
   // OTHERS HANDLERS
@@ -777,19 +775,19 @@ const Index = ({ shopOrigin }) => {
           <Card.Section>
             <Select
               options={requireInputAgeOptions}
-              value={layoutSettings.requireAgeSelected}
+              value={input_age}
               onChange={handleReqAgeSelectChange}
             />
           </Card.Section>
         </Card>
       </Layout.Section>
 
-      {layoutSettings.requireAgeSelected === "yes" ? (
+      {input_age === "yes" ? (
         <Layout.Section>
           <Card title="Minimum age to view site:">
             <Card.Section>
               <TextField
-                value={layoutSettings.minimumAge}
+                value={min_age}
                 type="number"
                 inputMode="numeric"
                 onChange={handleMinAgeChange}
@@ -1062,7 +1060,7 @@ const Index = ({ shopOrigin }) => {
             <Stack.Item fill>
               <Card.Section title="Label">
                 <TextField
-                  value={styleSettings.submitBtnLabel}
+                  value={submit_label}
                   onChange={handleSubmitBtnLabelChange}
                 />
               </Card.Section>
@@ -1118,7 +1116,7 @@ const Index = ({ shopOrigin }) => {
         </Card>
       </Layout.Section>
 
-      {layoutSettings.requireAgeSelected === "yes" ? (
+      {input_age === 1 ? (
         <Layout.Section>
           <Card title="Custom months">
             <Card.Section>
@@ -1145,7 +1143,7 @@ const Index = ({ shopOrigin }) => {
         <Card title="Remember visitors for (days)">
           <Card.Section>
             <TextField
-              value={advanceSettings.rememberDays}
+              value={cache_time}
               placeholder="0"
               type="number"
               inputMode="numeric"
@@ -1159,7 +1157,7 @@ const Index = ({ shopOrigin }) => {
         <Card title="Exit URL">
           <Card.Section>
             <TextField
-              value={advanceSettings.exitUrl}
+              value={exit_link}
               placeholder="https://www.google.com"
               onChange={handleExitUrlChange}
             />
@@ -1171,7 +1169,7 @@ const Index = ({ shopOrigin }) => {
         <Card title="Custom CSS">
           <Card.Section>
             <TextField
-              value={advanceSettings.customCSS}
+              value={customcss}
               onChange={handleCustomCSSChange}
               multiline={5}
             />
@@ -1292,7 +1290,7 @@ const Index = ({ shopOrigin }) => {
                       >
                         {subhead_text}
                       </p>
-                      {layoutSettings.requireAgeSelected === "yes" ? (
+                      {input_age === 1 ? (
                         <div className="ot-av-datepicker-fields">
                           <select className="av-month">${months}</select>
                           <input
@@ -1319,7 +1317,7 @@ const Index = ({ shopOrigin }) => {
                             color: convertRgbToString(submitBtnLabelColor),
                           }}
                         >
-                          {styleSettings.submitBtnLabel}
+                          {submit_label}
                         </button>
                         <button
                           className="ot-av-cancel-btn"
