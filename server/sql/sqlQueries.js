@@ -152,7 +152,7 @@ export const updateTableRow = (table, data, where) => {
 
   query = `UPDATE ${table} SET ${sql_Set} WHERE ${sql_Where}`;
 
-  // console.log(query);
+  console.log(query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -190,6 +190,33 @@ export const insertTableRow = (table, data) => {
         }
 
         resolve(results);
+      });
+    });
+  });
+};
+
+export const selectTableRow = (table, field, where) => {
+  const whereKeys = Object.keys(where);
+  let sql_Where = "";
+  let query = "";
+
+  whereKeys.map((col, i) => {
+    sql_Where += `${col} = "${where[col]}"`;
+  });
+
+  query = `SELECT ${field} FROM ${table} WHERE ${sql_Where}`;
+
+  console.log(query);
+
+  return new Promise(function (resolve, reject) {
+    mysqlLib.getConnection(function (err, connection) {
+      connection.query(query, function (err, results, fields) {
+        connection.release();
+        if (err) {
+          reject(err);
+        }
+
+        resolve(results[0]);
       });
     });
   });

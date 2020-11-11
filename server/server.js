@@ -17,8 +17,13 @@ import { createShopAndAddScript } from "./createShopAndAddScript";
 // import resizeImage from "./siervices/resizeImage";
 import getSubscriptionUrl from "./getSubscriptionUrl";
 import acceptedCharge from "./acceptedCharge";
-import mysqlLib from "./sql/mysqlLib";
-import { getShopSettings, updateTableRow } from "./sql/sqlQueries";
+import axios from "axios";
+import {
+  getShopSettings,
+  updateTableRow,
+  getUserSettings,
+} from "./sql/sqlQueries";
+import uploadImageToAssets from "./services/uploadImageToAssets";
 
 // CONFIG
 dotenv.config();
@@ -149,6 +154,31 @@ app.prepare().then(() => {
 
     return (ctx.body = settings);
   });
+
+  router.put("/api/shops/upload_img/:domain", verifyRequest(), async (ctx) => {
+    // console.log(ctx.request.body)
+    const { image_data, themeId } = ctx.request.body;
+    // console.log(bgImage_data.name)
+    // const img_base64_data = bgImage_data.data.split(';base64,')[1];
+
+    const res__image_data = await uploadImageToAssets(
+      ctx.params.domain,
+      ctx.session.accessToken,
+      themeId,
+      image_data
+    );
+
+    console.log(res__image_data);
+    ctx.status = 200
+  });
+
+  router.get(
+    "/api/shops/user_settings/:domain",
+    verifyRequest(),
+    async (ctx) => {
+      ctx.body = await getUserSettings(ctx.params.domain);
+    }
+  );
 
   router.get("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
     const shop = await Shop.findOne({ domain: ctx.params.domain });

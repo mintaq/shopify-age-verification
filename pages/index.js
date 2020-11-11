@@ -29,6 +29,7 @@ import axios from "axios";
 import classes from "./index.css";
 
 const Index = ({ shopOrigin }) => {
+  const [themeId, set__themeId] = useState("");
   const [installedShop, setInstalledShop] = useState({});
   const [chargeStatus, setChargeStatus] = useState(true);
   const [openResourcePicker, setOpenResourcePicker] = useState(false);
@@ -57,16 +58,18 @@ const Index = ({ shopOrigin }) => {
     cancelBtnLabel: "Cancel",
   });
   // *** FROM MYSQL
-  const [app_enable, set__app_enable] = useState(1); // default: 1 | 1: enable
-  const [av_layout, set__av_layout] = useState(1); // default: 1 | 1: normal, 2: with bg image
+  const [app_enable, set__app_enable] = useState("1"); // default: 1 | 1: enable
+  const [av_layout, set__av_layout] = useState("1"); // default: 1 | 1: normal, 2: with bg image
   const [logo, set__logo] = useState(null);
   const [logo_name, set__logo_name] = useState(null);
   const [popup_bg, set__popup_bg] = useState(null);
   const [popup_bg_name, set__popup_bg_name] = useState(null);
-  const [input_age, set__input_age] = useState(1); // default: 1 | 1: yes
-  const [min_age, set__min_age] = useState(18);
-  const [logo_data, set__logo_data] = useState(null);
-  const [bgImage_data, set__bgImage_data] = useState(null);
+  const [input_age, set__input_age] = useState("1"); // default: 1 | 1: yes
+  const [min_age, set__min_age] = useState("18");
+  // const [logo_data, set__logo_data] = useState(null);
+  // const [bgImage_data, set__bgImage_data] = useState(null);
+  const [bgImage_temp, set__bgImage_temp] = useState(null);
+  const [logo_temp, set__logo_temp] = useState(null);
   // TODO: collection page
   // NEW
   const [page_show, set__page_show] = useState(0);
@@ -138,7 +141,20 @@ const Index = ({ shopOrigin }) => {
     a: 1,
   });
   const [text_color, set__text_color] = useState("");
-  const [custom_date, set__custom_date] = useState(null);
+  const [custom_date, set__custom_date] = useState({
+    january: "January",
+    february: "February",
+    march: "March",
+    april: "April",
+    may: "May",
+    june: "June",
+    july: "July",
+    august: "August",
+    september: "September",
+    october: "October",
+    november: "November",
+    december: "December",
+  });
   const [validate_error, set__validate_error] = useState(null);
 
   // ADVANCE SETTINGS STATE
@@ -193,13 +209,13 @@ const Index = ({ shopOrigin }) => {
 
   // OPTIONS ARRAYS
   const requireInputAgeOptions = [
-    { label: "Yes", value: 1 },
-    { label: "No", value: 0 },
+    { label: "Yes", value: "1" },
+    { label: "No", value: "0" },
   ];
 
   const layoutOptions = [
-    { label: "Transparent", value: 1 },
-    { label: "With Background Image", value: 2 },
+    { label: "Transparent", value: "1" },
+    { label: "With Background Image", value: "2" },
   ];
 
   const popupDisplayOptions = [
@@ -253,25 +269,28 @@ const Index = ({ shopOrigin }) => {
       const { data } = await axios.get(
         `/api/mysql/shops/settings/${shopOrigin}`
       );
+
       console.log("MysqlData", data);
       // console.log("overlayBgColor ", JSON.parse(data.overlayBgColor));
 
       // *** LAYOUT STATES ***
-      set__app_enable(data.app_enable);
-      set__av_layout(data.av_layout);
+      // console.log(data.bgImage_data)
+      set__themeId(data.themeId);
+      set__app_enable(data.app_enable + "");
+      set__av_layout(data.av_layout + "");
       set__logo(data.logo);
       set__logo_name(data.logo_name);
       set__popup_bg(data.popup_bg);
       set__popup_bg_name(data.popup_bg_name);
-      set__input_age(data.input_age);
-      set__min_age(data.min_age);
+      set__input_age(data.input_age + "");
+      set__min_age(data.min_age + "");
       set__page_show(data.page_show);
       set__collection_page(data.collection_page);
       set__specific_products(data.specific_products);
       set__popupDisplaySelected(data.popupDisplaySelected);
       set__blockProducts(data.blockProducts);
-      set__logo_data(data.logo_data);
-      set__bgImage_data(data.bgImage_data);
+      // set__logo_data(data.logo_data);
+      // set__bgImage_data(data.bgImage_data);
 
       // *** STYLE STATES ***
       set__headline_text(data.headline_text);
@@ -289,7 +308,7 @@ const Index = ({ shopOrigin }) => {
       set__submitBtnLabelColor(colorConverter(data.submitBtnLabelColor));
       set__cancelBtnLabelColor(colorConverter(data.cancelBtnLabelColor));
       set__text_color(colorConverter(data.text_color));
-      set__custom_date(data.custom_date);
+      set__custom_date(JSON.parse(data.custom_date));
       set__validate_error(data.validate_error);
 
       // *** ADVANCE STATES ***
@@ -405,26 +424,32 @@ const Index = ({ shopOrigin }) => {
     setPrevDisplayOpts(popupDisplaySelected);
     setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
   });
-  const handleLayoutSelectChange = useCallback((av_layout) =>
-    set__av_layout(av_layout)
+  const handleLayoutSelectChange = useCallback((avLayout) =>
+    set__av_layout(avLayout)
   );
-  const handleReqAgeSelectChange = useCallback((input_age) =>
-    set__input_age(input_age)
-  );
+  const handleReqAgeSelectChange = useCallback((inputAge) => {
+    // console.log(input_age)
+    set__input_age(inputAge);
+  });
   const handleMinAgeChange = useCallback((min_age) => set__min_age(min_age));
   const handleBgImageChange = useCallback(
     (bgImage) => {
-      console.log(bgImage);
-      set__bgImage_data(bgImage);
+      set__popup_bg(bgImage);
       setLayoutSettings({ ...layoutSettings, bgImage });
     } //TODO: clean up
   );
   const handleLogoChange = useCallback((logo) => {
-    set__logo_data(logo);
+    set__logo(logo);
     setLayoutSettings({ ...layoutSettings, logo });
   });
   const handleBlockProductsChange = useCallback((blockProducts) => {
     setLayoutSettings({ ...layoutSettings, blockProducts });
+  });
+  const handleBgImageTempChange = useCallback((bgImage_temp) => {
+    set__bgImage_temp(bgImage_temp);
+  });
+  const handleLogoTempChange = useCallback((logo_temp) => {
+    set__logo_temp(logo_temp);
   });
 
   // STYLE SETTING HANDLERS
@@ -467,8 +492,8 @@ const Index = ({ shopOrigin }) => {
     set__submitBtnLabelColor(submitBtnLabelColor);
     setStyleSettings({ ...styleSettings, submitBtnLabelColor });
   });
-  const handleCancelBtnLabelChange = useCallback((cancelBtnLabel) =>
-    setStyleSettings({ ...styleSettings, cancelBtnLabel })
+  const handleCancelBtnLabelChange = useCallback((cancel_label) =>
+    set__cancel_label(cancel_label)
   );
   const handleCancelBtnBgColorChange = useCallback((cancelBtnBgColor) => {
     set__cancel_bgcolor(cancelBtnBgColor);
@@ -480,11 +505,16 @@ const Index = ({ shopOrigin }) => {
   });
   const handleCustomMonthsChange = useCallback((customMonths) => {
     setStyleSettings({ ...styleSettings, customMonths });
+    set__custom_date(customMonths);
   });
   const handleOneMonthChange = useCallback((month, value) => {
     setStyleSettings({
       ...styleSettings,
       customMonths: { ...styleSettings.customMonths, [month]: value },
+    });
+    set__custom_date({
+      ...custom_date,
+      [month]: value,
     });
   });
 
@@ -500,6 +530,7 @@ const Index = ({ shopOrigin }) => {
   });
 
   // OTHERS HANDLERS
+  // TODO: NEED FIX
   const handleSaveSetting = async () => {
     setSaveToastActivate(true);
 
@@ -509,14 +540,76 @@ const Index = ({ shopOrigin }) => {
     //   advanceSettings,
     // });
 
+    // TODO: CONVERT COLOR DATA TYPE
     await axios.put(`/api/shops/${shopOrigin}`, {
+      app_enable: Number.parseInt(app_enable),
+      av_layout:Number.parseInt(av_layout),
+      input_age: Number.parseInt(input_age),
+      min_age: Number.parseInt(min_age),
+      popup_bgcolor: JSON.stringify(popup_bgcolor),
+      submit_bgcolor: JSON.stringify(submit_bgcolor),
+      cancel_bgcolor: JSON.stringify(cancel_bgcolor),
+      overlayBgColor: JSON.stringify(overlayBgColor),
       headline_text,
       headline_size,
       subhead_text,
       subhead_size,
-      overlayBgColor: JSON.stringify(overlayBgColor),
-      bgImage_data: JSON.stringify(bgImage_data),
+      custom_date: JSON.stringify(custom_date),
+      submit_label,
+      cancel_label,
+      exit_link,
+      validate_error,
+      customcss,
+      submitBtnLabelColor: JSON.stringify(submitBtnLabelColor),
+      cancelBtnLabelColor: JSON.stringify(cancelBtnLabelColor),
+      headlineTextColor: JSON.stringify(headlineTextColor),
+      subHeadlineTextColor: JSON.stringify(subHeadlineTextColor)
     });
+
+    // SAVE IMAGEs
+    // Background img
+    if (bgImage_temp != null) {
+      const type = bgImage_temp.file.type.split("/")[1];
+      await axios.put(`/api/shops/upload_img/${shopOrigin}`, {
+        image_data: {
+          data: bgImage_temp.data,
+          name: `${shopOrigin}_ageBg.${type}`,
+          field: "popup_bg_name",
+        },
+        themeId,
+      });
+    } else if (bgImage_temp == null && popup_bg == null) {
+      await axios.put(`/api/shops/upload_img/${shopOrigin}`, {
+        image_data: {
+          data: null,
+          name: null,
+          field: "popup_bg_name",
+        },
+        themeId,
+      });
+    }
+
+    // Logo
+    if (logo_temp != null) {
+      const type = logo_temp.file.type.split("/")[1];
+      await axios.put(`/api/shops/upload_img/${shopOrigin}`, {
+        image_data: {
+          data: logo_temp.data,
+          name: `${shopOrigin}_ageLogo.${type}`,
+          field: "logo_name",
+        },
+        themeId,
+      });
+    } else if (logo_temp == null && logo == null) {
+      await axios.put(`/api/shops/upload_img/${shopOrigin}`, {
+        image_data: {
+          data: null,
+          name: null,
+          field: "logo_name",
+        },
+        themeId,
+      });
+    }
   };
 
   const handleAppStatusChange = async () => {
@@ -524,12 +617,13 @@ const Index = ({ shopOrigin }) => {
       set__app_enable(1);
       setEnableToastActivate(true);
       await axios.put(`/api/shops/${shopOrigin}`, {
-        app_enable: "enable",
+        app_enable: 1,
       });
     } else setDisableModalActivate(true);
   };
 
   const handleDisableModalClose = () => {
+    // console.log(bgImage_data)
     setDisableModalActivate(false);
     setAppStatus("enable");
   };
@@ -548,26 +642,25 @@ const Index = ({ shopOrigin }) => {
     return color;
   };
 
-  const handleSubmitLogo = async () => {
-    setLayoutSettings(uploadLogo);
-    handleLogoChange(uploadLogo);
+  const handleSubmitLogo = () => {
+    handleLogoTempChange(uploadLogo);
     setUploadLogo(null);
-
-    // let buf = Buffer(uploadLogo.data);
-    // let dataBase64 = Buffer.from(buf).toString("base64");
-    // console.log(dataBase64);
+    // handleLogoChange(uploadLogo);
   };
 
   const handleRemoveLogo = () => {
     handleLogoChange(null);
+    handleLogoTempChange(null);
   };
 
   const handleSubmitBgImage = () => {
-    handleBgImageChange(uploadBgImage);
+    console.log(uploadBgImage);
+    handleBgImageTempChange(uploadBgImage);
     setUploadBgImage(null);
   };
 
   const handleRemoveBgImage = () => {
+    handleBgImageTempChange(null);
     handleBgImageChange(null);
   };
 
@@ -645,11 +738,19 @@ const Index = ({ shopOrigin }) => {
             <Card title="Background Image">
               <Card.Section>
                 <Stack spacing="loose" vertical>
-                  {bgImage_data != null && bgImage_data != "" ? (
+                  {popup_bg != null &&
+                  popup_bg != "" &&
+                  bgImage_temp == null ? (
                     <Thumbnail
-                      source={bgImage_data.data}
+                      source={popup_bg}
                       size="large"
-                      alt="Logo"
+                      alt="Background Img"
+                    />
+                  ) : bgImage_temp != null ? (
+                    <Thumbnail
+                      source={bgImage_temp.data}
+                      size="large"
+                      alt="Background Img"
                     />
                   ) : (
                     <TextContainer>
@@ -660,9 +761,7 @@ const Index = ({ shopOrigin }) => {
                     <Button
                       primary
                       disabled={
-                        bgImage_data != null && bgImage_data != ""
-                          ? false
-                          : true
+                        popup_bg != null || bgImage_temp != null ? false : true
                       }
                       onClick={handleRemoveBgImage}
                     >
@@ -701,7 +800,7 @@ const Index = ({ shopOrigin }) => {
                   <Thumbnail
                     source={uploadBgImage.data}
                     size="large"
-                    alt="Logo"
+                    alt="Background img"
                   />
                 ) : null
                 // <DisplayText size="large">Please upload your background image!</DisplayText>
@@ -716,12 +815,10 @@ const Index = ({ shopOrigin }) => {
         <Card title="Logo">
           <Card.Section>
             <Stack spacing="loose" vertical>
-              {layoutSettings.logo != null ? (
-                <Thumbnail
-                  source={layoutSettings.logo.data}
-                  size="large"
-                  alt="Logo"
-                />
+              {logo != null && logo != "" && logo_temp == null ? (
+                <Thumbnail source={logo} size="large" alt="Logo" />
+              ) : logo_temp != null ? (
+                <Thumbnail source={logo_temp.data} size="large" alt="Logo" />
               ) : (
                 <TextContainer>
                   <p>Please upload your new logo!</p>
@@ -730,7 +827,7 @@ const Index = ({ shopOrigin }) => {
               <Stack distribution="trailing">
                 <Button
                   primary
-                  disabled={layoutSettings.logo != null ? false : true}
+                  disabled={logo != null || logo_temp != null ? false : true}
                   onClick={handleRemoveLogo}
                 >
                   Remove
@@ -782,12 +879,12 @@ const Index = ({ shopOrigin }) => {
         </Card>
       </Layout.Section>
 
-      {input_age === "yes" ? (
+      {input_age == 1 ? (
         <Layout.Section>
           <Card title="Minimum age to view site:">
             <Card.Section>
               <TextField
-                value={min_age}
+                value={min_age + ""}
                 type="number"
                 inputMode="numeric"
                 onChange={handleMinAgeChange}
@@ -962,18 +1059,18 @@ const Index = ({ shopOrigin }) => {
     </Popover>
   );
 
-  const listMonths = Object.keys(styleSettings.customMonths);
+  const listMonths = Object.keys(custom_date);
   let renderCustomMonths = [];
   for (let i = 0; i < listMonths.length - 1; i += 2) {
     renderCustomMonths.push(
       <Stack key={i} distribution="fillEvenly" spacing="tight">
         <TextField
-          value={styleSettings.customMonths[listMonths[i]]}
+          value={custom_date[listMonths[i]]}
           placeholder={MONTHS[i]}
           onChange={(v) => handleOneMonthChange(listMonths[i], v)}
         />
         <TextField
-          value={styleSettings.customMonths[listMonths[i + 1]]}
+          value={custom_date[listMonths[i + 1]]}
           placeholder={MONTHS[i + 1]}
           onChange={(v) => handleOneMonthChange(listMonths[i + 1], v)}
         />
@@ -1010,6 +1107,8 @@ const Index = ({ shopOrigin }) => {
               <TextField
                 value={headline_size}
                 onChange={handleHeadlineTextSizeChange}
+                type="number"
+                inputMode="numeric"
               />
             </Card.Section>
             <Card.Section title="Color">
@@ -1039,6 +1138,8 @@ const Index = ({ shopOrigin }) => {
               <TextField
                 value={subhead_size}
                 onChange={handleSubHeadlineTextSizeChange}
+                type="number"
+                inputMode="numeric"
               />
             </Card.Section>
             <Card.Section title="Color">
@@ -1091,7 +1192,7 @@ const Index = ({ shopOrigin }) => {
             <Stack.Item fill>
               <Card.Section title="Label">
                 <TextField
-                  value={styleSettings.cancelBtnLabel}
+                  value={cancel_label}
                   onChange={handleCancelBtnLabelChange}
                 />
               </Card.Section>
@@ -1116,7 +1217,7 @@ const Index = ({ shopOrigin }) => {
         </Card>
       </Layout.Section>
 
-      {input_age === 1 ? (
+      {input_age == 1 ? (
         <Layout.Section>
           <Card title="Custom months">
             <Card.Section>
@@ -1187,17 +1288,23 @@ const Index = ({ shopOrigin }) => {
 
   var months = listMonths.map((month, index) => {
     return (
-      <option key={index} value={styleSettings.customMonths[month]}>
-        {styleSettings.customMonths[month]}
+      <option key={index} value={custom_date[month]}>
+        {custom_date[month]}
       </option>
     );
   });
 
   const avOverlayWrapStyle =
-    layoutSettings.layoutSelected == "withBackground" &&
-    layoutSettings.bgImage != null
+    av_layout == 2 && popup_bg != null && popup_bg != "" && bgImage_temp == null
       ? {
-          backgroundImage: `url(${layoutSettings.bgImage.data})`,
+          backgroundImage: `url('${popup_bg}')`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }
+      : av_layout == 2 && bgImage_temp != null
+      ? {
+          backgroundImage: `url(${bgImage_temp.data})`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           backgroundSize: "cover",
@@ -1262,9 +1369,13 @@ const Index = ({ shopOrigin }) => {
                         backgroundColor: convertRgbToString(popup_bgcolor),
                       }}
                     >
-                      {layoutSettings.logo != null ? (
+                      {logo != null && logo_temp == null ? (
                         <div className="ot-logo-image">
-                          <img src={layoutSettings.logo.data} />
+                          <img src={logo} />
+                        </div>
+                      ) : logo_temp != null ? (
+                        <div className="ot-logo-image">
+                          <img src={logo_temp.data} />
                         </div>
                       ) : null}
 
@@ -1272,9 +1383,7 @@ const Index = ({ shopOrigin }) => {
                         className="ot-headline_text"
                         style={{
                           fontSize: headline_size + "px",
-                          color: convertRgbToString(
-                            styleSettings.headlineTextColor
-                          ),
+                          color: convertRgbToString(headlineTextColor),
                         }}
                       >
                         {headline_text}
@@ -1283,14 +1392,12 @@ const Index = ({ shopOrigin }) => {
                         className="ot-subhead_text"
                         style={{
                           fontSize: subhead_size + "px",
-                          color: convertRgbToString(
-                            styleSettings.subHeadlineTextColor
-                          ),
+                          color: convertRgbToString(subHeadlineTextColor),
                         }}
                       >
                         {subhead_text}
                       </p>
-                      {input_age === 1 ? (
+                      {input_age == 1 ? (
                         <div className="ot-av-datepicker-fields">
                           <select className="av-month">${months}</select>
                           <input
@@ -1314,7 +1421,9 @@ const Index = ({ shopOrigin }) => {
                             background: convertRgbToString(
                               styleSettings.submitBtnBgColor
                             ),
-                            color: convertRgbToString(submitBtnLabelColor),
+                            color: convertRgbToString(
+                              styleSettings.submitBtnLabelColor
+                            ),
                           }}
                         >
                           {submit_label}
@@ -1330,7 +1439,7 @@ const Index = ({ shopOrigin }) => {
                             ),
                           }}
                         >
-                          {styleSettings.cancelBtnLabel}
+                          {cancel_label}
                         </button>
                       </div>
                     </div>
