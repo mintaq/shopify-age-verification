@@ -59,11 +59,13 @@ export const insertShopInstalled = (data) => {
   const date = new Date().toISOString();
 
   for (let i = 0; i < dataKeys.length; i++) {
-    sql_Fields += `${dataKeys[i]}` + i == dataKeys.length - 1 ? "" : ", ";
-    sql_Values += `${data[dataKeys[i]]}` + i == dataKeys.length - 1 ? "" : ", ";
+    sql_Fields += `${dataKeys[i]}${i == dataKeys.length - 1 ? "" : ", "}`;
+    sql_Values += `'${data[dataKeys[i]]}'${i == dataKeys.length - 1 ? "" : ", "}`;
   }
 
   query = `INSERT INTO shop_installed (${sql_Fields}) VALUES (${sql_Values})`;
+
+  console.log("insert shop install: ", query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -85,11 +87,14 @@ export const updateUserSettings = (shop, data) => {
   let query = "";
 
   dataKeys.map((field, i) => {
-    return (sql_Set +=
-      `${field}='${data[field]}'` + i == dataKeys.length - 1 ? "" : ", ");
+    return (sql_Set += `${field}='${data[field]}'${
+      i == dataKeys.length - 1 ? "" : ", "
+    }`);
   });
 
   query = `UPDATE tbl_usersettings SET ${sql_Set} WHERE store_name = '${shop}'`;
+
+  console.log("update user setting: ", query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -122,7 +127,7 @@ export const updateTableRow = (table, data, where) => {
     let value = data[dataKeys[i]];
     let field = dataKeys[i];
 
-    if (value === null) {
+    if (value == null) {
       sql_Set += `${field}=NULL`;
     } else if (!Number.isNaN(value) || value == true || value == false) {
       sql_Set += `${field}='${value}'`;
@@ -135,24 +140,9 @@ export const updateTableRow = (table, data, where) => {
     sql_Set += i == dataKeys.length - 1 ? "" : ", ";
   }
 
-  // dataKeys.map((field, i) => {
-  //   let value = data[field];
-  //   if (value === null) {
-  //     sql_Set += `${field}=NULL`;
-  //   } else if (!Number.isNaN(value) || value == true || value == false) {
-  //     sql_Set += `${field}='${value}'`;
-  //   } else if (typeof value == 'object') {
-  //     sql_Set += `${field}=${JSON.stringify(value)}`
-  //   } else {
-  //     sql_Set += `${field}=${value}`;
-  //   }
-
-  //   return (sql_Set += i == dataKeys.length - 1 ? "" : ", ");
-  // });
-
   query = `UPDATE ${table} SET ${sql_Set} WHERE ${sql_Where}`;
 
-  console.log(query);
+  console.log("update table row: ", query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -170,16 +160,25 @@ export const updateTableRow = (table, data, where) => {
 
 export const insertTableRow = (table, data) => {
   const dataKeys = Object.keys(data);
+  console.log("data:", data);
+  console.log("datakeys:", dataKeys);
   let query = "";
   let sql_Fields = "";
   let sql_Values = "";
 
   for (let i = 0; i < dataKeys.length; i++) {
-    sql_Fields += dataKeys[i] + i == dataKeys.length - 1 ? "" : ", ";
-    sql_Values += data[dataKeys[i]] + i == dataKeys.length - 1 ? "" : ", ";
+    sql_Fields += `${dataKeys[i]}${i == dataKeys.length - 1 ? "" : ", "}`;
+    sql_Values += `'${data[dataKeys[i]]}'${
+      i == dataKeys.length - 1 ? "" : ", "
+    }`;
   }
 
+  console.log("fields, ", sql_Fields);
+  console.log("values, ", sql_Values);
+
   query = `INSERT INTO ${table} (${sql_Fields}) VALUES (${sql_Values})`;
+
+  console.log("insert table row: ", query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -206,7 +205,7 @@ export const selectTableRow = (table, field, where) => {
 
   query = `SELECT ${field} FROM ${table} WHERE ${sql_Where}`;
 
-  console.log(query);
+  console.log("select table row: ", query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -216,6 +215,34 @@ export const selectTableRow = (table, field, where) => {
           reject(err);
         }
 
+        resolve(results[0]);
+      });
+    });
+  });
+};
+
+export const deleteTableRow = (table, where) => {
+  const whereKeys = Object.keys(where);
+  let sql_Where = "";
+  let query = "";
+
+  whereKeys.map((col, i) => {
+    sql_Where += `${col} = "${where[col]}"`;
+  });
+
+  query = `DELETE FROM ${table} WHERE ${sql_Where}`;
+
+  console.log("delete table row: ", query);
+
+  return new Promise(function (resolve, reject) {
+    mysqlLib.getConnection(function (err, connection) {
+      connection.query(query, function (err, results, fields) {
+        connection.release();
+        if (err) {
+          reject(err);
+        }
+
+        console.log(results);
         resolve(results[0]);
       });
     });

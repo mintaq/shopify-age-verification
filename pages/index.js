@@ -30,6 +30,7 @@ import classes from "./index.css";
 
 const Index = ({ shopOrigin }) => {
   const [themeId, set__themeId] = useState("");
+  const [user_settings, set__user_settings] = useState({});
   const [installedShop, setInstalledShop] = useState({});
   const [chargeStatus, setChargeStatus] = useState(true);
   const [openResourcePicker, setOpenResourcePicker] = useState(false);
@@ -111,6 +112,12 @@ const Index = ({ shopOrigin }) => {
     b: 26,
     a: 1,
   });
+  const [popupBgColor, set__popupBgColor] = useState({
+    r: 241,
+    g: 241,
+    b: 241,
+    a: 0,
+  });
   const [popup_bgcolor, set__popup_bgcolor] = useState("");
   const [headlineTextColor, set__headlineTextColor] = useState({
     r: 1,
@@ -140,6 +147,18 @@ const Index = ({ shopOrigin }) => {
     b: 1,
     a: 1,
   });
+  const [submitBtnBgColor, set__submitBtnBgColor] = useState({
+    r: 241,
+    g: 132,
+    b: 27,
+    a: 1,
+  });
+  const [cancelBtnBgColor, set__cancelBtnBgColor] = useState({
+    r: 108,
+    g: 89,
+    b: 89,
+    a: 1,
+  });
   const [text_color, set__text_color] = useState("");
   const [custom_date, set__custom_date] = useState({
     january: "January",
@@ -155,7 +174,7 @@ const Index = ({ shopOrigin }) => {
     november: "November",
     december: "December",
   });
-  const [validate_error, set__validate_error] = useState(null);
+  const [validate_error, set__validate_error] = useState("");
 
   // ADVANCE SETTINGS STATE
   const [advanceSettings, setAdvanceSettings] = useState({
@@ -165,7 +184,7 @@ const Index = ({ shopOrigin }) => {
   });
 
   // *** FROM MYSQL
-  const [cache_time, set__cache_time] = useState(10);
+  const [cache_time, set__cache_time] = useState("10");
   const [exit_link, set__exit_link] = useState("https://www.google.com");
   const [customcss, set__customcss] = useState("");
 
@@ -264,81 +283,101 @@ const Index = ({ shopOrigin }) => {
     "December",
   ];
 
+  // *** INIT DATA ***
   useEffect(() => {
     async function fetchShop() {
-      const { data } = await axios.get(
-        `/api/mysql/shops/settings/${shopOrigin}`
+      const user_settings = await axios.get(
+        `/api/shops/user_settings/${shopOrigin}`
       );
-
-      console.log("MysqlData", data);
-      // console.log("overlayBgColor ", JSON.parse(data.overlayBgColor));
-
-      // *** LAYOUT STATES ***
-      // console.log(data.bgImage_data)
-      set__themeId(data.themeId);
-      set__app_enable(data.app_enable + "");
-      set__av_layout(data.av_layout + "");
-      set__logo(data.logo);
-      set__logo_name(data.logo_name);
-      set__popup_bg(data.popup_bg);
-      set__popup_bg_name(data.popup_bg_name);
-      set__input_age(data.input_age + "");
-      set__min_age(data.min_age + "");
-      set__page_show(data.page_show);
-      set__collection_page(data.collection_page);
-      set__specific_products(data.specific_products);
-      set__popupDisplaySelected(data.popupDisplaySelected);
-      set__blockProducts(data.blockProducts);
-      // set__logo_data(data.logo_data);
-      // set__bgImage_data(data.bgImage_data);
-
-      // *** STYLE STATES ***
-      set__headline_text(data.headline_text);
-      set__headline_size(data.headline_size);
-      set__subhead_text(data.subhead_text);
-      set__subhead_size(data.subhead_size);
-      set__overlayBgColor(colorConverter(data.overlayBgColor));
-      set__popup_bgcolor(colorConverter(data.popup_bgcolor));
-      set__headlineTextColor(colorConverter(data.headlineTextColor));
-      set__subHeadlineTextColor(colorConverter(data.subHeadlineTextColor));
-      set__submit_label(data.submit_label);
-      set__cancel_label(data.cancel_label);
-      set__submit_bgcolor(colorConverter(data.submit_bgcolor));
-      set__cancel_bgcolor(colorConverter(data.cancel_bgcolor));
-      set__submitBtnLabelColor(colorConverter(data.submitBtnLabelColor));
-      set__cancelBtnLabelColor(colorConverter(data.cancelBtnLabelColor));
-      set__text_color(colorConverter(data.text_color));
-      set__custom_date(JSON.parse(data.custom_date));
-      set__validate_error(data.validate_error);
-
-      // *** ADVANCE STATES ***
-      set__cache_time(data.cache_time);
-      set__exit_link(data.exit_link);
-      set__customcss(data.customcss);
-
-      const installedShopRes = await axios.get(
-        `/api/shops/installed/${shopOrigin}`
-      );
-      if (!installedShopRes) return;
-      setInstalledShop({ ...installedShopRes.data });
+      if (!user_settings) return;
+      set__user_settings({ ...user_settings.data });
 
       const isActive = await checkAppChargeStatus();
       if (isActive) {
-        const shopSettings = await axios.get(
-          `/api/shops/settings/${shopOrigin}`
+        // const shopSettings = await axios.get(
+        //   `/api/shops/settings/${shopOrigin}`
+        // );
+        // if (!shopSettings) {
+        //   console.log("Error", shopSettings);
+        //   return;
+        // }
+        // setLayoutSettings({ ...shopSettings.data.layoutSettings });
+        // setStyleSettings({ ...shopSettings.data.styleSettings });
+        // setAdvanceSettings({ ...shopSettings.data.advanceSettings });
+        const { data } = await axios.get(
+          `/api/mysql/shops/settings/${shopOrigin}`
         );
-        if (!shopSettings) {
-          console.log("Error", shopSettings);
-          return;
-        }
 
-        setAppStatus(shopSettings.data.appStatus);
-        setLayoutSettings({ ...shopSettings.data.layoutSettings });
-        setStyleSettings({ ...shopSettings.data.styleSettings });
-        setAdvanceSettings({ ...shopSettings.data.advanceSettings });
-        setPrevDisplayOpts(
-          shopSettings.data.layoutSettings.popupDisplaySelected
+        console.log("MysqlData", data);
+
+        // *** LAYOUT STATES ***
+        set__themeId(data.themeId);
+        set__app_enable(data.app_enable + "");
+        set__av_layout(data.av_layout + "");
+        set__logo(data.logo);
+        set__logo_name(data.logo_name);
+        set__popup_bg(data.popup_bg);
+        set__popup_bg_name(data.popup_bg_name);
+        set__input_age(data.input_age + "");
+        set__min_age(data.min_age + "");
+        popup_display_coverter(
+          data.page_show,
+          data.specific_products,
+          data.popupDisplaySelected,
+          data.blockProducts
         );
+
+        // *** STYLE STATES ***
+        set__headline_text(data.headline_text);
+        set__headline_size(data.headline_size);
+        set__subhead_text(data.subhead_text);
+        set__subhead_size(data.subhead_size);
+        set__overlayBgColor(colorConverter(data.overlayBgColor));
+        colorMerger(
+          data.popup_bgcolor,
+          data.popupBgColor,
+          "popup_bgcolor",
+          "popupBgColor"
+        );
+        colorMerger(
+          data.text_color,
+          data.headlineTextColor,
+          "text_color",
+          "headlineTextColor"
+        );
+        colorMerger(
+          data.text_color,
+          data.subHeadlineTextColor,
+          "text_color",
+          "subHeadlineTextColor"
+        );
+        set__submit_label(data.submit_label);
+        set__cancel_label(data.cancel_label);
+        colorMerger(
+          data.submit_bgcolor,
+          data.submitBtnBgColor,
+          "submit_bgcolor",
+          "submitBtnBgColor"
+        );
+        colorMerger(
+          data.cancel_bgcolor,
+          data.cancelBtnBgColor,
+          "cancel_bgcolor",
+          "cancelBtnBgColor"
+        );
+        set__submitBtnLabelColor(colorConverter(data.submitBtnLabelColor));
+        set__cancelBtnLabelColor(colorConverter(data.cancelBtnLabelColor));
+        set__text_color(colorConverter(data.text_color));
+        set__custom_date(JSON.parse(data.custom_date));
+        set__validate_error(data.validate_error);
+
+        // *** ADVANCE STATES ***
+        set__cache_time(data.cache_time + "");
+        set__exit_link(data.exit_link);
+        set__customcss(data.customcss);
+
+        setAppStatus(data.appStatus);
+        setPrevDisplayOpts(data.popupDisplaySelected);
         setChargeStatus(true);
         setLoading(false);
       } else {
@@ -359,7 +398,7 @@ const Index = ({ shopOrigin }) => {
     let _isActive;
     const nowDate = new Date().getTime();
     const _7daysMs = 7 * 24 * 60 * 60 * 1000;
-    const installedDate = new Date(installedShop.createdAt).getTime();
+    const installedDate = new Date(user_settings.installed_date).getTime();
 
     nowDate - installedDate < _7daysMs
       ? (_isOnTrial = false)
@@ -374,18 +413,106 @@ const Index = ({ shopOrigin }) => {
 
   const colorConverter = (color) => {
     if (color.includes("#")) {
+      color = color.split('#')[1];    
+      console.log('color,', color)    
+      var values = color.match(/.{1,2}/g);
+      console.log(values)
+
       return {
-        r: (color >> 16) & 0xff,
-        g: (color >> 8) & 0xff,
-        b: color & 0xff,
+        r: parseInt(values[0], 16),
+        g: parseInt(values[1], 16),
+        b: parseInt(values[2], 16),
         a: 1,
       };
-    } else if (color != null && color != "") return JSON.parse(color);
-    else return "";
+    } else if (color != null && color != "") {
+      return JSON.parse(color);
+    } else {
+      return {
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 1,
+      };
+    }
+  };
+
+  const colorMerger = (oldColor, newColor, oldColor_name, newColor_name) => {
+    if (oldColor && (newColor == "" || null)) {
+      switch (oldColor_name) {
+        case "popup_bgcolor":
+          set__popupBgColor(colorConverter(oldColor));
+          break;
+        case "text_color":
+          if (newColor_name == "headlineTextColor") {
+            set__headlineTextColor(colorConverter(oldColor));
+            console.log(colorConverter(oldColor));
+          } else {
+            set__subHeadlineTextColor(colorConverter(oldColor));
+          }
+          break;
+        case "submit_bgcolor":
+          set__submitBtnBgColor(colorConverter(oldColor));
+          break;
+        case "cancel_bgcolor":
+          set__cancelBtnBgColor(colorConverter(oldColor));
+      }
+    } else {
+      if (newColor_name == "popupBgColor")
+        set__popupBgColor(JSON.parse(newColor));
+      if (newColor_name == "headlineTextColor") {
+        set__headlineTextColor(JSON.parse(newColor));
+      }
+      if (newColor_name == "subHeadlineTextColor") {
+        set__subHeadlineTextColor(JSON.parse(newColor));
+      }
+      if (newColor_name == "submitBtnBgColor") {
+        set__submitBtnBgColor(JSON.parse(newColor));
+      }
+      if (newColor_name == "cancelBtnBgColor") {
+        set__cancelBtnBgColor(JSON.parse(newColor));
+      }
+    }
+  };
+
+  const popup_display_coverter = (
+    old_block_type,
+    old_specific_products,
+    new_popupDisplaySelected,
+    new_blockProducts
+  ) => {
+    if (new_popupDisplaySelected == "" || null) {
+      if (old_block_type == 1) {
+        set__popupDisplaySelected(["home"]);
+      } else if (old_block_type == 2) {
+        set__popupDisplaySelected(["collection"]);
+      } else if (old_block_type == 3) {
+        set__popupDisplaySelected(["product"]);
+        if (old_specific_products != "" || null) {
+          const old_prod_temp = JSON.parse(old_specific_products);
+          let temp_arr = [];
+          if (Array.isArray(old_prod_temp)) {
+            old_prod_temp.map(({ id }) => {
+              return temp_arr.push({
+                id: `gid://shopify/Product/${id}`,
+                rid: id,
+              });
+            });
+            set__blockProducts(temp_arr);
+          }
+        }
+      } else {
+        set__popupDisplaySelected(["home"]);
+      }
+    } else {
+      set__popupDisplaySelected(JSON.parse(new_popupDisplaySelected));
+      if (new_blockProducts != "" || null)
+        set__blockProducts(JSON.parse(new_blockProducts));
+    }
   };
 
   // LAYOUT SETTINGS HANDLERS
   const handlePopupDisplayChange = useCallback((popupDisplaySelected) => {
+    console.log(popupDisplaySelected);
     if (
       prevDisplayOpts.includes("all") &&
       (!popupDisplaySelected.includes("home") ||
@@ -396,7 +523,7 @@ const Index = ({ shopOrigin }) => {
       popupDisplaySelected = popupDisplaySelected.filter(
         (word) => word != "all"
       );
-      setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
+      set__popupDisplaySelected(popupDisplaySelected);
     } else if (
       !prevDisplayOpts.includes("all") &&
       popupDisplaySelected.includes("home") &&
@@ -405,30 +532,29 @@ const Index = ({ shopOrigin }) => {
     ) {
       setPrevDisplayOpts(popupDisplaySelected);
       popupDisplaySelected = ["all", "home", "collection", "product"];
-      setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
+      set__popupDisplaySelected(popupDisplaySelected);
     } else if (
       !prevDisplayOpts.includes("all") &&
       popupDisplaySelected.includes("all")
     ) {
       setPrevDisplayOpts(popupDisplaySelected);
       popupDisplaySelected = ["all", "home", "collection", "product"];
-      setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
+      set__popupDisplaySelected(popupDisplaySelected);
     } else if (
       prevDisplayOpts.includes("all") &&
       !popupDisplaySelected.includes("all")
     ) {
       setPrevDisplayOpts(popupDisplaySelected);
       popupDisplaySelected = [];
-      setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
+      set__popupDisplaySelected(popupDisplaySelected);
     }
     setPrevDisplayOpts(popupDisplaySelected);
-    setLayoutSettings({ ...layoutSettings, popupDisplaySelected });
+    set__popupDisplaySelected(popupDisplaySelected);
   });
   const handleLayoutSelectChange = useCallback((avLayout) =>
     set__av_layout(avLayout)
   );
   const handleReqAgeSelectChange = useCallback((inputAge) => {
-    // console.log(input_age)
     set__input_age(inputAge);
   });
   const handleMinAgeChange = useCallback((min_age) => set__min_age(min_age));
@@ -443,6 +569,7 @@ const Index = ({ shopOrigin }) => {
     setLayoutSettings({ ...layoutSettings, logo });
   });
   const handleBlockProductsChange = useCallback((blockProducts) => {
+    set__blockProducts(blockProducts);
     setLayoutSettings({ ...layoutSettings, blockProducts });
   });
   const handleBgImageTempChange = useCallback((bgImage_temp) => {
@@ -469,39 +596,33 @@ const Index = ({ shopOrigin }) => {
     set__overlayBgColor(overlayBgColor)
   );
   const handlePopupBgColorChange = useCallback((popup_bgcolor) =>
-    set__popup_bgcolor(popup_bgcolor)
+    set__popupBgColor(popup_bgcolor)
   );
   const handleHeadlineTextColorChange = useCallback((headlineTextColor) => {
     set__headlineTextColor(headlineTextColor);
-    setStyleSettings({ ...styleSettings, headlineTextColor });
   });
   const handleSubHeadlineTextColorChange = useCallback(
     (subHeadlineTextColor) => {
       set__subHeadlineTextColor(subHeadlineTextColor);
-      setStyleSettings({ ...styleSettings, subHeadlineTextColor });
     }
   );
   const handleSubmitBtnLabelChange = useCallback((submit_label) =>
     set__submit_label(submit_label)
   );
   const handleSubmitBtnBgColorChange = useCallback((submitBtnBgColor) => {
-    set__submit_bgcolor(submitBtnBgColor);
-    setStyleSettings({ ...styleSettings, submitBtnBgColor });
+    set__submitBtnBgColor(submitBtnBgColor);
   });
   const handleSubmitBtnLabelColorChange = useCallback((submitBtnLabelColor) => {
     set__submitBtnLabelColor(submitBtnLabelColor);
-    setStyleSettings({ ...styleSettings, submitBtnLabelColor });
   });
   const handleCancelBtnLabelChange = useCallback((cancel_label) =>
     set__cancel_label(cancel_label)
   );
   const handleCancelBtnBgColorChange = useCallback((cancelBtnBgColor) => {
-    set__cancel_bgcolor(cancelBtnBgColor);
-    setStyleSettings({ ...styleSettings, cancelBtnBgColor });
+    set__cancelBtnBgColor(cancelBtnBgColor);
   });
   const handleCancelBtnLabelColorChange = useCallback((cancelBtnLabelColor) => {
     set__cancelBtnLabelColor(cancelBtnLabelColor);
-    setStyleSettings({ ...styleSettings, cancelBtnLabelColor });
   });
   const handleCustomMonthsChange = useCallback((customMonths) => {
     setStyleSettings({ ...styleSettings, customMonths });
@@ -516,6 +637,9 @@ const Index = ({ shopOrigin }) => {
       ...custom_date,
       [month]: value,
     });
+  });
+  const handleValidateErrorChange = useCallback((validate_error) => {
+    set__validate_error(validate_error);
   });
 
   // ADVANCE SETTINGS HANDLERS
@@ -534,36 +658,32 @@ const Index = ({ shopOrigin }) => {
   const handleSaveSetting = async () => {
     setSaveToastActivate(true);
 
-    // await axios.put(`/api/shops/${shopOrigin}`, {
-    //   layoutSettings,
-    //   styleSettings,
-    //   advanceSettings,
-    // });
-
-    // TODO: CONVERT COLOR DATA TYPE
     await axios.put(`/api/shops/${shopOrigin}`, {
       app_enable: Number.parseInt(app_enable),
-      av_layout:Number.parseInt(av_layout),
+      av_layout: Number.parseInt(av_layout),
       input_age: Number.parseInt(input_age),
       min_age: Number.parseInt(min_age),
-      popup_bgcolor: JSON.stringify(popup_bgcolor),
-      submit_bgcolor: JSON.stringify(submit_bgcolor),
-      cancel_bgcolor: JSON.stringify(cancel_bgcolor),
-      overlayBgColor: JSON.stringify(overlayBgColor),
       headline_text,
       headline_size,
       subhead_text,
       subhead_size,
+      popupDisplaySelected: JSON.stringify(popupDisplaySelected),
+      blockProducts: JSON.stringify(blockProducts),
       custom_date: JSON.stringify(custom_date),
       submit_label,
       cancel_label,
+      cache_time: Number.parseInt(cache_time),
       exit_link,
       validate_error,
       customcss,
+      overlayBgColor: JSON.stringify(overlayBgColor),
+      popupBgColor: JSON.stringify(popupBgColor),
       submitBtnLabelColor: JSON.stringify(submitBtnLabelColor),
       cancelBtnLabelColor: JSON.stringify(cancelBtnLabelColor),
       headlineTextColor: JSON.stringify(headlineTextColor),
-      subHeadlineTextColor: JSON.stringify(subHeadlineTextColor)
+      subHeadlineTextColor: JSON.stringify(subHeadlineTextColor),
+      submitBtnBgColor: JSON.stringify(submitBtnBgColor),
+      cancelBtnBgColor: JSON.stringify(cancelBtnBgColor),
     });
 
     // SAVE IMAGEs
@@ -625,7 +745,7 @@ const Index = ({ shopOrigin }) => {
   const handleDisableModalClose = () => {
     // console.log(bgImage_data)
     setDisableModalActivate(false);
-    setAppStatus("enable");
+    set__app_enable(1);
   };
 
   const handleDisableApp = async () => {
@@ -900,7 +1020,7 @@ const Index = ({ shopOrigin }) => {
             <ChoiceList
               allowMultiple
               choices={popupDisplayOptions}
-              selected={layoutSettings.popupDisplaySelected}
+              selected={popupDisplaySelected}
               onChange={(v) => {
                 handlePopupDisplayChange(v);
               }}
@@ -909,7 +1029,7 @@ const Index = ({ shopOrigin }) => {
         </Card>
       </Layout.Section>
 
-      {layoutSettings.popupDisplaySelected.includes("product") ? (
+      {popupDisplaySelected.includes("product") ? (
         <Layout.Section>
           <Card>
             <Card.Section>
@@ -929,8 +1049,11 @@ const Index = ({ shopOrigin }) => {
               <ResourcePicker
                 resourceType="Product"
                 open={openResourcePicker}
-                initialSelectionIds={layoutSettings.blockProducts}
-                onSelection={(v) => handleResourcePickerSelection(v)}
+                initialSelectionIds={blockProducts}
+                onSelection={(v) => {
+                  console.log(v);
+                  handleResourcePickerSelection(v);
+                }}
                 showVariants={false}
                 onCancel={() => setOpenResourcePicker(false)}
               />
@@ -948,6 +1071,28 @@ const Index = ({ shopOrigin }) => {
   );
 
   const handleColorPickerActivator = (activateSetter, styleSettingsState) => {
+    let stateColor;
+    switch (styleSettingsState) {
+      case "cancelBtnLabelColor":
+        stateColor = cancelBtnLabelColor;
+        break;
+      case "cancelBtnBgColor":
+        stateColor = cancelBtnBgColor;
+        break;
+      case "submitBtnLabelColor":
+        stateColor = submitBtnLabelColor;
+        break;
+      case "submitBtnBgColor":
+        stateColor = submitBtnBgColor;
+        break;
+      case "subHeadlineTextColor":
+        stateColor = subHeadlineTextColor;
+        break;
+      case "headlineTextColor":
+        stateColor = headlineTextColor;
+        break;
+    }
+
     return (
       <Button onClick={() => activateSetter(true)} plain>
         <div
@@ -956,7 +1101,7 @@ const Index = ({ shopOrigin }) => {
             width: "7rem",
             borderRadius: "0.3rem",
             border: "0.5px solid darkgrey",
-            background: convertRgbToString(styleSettings[styleSettingsState]),
+            background: convertRgbToString(stateColor),
           }}
         />
       </Button>
@@ -969,6 +1114,28 @@ const Index = ({ shopOrigin }) => {
     stateHandler,
     styleSettingsState
   ) => {
+    let stateColor;
+    switch (styleSettingsState) {
+      case "cancelBtnLabelColor":
+        stateColor = cancelBtnLabelColor;
+        break;
+      case "cancelBtnBgColor":
+        stateColor = cancelBtnBgColor;
+        break;
+      case "submitBtnLabelColor":
+        stateColor = submitBtnLabelColor;
+        break;
+      case "submitBtnBgColor":
+        stateColor = submitBtnBgColor;
+        break;
+      case "subHeadlineTextColor":
+        stateColor = subHeadlineTextColor;
+        break;
+      case "headlineTextColor":
+        stateColor = headlineTextColor;
+        break;
+    }
+
     return (
       <Popover
         active={activateState}
@@ -981,7 +1148,7 @@ const Index = ({ shopOrigin }) => {
       >
         <Popover.Section>
           <SketchPicker
-            color={styleSettings[styleSettingsState]}
+            color={stateColor}
             onChange={(color) => stateHandler(color.rgb)}
           />
         </Popover.Section>
@@ -1020,7 +1187,7 @@ const Index = ({ shopOrigin }) => {
             width: "7rem",
             borderRadius: "0.3rem",
             border: "0.5px solid darkgrey",
-            background: convertRgbToString(popup_bgcolor),
+            background: convertRgbToString(popupBgColor),
           }}
         />
       </Button>
@@ -1217,6 +1384,18 @@ const Index = ({ shopOrigin }) => {
         </Card>
       </Layout.Section>
 
+      <Layout.Section>
+        <Card title="Validate error message:">
+          <Card.Section>
+            <TextField
+              value={validate_error}
+              placeholder="You are not old enough to visit this shop!"
+              onChange={handleValidateErrorChange}
+            />
+          </Card.Section>
+        </Card>
+      </Layout.Section>
+
       {input_age == 1 ? (
         <Layout.Section>
           <Card title="Custom months">
@@ -1245,7 +1424,7 @@ const Index = ({ shopOrigin }) => {
           <Card.Section>
             <TextField
               value={cache_time}
-              placeholder="0"
+              placeholder="10"
               type="number"
               inputMode="numeric"
               onChange={handleDaysChange}
@@ -1366,7 +1545,7 @@ const Index = ({ shopOrigin }) => {
                     <div
                       id="ot-av-overlay-form"
                       style={{
-                        backgroundColor: convertRgbToString(popup_bgcolor),
+                        backgroundColor: convertRgbToString(popupBgColor),
                       }}
                     >
                       {logo != null && logo_temp == null ? (
@@ -1418,12 +1597,8 @@ const Index = ({ shopOrigin }) => {
                         <button
                           className="ot-av-submit-btn"
                           style={{
-                            background: convertRgbToString(
-                              styleSettings.submitBtnBgColor
-                            ),
-                            color: convertRgbToString(
-                              styleSettings.submitBtnLabelColor
-                            ),
+                            background: convertRgbToString(submitBtnBgColor),
+                            color: convertRgbToString(submitBtnLabelColor),
                           }}
                         >
                           {submit_label}
@@ -1431,12 +1606,8 @@ const Index = ({ shopOrigin }) => {
                         <button
                           className="ot-av-cancel-btn"
                           style={{
-                            background: convertRgbToString(
-                              styleSettings.cancelBtnBgColor
-                            ),
-                            color: convertRgbToString(
-                              styleSettings.cancelBtnLabelColor
-                            ),
+                            background: convertRgbToString(cancelBtnBgColor),
+                            color: convertRgbToString(cancelBtnLabelColor),
                           }}
                         >
                           {cancel_label}

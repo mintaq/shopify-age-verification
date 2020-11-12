@@ -4,11 +4,17 @@ import mongoose from "mongoose";
 import updateScriptInTheme from "./services/updateScriptInTheme";
 import {
   getShopInstalled,
-  insertShopInstalled,
-  updateUserSettings,
+  getUserSettings,
+  getShopSettings,
   insertTableRow,
   updateTableRow,
 } from "./sql/sqlQueries";
+import {
+  submitBtnLabelColor,
+  cancelBtnLabelColor,
+  overlayBgColor,
+  custom_date,
+} from "./services/defaultValues"
 
 import "./models/shop";
 import "./models/InstalledShop";
@@ -20,36 +26,77 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
   console.log(shopDomain);
   console.log(accessToken);
 
-  const fetchedShop = await Shop.findOne({ domain: shopDomain });
-  const fetchedInstalledShop = await InstalledShop.findOne({
-    shop: shopDomain,
-  });
+  // const fetchedShop = await Shop.findOne({ domain: shopDomain });
+  // const fetchedInstalledShop = await InstalledShop.findOne({
+  //   shop: shopDomain,
+  // });
   const shopInstalled = await getShopInstalled(shopDomain);
-  const id = await updateScriptInTheme(shopDomain, accessToken);
-  console.log(shopInstalled);
+  const shopSettings = await getShopSettings(shopDomain);
+  const userSettings = await getUserSettings(shopDomain);
+  const theme_id = await updateScriptInTheme(shopDomain, accessToken);
+  const cur_date = new Date();
+  const cur_date_installed =
+    cur_date.toISOString().split("T")[0] +
+    " " +
+    cur_date.toTimeString().split(" ")[0];
 
   // NEW
   if (!shopInstalled) {
+    // IF SHOP IS NOT INSTALLED
+
     // await insertShopInstalled({
     //   shop: shopDomain,
     //   date_installed: new Date().toISOString(),
     // });
+
     await insertTableRow("shop_installed", {
       shop: shopDomain,
-      date_installed: new Date().toISOString(),
+      date_installed: cur_date_installed,
+      app_id: 1,
     });
     await insertTableRow("age_verifier_settings", {
       shop: shopDomain,
-      date_installed: new Date().toISOString(),
-      themeId: id,
+      app_id: 1,
+      themeId: theme_id + "",
+      popupDisplaySelected: JSON.stringify(["home"]),
+      custom_date: JSON.stringify(custom_date),
+      overlayBgColor: JSON.stringify(overlayBgColor),
+      submitBtnLabelColor: JSON.stringify(submitBtnLabelColor),
+      cancelBtnLabelColor: JSON.stringify(cancelBtnLabelColor),
+    });
+    await insertTableRow("tbl_usersettings", {
+      access_token: accessToken,
+      store_name: shopDomain,
+      app_id: 1,
+      installed_date: cur_date_installed,
     });
     return;
   } else {
-    const overlayColor = { r: 31, g: 26, b: 26, a: 1 };
+    // IF SHOP IS INSTALLED BEFORE
+    // IF SHOP IS REINSTALL
     console.log("Shop existed!");
+    if (!shopSettings && !userSettings) {
+      await insertTableRow("age_verifier_settings", {
+        shop: shopDomain,
+        themeId: theme_id + "",
+        popupDisplaySelected: JSON.stringify(["home"]),
+        custom_date: JSON.stringify(custom_date),
+        overlayBgColor: JSON.stringify(overlayBgColor),
+        submitBtnLabelColor: JSON.stringify(submitBtnLabelColor),
+        cancelBtnLabelColor: JSON.stringify(cancelBtnLabelColor),
+      });
+      await insertTableRow("tbl_usersettings", {
+        access_token: accessToken,
+        store_name: shopDomain,
+        app_id: 1,
+        installed_date: shopInstalled.date_installed,
+      });
+      return;
+    }
+
     await updateTableRow(
       "age_verifier_settings",
-      { themeId: id, overlayBgColor: JSON.stringify(overlayColor) },
+      { themeId: theme_id + "" },
       { shop: shopDomain }
     );
     await updateTableRow(

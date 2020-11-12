@@ -22,6 +22,7 @@ import {
   getShopSettings,
   updateTableRow,
   getUserSettings,
+  deleteTableRow,
 } from "./sql/sqlQueries";
 import uploadImageToAssets from "./services/uploadImageToAssets";
 
@@ -92,8 +93,9 @@ app.prepare().then(() => {
       async afterAuth(ctx) {
         const { shop, accessToken } = ctx.session;
 
-        // CREATE SHOP AND ADD SCRIPT TO THEME
+        // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
         await createShopAndAddScript(shop, accessToken);
+
         ctx.cookies.set("shopOrigin", shop, {
           httpOnly: false,
           secure: true,
@@ -115,7 +117,7 @@ app.prepare().then(() => {
           console.log("Failed to register webhook", registration.result);
         }
 
-        // CHARGE AND REDIRECT
+        // CHECK CHARGE AND REDIRECT
         await getSubscriptionUrl(ctx, accessToken, shop);
       },
     })
@@ -141,7 +143,10 @@ app.prepare().then(() => {
   });
 
   router.get("/api/mysql/shops/settings/:domain", async (ctx) => {
-    ctx.body = await getShopSettings(ctx.params.domain);
+    const res = await getShopSettings(ctx.params.domain);
+    if (!res) return (ctx.status = 404);
+
+    ctx.body = res;
   });
 
   router.get("/api/shops/settings/:domain", async (ctx) => {
@@ -156,10 +161,7 @@ app.prepare().then(() => {
   });
 
   router.put("/api/shops/upload_img/:domain", verifyRequest(), async (ctx) => {
-    // console.log(ctx.request.body)
     const { image_data, themeId } = ctx.request.body;
-    // console.log(bgImage_data.name)
-    // const img_base64_data = bgImage_data.data.split(';base64,')[1];
 
     const res__image_data = await uploadImageToAssets(
       ctx.params.domain,
@@ -169,42 +171,27 @@ app.prepare().then(() => {
     );
 
     console.log(res__image_data);
-    ctx.status = 200
+    ctx.status = 200;
   });
 
   router.get(
     "/api/shops/user_settings/:domain",
     verifyRequest(),
     async (ctx) => {
-      ctx.body = await getUserSettings(ctx.params.domain);
+      const res = await getUserSettings(ctx.params.domain);
+      if (!res) return (ctx.status = 404);
+
+      ctx.body = res;
     }
   );
 
   router.get("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
     const shop = await Shop.findOne({ domain: ctx.params.domain });
-    if (!shop) {
-      return (ctx.status = 404);
-    }
-    // setCookie("otAgeVerification", "enable")(ctx);
+    if (!shop) return (ctx.status = 404);
 
     return (ctx.body = shop);
   });
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
-    // const { layoutSettings } = ctx.request.body;
-    // const { bgImage, logo } = layoutSettings;
-    // const resizeBgImage = await resizeImage(bgImage);
-    // const resizeLogo = await resizeImage(logo);
-
-    // if (resizeBgImage) {
-    //   ctx.request.body.layoutSettings.bgImage = { ...resizeBgImage };
-    // }
-
-    // if (resizeLogo) {
-    //   ctx.request.body.layoutSettings.logo = { ...resizeLogo };
-    // }
-
-    // await Shop.updateOne({ domain: ctx.params.domain }, ctx.request.body);
-    // console.log(ctx.request.body)
     await updateTableRow("age_verifier_settings", ctx.request.body, {
       shop: ctx.params.domain,
     });
@@ -215,13 +202,26 @@ app.prepare().then(() => {
   const webhook = receiveWebhook({ secret: SHOPIFY_API_SECRET });
 
   router.post("/webhooks/app/uninstalled", webhook, async (ctx) => {
-    console.log("received webhook: ", ctx.state.webhook);
+    // console.log("received webhook: ", ctx.state.webhook);
+    const cur_date = new Date();
+    const cur_date_uninstalled =
+      cur_date.toISOString().split("T")[0] +
+      " " +
+      cur_date.toTimeString().split(" ")[0];
+
     const { payload } = ctx.state.webhook;
-    await Shop.deleteOne({ domain: payload.domain });
-    await InstalledShop.updateOne(
-      { shop: payload.domain },
-      { date_uninstalled: new Date() }
+    await deleteTableRow("age_verifier_settings", { shop: payload.domain });
+    await deleteTableRow("tbl_usersettings", { store_name: payload.domain });
+    await updateTableRow(
+      "shop_installed",
+      { date_uninstalled: cur_date_uninstalled },
+      { shop: payload.domain }
     );
+    // await Shop.deleteOne({ domain: payload.domain });
+    // await InstalledShop.updateOne(
+    //   { shop: payload.domain },
+    //   { date_uninstalled: new Date() }
+    // );
   });
 
   router.get("/check_charge", async (ctx) => {
@@ -244,3 +244,5 @@ app.prepare().then(() => {
     console.log(`> Ready on http://localhost:${port}`);
   });
 });
+
+//ALTER TABLE `age_verifier_settings` ADD `popupBgColor` TEXT NOT NULL AFTER `overlayBgColor`;

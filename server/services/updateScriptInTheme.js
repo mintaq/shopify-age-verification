@@ -41,10 +41,10 @@ export default async function updateScriptInTheme(domain, accessToken) {
     }
   );
 
-  // TODO: ADD UPDATE
-  // CREATE
+  // CREATE/UPDATE SCRIPT
   let newLayoutLiquid = layoutLiquidRes.data.asset.value;
   if (!layoutLiquidRes.data.asset.value.includes("_otScriptTheme")) {
+    // IF SCRIPT IS NOT  -> CREATE
     const layoutLiquid = layoutLiquidRes.data.asset.value.split("</head>");
     newLayoutLiquid =
       layoutLiquid[0] +
@@ -54,6 +54,7 @@ export default async function updateScriptInTheme(domain, accessToken) {
       "</head>\n" +
       layoutLiquid[1];
   } else {
+    // IF SCRIPT IS EXISTED -> UPDATE
     let matchedScriptEle = getEleByIdUsingRegex(
       "script",
       "_otScriptTheme",
@@ -67,7 +68,7 @@ export default async function updateScriptInTheme(domain, accessToken) {
     );
   }
 
-  // PUT NEW LAYOUT
+  // PUT SCRIPT TO THEME
   const axiosThemeRes = await axios.put(
     `https://${domain}/admin/api/2020-10/themes/${id}/assets.json`,
     {

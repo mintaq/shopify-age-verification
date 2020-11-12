@@ -1,5 +1,4 @@
 import {
-  TRIAL_TIME,
   CHARGE_TIME,
   CHARGE_TITLE,
   PRICE,
@@ -31,19 +30,39 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
 
   const userSettings = await getUserSettings(shop);
   const shopInstalled = await getShopInstalled(shop);
+  let TRIAL_TIME;
+  let confirmation_url, status;
 
-  if (!userSettings || !shopInstalled) return;
+  if (!shopInstalled) return (ctx.status = 404);
+  if (userSettings) {
+    confirmation_url = userSettings.confirmation_url;
+    status = userSettings.status;
+  }
 
-  const { confirmation_url, status } = userSettings;
-  const { date_installed } = shopInstalled;
+  // *** CHECK CHARGE ***
+  const { date_installed, date_uninstalled } = shopInstalled;
   const _isOnTrial =
     nowMs - new Date(date_installed).getTime() < _7daysMs ? true : false;
 
-    console.log(_isOnTrial)
-    console.log('time', new Date(date_installed).getTime())
-  if (confirmation_url && !_isOnTrial && status !== 'active') return ctx.redirect(confirmation_url);
+  // IF SHOP IS NOT ACTIVE AND NOT ON TRIAL TIME -> REDIRECT TO confirmation_url
+  if (confirmation_url && !_isOnTrial && status != "active")
+    return ctx.redirect(confirmation_url);
 
-  if (_isOnTrial || status === 'active') return ctx.redirect("/");
+  // IF SHOP IS ACTIVE OR ON TRIAL TIME -> REDIRECT TO HOME
+  if ((_isOnTrial || status == "active") && (date_uninstalled == null || ""))
+    return ctx.redirect("/");
+
+  // IF SHOP IS JUST INSTALLED -> CREATE NEW CHARGE
+  // IF SHOP IS REINSTALLED -> CHECK TRIAL TIME
+  if (date_uninstalled == null || "") {
+    TRIAL_TIME = 7;
+  } else {
+    const install_date_ms = new Date(date_installed).getTime();
+    const uninstall_date_ms = new Date(date_uninstalled).getTime();
+    TRIAL_TIME = Math.floor(
+      (uninstall_date_ms - install_date_ms) / 1000 / 60 / 60 / 24
+    );
+  }
 
   const postBody = {
     recurring_application_charge: {
@@ -69,7 +88,6 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
   );
 
   const responseJson = await response.json();
-  console.log(responseJson);
   const res_confirmation_url =
     responseJson.recurring_application_charge.confirmation_url;
   const res_status = responseJson.recurring_application_charge.status;
@@ -83,7 +101,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
     status: res_status,
   });
 
-  return ctx.redirect(confirmationUrl);
+  return ctx.redirect(res_confirmation_url);
 };
 
 module.exports = getSubscriptionUrl;

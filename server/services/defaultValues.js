@@ -5,7 +5,7 @@ export const overlayBgColor = {
   a: 0.95,
 };
 
-export const popup_bgcolor = {
+export const popupBgColor = {
   r: 241,
   g: 241,
   b: 241,
@@ -53,3 +53,18 @@ export const cancelBtnLabelColor = {
   b: 255,
   a: 1,
 };
+
+export const custom_date = {
+  january: "January",
+  february: "February",
+  march: "March",
+  april: "April",
+  may: "May",
+  june: "June",
+  july: "July",
+  august: "August",
+  september: "September",
+  october: "October",
+  november: "November",
+  december: "December",
+}

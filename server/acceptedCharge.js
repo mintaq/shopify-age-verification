@@ -10,6 +10,11 @@ import axios from "axios";
 import mongoose from "mongoose";
 import "./models/shop";
 import "./models/InstalledShop";
+import {
+  getUserSettings,
+  getShopInstalled,
+  updateUserSettings,
+} from "./sql/sqlQueries"; 
 
 const Shop = mongoose.model("shops");
 const InstalledShop = mongoose.model("installed_shops");
@@ -18,17 +23,20 @@ const _7daysMs = new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
 const TRIAL_END = new Date(_7daysMs).toISOString();
 
 const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
-  const fetchedShop = await Shop.findOne({ domain: shop });
-  const fetchedInstalledShop = await InstalledShop.findOne({ shop });
+  // const fetchedShop = await Shop.findOne({ domain: shop });
+  // const fetchedInstalledShop = await InstalledShop.findOne({ shop });
+  const userSettings = await getUserSettings(shop);
+  const shopInstalled = await getShopInstalled(shop);
 
-  if (!fetchedInstalledShop && !fetchedShop) return;
+  if (!userSettings && !shopInstalled) return ctx.status = 404;
 
-  const { confirmation_url } = fetchedInstalledShop;
+  const { confirmation_url } = userSettings;
 
-  if (confirmation_url) {
-    return ctx.redirect(confirmation_url);
-  }
+  // if (confirmation_url) {
+  //   return ctx.redirect(confirmation_url);
+  // }
 
+  // *** ACTIVATE CHARGE ***
   const postBody = {
     recurring_application_charge: {
       id: charge_id,
@@ -57,7 +65,10 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
   const responseJson = await response.json();
   console.log(responseJson);
 
-  await InstalledShop.updateOne({ shop }, { status: "active" });
+  await updateUserSettings(shop, {
+    status: 'active'
+  })
+  // await InstalledShop.updateOne({ shop }, { status: "active" });
 
   return ctx.redirect("/");
 };
