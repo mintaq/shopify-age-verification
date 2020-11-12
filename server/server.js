@@ -133,31 +133,22 @@ app.prepare().then(() => {
   // });
 
   // ROUTES
-  router.get("/api/shops/installed/:domain", async (ctx) => {
-    const installedShop = await InstalledShop.findOne({
-      shop: ctx.params.domain,
-    });
-    if (!installedShop) return (ctx.status = 404);
-
-    return (ctx.body = installedShop);
-  });
-
-  router.get("/api/mysql/shops/settings/:domain", async (ctx) => {
+  router.get("/api/shops/settings/:domain", async (ctx) => {
     const res = await getShopSettings(ctx.params.domain);
     if (!res) return (ctx.status = 404);
 
     ctx.body = res;
   });
 
-  router.get("/api/shops/settings/:domain", async (ctx) => {
-    console.log(ctx.request.header.host);
-    const settings = await Shop.findOne({ domain: ctx.params.domain }).select([
-      "-accessToken",
-      "-themeId",
-    ]);
-    if (!settings) return (ctx.status = 404);
+  router.get("/api/shops/public/user_settings/:domain", async (ctx) => {
+    const res = await getUserSettings(ctx.params.domain);
+    if (!res) return (ctx.status = 404);
+    const res_body = {
+      installed_date: res.installed_date,
+      status: res.status,
+    };
 
-    return (ctx.body = settings);
+    ctx.body = res_body;
   });
 
   router.put("/api/shops/upload_img/:domain", verifyRequest(), async (ctx) => {
@@ -185,12 +176,6 @@ app.prepare().then(() => {
     }
   );
 
-  router.get("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
-    const shop = await Shop.findOne({ domain: ctx.params.domain });
-    if (!shop) return (ctx.status = 404);
-
-    return (ctx.body = shop);
-  });
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
     await updateTableRow("age_verifier_settings", ctx.request.body, {
       shop: ctx.params.domain,
@@ -217,11 +202,6 @@ app.prepare().then(() => {
       { date_uninstalled: cur_date_uninstalled },
       { shop: payload.domain }
     );
-    // await Shop.deleteOne({ domain: payload.domain });
-    // await InstalledShop.updateOne(
-    //   { shop: payload.domain },
-    //   { date_uninstalled: new Date() }
-    // );
   });
 
   router.get("/check_charge", async (ctx) => {

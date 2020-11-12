@@ -35,12 +35,14 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
 
   if (!shopInstalled) return (ctx.status = 404);
   if (userSettings) {
+    console.log(userSettings);
     confirmation_url = userSettings.confirmation_url;
     status = userSettings.status;
   }
 
   // *** CHECK CHARGE ***
   const { date_installed, date_uninstalled } = shopInstalled;
+  console.log("shop installed", shopInstalled);
   const _isOnTrial =
     nowMs - new Date(date_installed).getTime() < _7daysMs ? true : false;
 
@@ -48,10 +50,17 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
   if (confirmation_url && !_isOnTrial && status != "active")
     return ctx.redirect(confirmation_url);
 
-  // IF SHOP IS ACTIVE OR ON TRIAL TIME -> REDIRECT TO HOME
-  if ((_isOnTrial || status == "active") && (date_uninstalled == null || ""))
-    return ctx.redirect("/");
+  console.log("date_uninstall", date_uninstalled == null || "");
+  console.log("trial", _isOnTrial);
 
+  // IF SHOP IS ACTIVE OR ON TRIAL TIME -> REDIRECT TO HOME
+  if (
+    (_isOnTrial || status == "active") &&
+    (date_uninstalled == null || date_uninstalled == "")
+  ) {
+    console.log("to home");
+    return ctx.redirect("/");
+  }
   // IF SHOP IS JUST INSTALLED -> CREATE NEW CHARGE
   // IF SHOP IS REINSTALLED -> CHECK TRIAL TIME
   if (date_uninstalled == null || "") {
@@ -70,7 +79,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
       price: PRICE,
       return_url: HOST,
       test: true,
-      trial_days: TRIAL_TIME,
+      trial_days: Number.parseInt(TRIAL_TIME),
     },
   };
 
@@ -88,6 +97,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
   );
 
   const responseJson = await response.json();
+  console.log(responseJson);
   const res_confirmation_url =
     responseJson.recurring_application_charge.confirmation_url;
   const res_status = responseJson.recurring_application_charge.status;

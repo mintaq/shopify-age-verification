@@ -67,8 +67,6 @@ const Index = ({ shopOrigin }) => {
   const [popup_bg_name, set__popup_bg_name] = useState(null);
   const [input_age, set__input_age] = useState("1"); // default: 1 | 1: yes
   const [min_age, set__min_age] = useState("18");
-  // const [logo_data, set__logo_data] = useState(null);
-  // const [bgImage_data, set__bgImage_data] = useState(null);
   const [bgImage_temp, set__bgImage_temp] = useState(null);
   const [logo_temp, set__logo_temp] = useState(null);
   // TODO: collection page
@@ -294,21 +292,7 @@ const Index = ({ shopOrigin }) => {
 
       const isActive = await checkAppChargeStatus();
       if (isActive) {
-        // const shopSettings = await axios.get(
-        //   `/api/shops/settings/${shopOrigin}`
-        // );
-        // if (!shopSettings) {
-        //   console.log("Error", shopSettings);
-        //   return;
-        // }
-        // setLayoutSettings({ ...shopSettings.data.layoutSettings });
-        // setStyleSettings({ ...shopSettings.data.styleSettings });
-        // setAdvanceSettings({ ...shopSettings.data.advanceSettings });
-        const { data } = await axios.get(
-          `/api/mysql/shops/settings/${shopOrigin}`
-        );
-
-        console.log("MysqlData", data);
+        const { data } = await axios.get(`/api/shops/settings/${shopOrigin}`);
 
         // *** LAYOUT STATES ***
         set__themeId(data.themeId);
@@ -413,10 +397,8 @@ const Index = ({ shopOrigin }) => {
 
   const colorConverter = (color) => {
     if (color.includes("#")) {
-      color = color.split('#')[1];    
-      console.log('color,', color)    
+      color = color.split("#")[1];
       var values = color.match(/.{1,2}/g);
-      console.log(values)
 
       return {
         r: parseInt(values[0], 16),
@@ -437,7 +419,7 @@ const Index = ({ shopOrigin }) => {
   };
 
   const colorMerger = (oldColor, newColor, oldColor_name, newColor_name) => {
-    if (oldColor && (newColor == "" || null)) {
+    if (oldColor && (newColor == "" || newColor == null)) {
       switch (oldColor_name) {
         case "popup_bgcolor":
           set__popupBgColor(colorConverter(oldColor));
@@ -480,14 +462,14 @@ const Index = ({ shopOrigin }) => {
     new_popupDisplaySelected,
     new_blockProducts
   ) => {
-    if (new_popupDisplaySelected == "" || null) {
+    if (new_popupDisplaySelected == "" || new_popupDisplaySelected == null) {
       if (old_block_type == 1) {
         set__popupDisplaySelected(["home"]);
       } else if (old_block_type == 2) {
         set__popupDisplaySelected(["collection"]);
       } else if (old_block_type == 3) {
         set__popupDisplaySelected(["product"]);
-        if (old_specific_products != "" || null) {
+        if (old_specific_products != "" || old_specific_products != null) {
           const old_prod_temp = JSON.parse(old_specific_products);
           let temp_arr = [];
           if (Array.isArray(old_prod_temp)) {
@@ -505,7 +487,7 @@ const Index = ({ shopOrigin }) => {
       }
     } else {
       set__popupDisplaySelected(JSON.parse(new_popupDisplaySelected));
-      if (new_blockProducts != "" || null)
+      if (new_blockProducts != "" || new_blockProducts != null)
         set__blockProducts(JSON.parse(new_blockProducts));
     }
   };

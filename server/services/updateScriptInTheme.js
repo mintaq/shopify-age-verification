@@ -5,7 +5,7 @@ import ShopifyAPIClient from "shopify-api-node";
 //   "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js";
 
 const BASE_SCRIPT_URL =
-  "https://scrip-tag.000webhostapp.com/age-verfication-script-tag.js";
+  "https://minh.omegatheme.com/age-verfication-script-tag.js";
 
 function getEleByIdUsingRegex(tag, id, html) {
   return new RegExp(
@@ -28,7 +28,7 @@ export default async function updateScriptInTheme(domain, accessToken) {
   // FETCH THEME LIST
   const themeList = await shopify.theme.list();
   let { id } = themeList.find((theme) => theme.role == "main");
-  console.log('theme id ', id)
+  console.log("theme id ", id);
 
   // GET layout/theme.liquid
   const layoutLiquidRes = await axios.get(
@@ -61,7 +61,7 @@ export default async function updateScriptInTheme(domain, accessToken) {
       newLayoutLiquid
     )[0];
     newLayoutLiquid = newLayoutLiquid.replace(
-      matchedScriptEle + '\n',
+      matchedScriptEle + "\n",
       `<script type="text/javascript" id="_otScriptTheme" src="${BASE_SCRIPT_URL}?v=${Math.floor(
         Math.random() * 100000
       )}"></script>\n`

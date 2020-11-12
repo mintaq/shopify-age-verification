@@ -81,35 +81,35 @@ let _otThis = {
     }
   },
   checkOnTrial() {
-    const createdDateMs = new Date(ageV_installedShop.createdAt).getTime();
+    const createdDateMs = new Date(ageV_installedShop.installed_date).getTime();
     const _7daysMs = 7 * 24 * 60 * 60 * 1000;
     const nowDate = new Date().getTime();
 
     nowDate - createdDateMs < _7daysMs
-      ? (_isOnTrial = false)
-      : (_isOnTrial = true);
+      ? (_isOnTrial = true)
+      : (_isOnTrial = false);
   },
   checkChargeStatus() {
     const { status } = ageV_installedShop;
 
-    if (status === "active") _isActivated = true;
+    if (status == "active") _isActivated = true;
     else _isActivated = false;
   },
   handleSuccess() {
     setCookie(
       "_otRememberDays",
       "1",
-      Number.parseInt(ageV_settings.advanceSettings.rememberDays)
+      Number.parseInt(ageV_settings.cache_time)
     );
     $("body").removeClass("stopScrolling");
     $(".otAgeVerification").fadeOut();
   },
   handleUnderAge() {
-    const underAgeMsg = `<h3>${_otSettings.underAgeMsg}</h3>`;
+    const underAgeMsg = `<h3>${ageV_settings.validate_error}</h3>`;
     $(".otAgeVerification .ot-av-error").html(underAgeMsg);
-    if (ageV_settings.advanceSettings.exitUrl !== "") {
+    if (ageV_settings.exit_link !== "") {
       setTimeout(() => {
-        window.location.replace(ageV_settings.advanceSettings.exitUrl);
+        window.location.replace(ageV_settings.exit_link);
       }, 2000);
     } else {
       setTimeout(() => {
@@ -128,10 +128,10 @@ let _isOnTrial;
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV_Server = "https://minhlocal.omegatheme.com";
+var rootLinkAgeV_Server = "https://f5fd1a9b869f.ngrok.io";
 // var rootLinkAgeV_File =
 //   "https://minhlocal.omegatheme.com/age-verification-omega";
-var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
+var rootLinkAgeV_File = "https://minh.omegatheme.com";
 
 // ******* INIT
 (function () {
@@ -166,28 +166,8 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
         <link href="https://fonts.googleapis.com/css?family=Oswald:400,700"  rel="stylesheet" />
       `);
 
-    // if (_lsAppStatus == "enable" && !_isVerified) {
-    //   if (
-    //     (_lsBlockLocations.includes("all") ||
-    //       _lsBlockLocations.includes(__st.p)) &&
-    //     __st.p != "product"
-    //   ) {
-    //     $("body").addClass("stopScrolling");
-    //     $("body").append(
-    //       "<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>"
-    //     );
-    //   } else if (_lsBlockLocations.includes("product") && __st.p == "product") {
-    //     if (_lsBlockProducts.includes(__st.rid + "")) {
-    //       $("body").addClass("stopScrolling");
-    //       $("body").append(
-    //         "<div class='otInitBlock'><div class='lds-ring'><div></div><div></div><div></div><div></div></div></div>"
-    //       );
-    //     }
-    //   }
-    // }
-
     $.ajax({
-      url: `${rootLinkAgeV_Server}/api/shops/installed/${omega_ageV_shopDomain}`,
+      url: `${rootLinkAgeV_Server}/api/shops/public/user_settings/${omega_ageV_shopDomain}`,
       type: "GET",
       dataType: "json",
     }).done((result) => {
@@ -195,60 +175,54 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
 
       _otThis.checkOnTrial();
       _otThis.checkChargeStatus();
-    });
 
-    if (!_isOnTrial || !_isActivated) {
-      return;
-    }
-
-    $.ajax({
-      url: `${rootLinkAgeV_Server}/api/shops/settings/${omega_ageV_shopDomain}`,
-      type: "GET",
-      dataType: "json",
-    }).done((result) => {
-      ageV_settings = result;
-      setLocalStorage();
-      getLocalStorage();
-      if (_lsAppStatus == "enable" && !_isVerified) {
-        if (
-          (_lsBlockLocations.includes("all") ||
-            _lsBlockLocations.includes(__st.p)) &&
-          __st.p != "product"
-        ) {
-          $(".otInitBlock").fadeOut();
-          $("body").addClass("stopScrolling");
-          $("body").append("<div class='otAgeVerification'></div>");
-          omega_displayAgeVerifyModal();
-        } else if (
-          _lsBlockLocations.includes("product") &&
-          __st.p == "product"
-        ) {
-          if (_lsBlockProducts.includes(__st.rid + "")) {
-            $(".otInitBlock").fadeOut();
-            $("body").addClass("stopScrolling");
-            $("body").append("<div class='otAgeVerification'></div>");
-            omega_displayAgeVerifyModal();
+      if (_isOnTrial || _isActivated) {
+        $.ajax({
+          url: `${rootLinkAgeV_Server}/api/shops/settings/${omega_ageV_shopDomain}`,
+          type: "GET",
+          dataType: "json",
+        }).done((result) => {
+          ageV_settings = result;
+          setLocalStorage();
+          getLocalStorage();
+          if (_lsAppStatus == "enable" && !_isVerified) {
+            if (
+              (_lsBlockLocations.includes("all") ||
+                _lsBlockLocations.includes(__st.p)) &&
+              __st.p != "product"
+            ) {
+              $(".otInitBlock").fadeOut();
+              $("body").addClass("stopScrolling");
+              $("body").append("<div class='otAgeVerification'></div>");
+              omega_displayAgeVerifyModal();
+            } else if (
+              _lsBlockLocations.includes("product") &&
+              __st.p == "product"
+            ) {
+              if (_lsBlockProducts.includes(__st.rid + "")) {
+                $(".otInitBlock").fadeOut();
+                $("body").addClass("stopScrolling");
+                $("body").append("<div class='otAgeVerification'></div>");
+                omega_displayAgeVerifyModal();
+              }
+            }
           }
-        }
-      }
+        });
+      } else return;
     });
 
     function omega_displayAgeVerifyModal() {
-      const { layoutSettings, styleSettings, advanceSettings } = ageV_settings;
-      const { exitUrl } = advanceSettings;
+      // const { layoutSettings, styleSettings, advanceSettings } = ageV_settings;
+      // const { exitUrl } = advanceSettings;
       var layoutCSS = "";
       var styleCSS = "";
       var customCSS = "";
       var otLogo = "";
 
       // BACKGROUND IMAGE
-      if (
-        layoutSettings.layoutSelected != "transparent" &&
-        layoutSettings.bgImage != null &&
-        layoutSettings.bgImage.data
-      ) {
+      if (ageV_settings.av_layout != 2 && ageV_settings.popup_bg != null) {
         layoutCSS += `.otAgeVerification #ot-av-overlay-wrap {
-            background-image: url(${layoutSettings.bgImage.data});
+            background-image: url(${ageV_settings.popup_bg});
             background-repeat: no-repeat;
             background-position: center;
             background-size: cover;
@@ -256,44 +230,54 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
       } else {
         layoutCSS += `.otAgeVerification #ot-av-overlay-wrap { 
             background-color: ${convertRgbToString(
-              styleSettings.overlayBgColor
+              JSON.parse(ageV_settings.overlayBgColor)
             )};
         }`;
       }
 
       // LOGO
-      if (layoutSettings.logo != null && layoutSettings.logo.data) {
-        otLogo = `<div class='ot-logo-image'><img src="${layoutSettings.logo.data}"/></div>`;
+      if (ageV_settings.logo != null) {
+        otLogo = `<div class='ot-logo-image'><img src="${ageV_settings.logo}"/></div>`;
       }
 
       // OTHER STUFF
       styleCSS += `
         .otAgeVerification #ot-av-overlay-form {
-          background-color: ${convertRgbToString(styleSettings.popupBgColor)};
+          background-color: ${convertRgbToString(
+            JSON.parse(ageV_settings.popupBgColor)
+          )};
         }
         .otAgeVerification h1.ot-headline_text {
-          font-size: ${styleSettings.headlineTextSize}px;
-          color: ${convertRgbToString(styleSettings.headlineTextColor)};
+          font-size: ${ageV_settings.headlineTextSize}px;
+          color: ${convertRgbToString(
+            JSON.parse(ageV_settings.headlineTextColor)
+          )};
         }
         .otAgeVerification .ot-subhead_text {
-          font-size: ${styleSettings.subHeadlineTextSize}px;
-          color: ${convertRgbToString(styleSettings.subHeadlineTextColor)};
+          font-size: ${ageV_settings.subHeadlineTextSize}px;
+          color: ${convertRgbToString(
+            JSON.parse(ageV_settings.subHeadlineTextColor)
+          )};
         }
         .otAgeVerification .ot-av-submit-btn {
           background-color: ${convertRgbToString(
-            styleSettings.submitBtnBgColor
+            JSON.parse(ageV_settings.submitBtnBgColor)
           )};
-          color: ${convertRgbToString(styleSettings.submitBtnLabelColor)};
+          color: ${convertRgbToString(
+            JSON.parse(ageV_settings.submitBtnLabelColor)
+          )};
         }
         .otAgeVerification .ot-av-cancel-btn {
           background-color: ${convertRgbToString(
-            styleSettings.cancelBtnBgColor
+            JSON.parse(ageV_settings.cancelBtnBgColor)
           )};
-          color: ${convertRgbToString(styleSettings.cancelBtnLabelColor)};
+          color: ${convertRgbToString(
+            JSON.parse(ageV_settings.cancelBtnLabelColor)
+          )};
         }
       `;
 
-      customCSS = advanceSettings.customCSS;
+      customCSS = ageV_settings.customcss;
 
       // MAIN DIV
       $(".otAgeVerification").append(`
@@ -305,14 +289,14 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
           <div id='ot-av-overlay-wrap'>
             <div id='ot-av-overlay-form'>
               ${otLogo}
-              <h1 class='ot-headline_text'>${styleSettings.headlineText}</h1>
-              <p class='ot-subhead_text' id='ot-subhead_text'>${styleSettings.subHeadlineText}</p>
+              <h1 class='ot-headline_text'>${ageV_settings.headline_text}</h1>
+              <p class='ot-subhead_text' id='ot-subhead_text'>${ageV_settings.subhead_text}</p>
             </div>
           </div>
       `);
 
-      if (layoutSettings.requireAgeSelected == "yes") {
-        const { customMonths } = styleSettings;
+      if (ageV_settings.input_age == 1) {
+        const customMonths = JSON.parse(ageV_settings.custom_date);
         var months = "";
 
         const customMonthsKeys = Object.keys(customMonths);
@@ -333,13 +317,13 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
           <div class="ot-av-error"></div>
           <div class='ot-av-submit-form'>
             <button onclick='omega_ageCheckSubmit()' class='ot-av-submit-btn'>${
-              styleSettings.submitBtnLabel
+              ageV_settings.submit_label
             }</button>
             <button onclick="window.location.replace('${
-              exitUrl === "" ? "https://www.google.com" : exitUrl
-            }')" class='ot-av-cancel-btn'>${
-          styleSettings.cancelBtnLabel
-        }</button>
+              ageV_settings.exit_link === ""
+                ? "https://www.google.com"
+                : ageV_settings.exit_link
+            }')" class='ot-av-cancel-btn'>${ageV_settings.cancel_label}</button>
           </div>
         `);
       } else {
@@ -347,13 +331,13 @@ var rootLinkAgeV_File = "https://scrip-tag.000webhostapp.com";
           <div class="ot-av-error"></div>
           <div class='ot-av-submit-form'>
             <button onclick='omega_ageCheckSubmit()' class='ot-av-submit-btn'>${
-              styleSettings.submitBtnLabel
+              ageV_settings.submit_label
             }</button>
             <button onclick="window.location.replace('${
-              exitUrl === "" ? "https://www.google.com" : exitUrl
-            }')" class='ot-av-cancel-btn'>${
-          styleSettings.cancelBtnLabel
-        }</button>
+              ageV_settings.exit_link === ""
+                ? "https://www.google.com"
+                : ageV_settings.exit_link
+            }')" class='ot-av-cancel-btn'>${ageV_settings.cancel_label}</button>
           </div>
         `);
       }
@@ -402,31 +386,30 @@ function eraseCookie(name) {
 }
 
 function setLocalStorage() {
-  const { layoutSettings, appStatus } = ageV_settings;
+  const popupDisplaySelected = JSON.parse(ageV_settings.popupDisplaySelected);
+  const blockProducts = JSON.parse(ageV_settings.blockProducts);
+
   // SET APP STATUS
-  if (appStatus === "enable") {
+  if (ageV_settings.app_enable == 1) {
     localStorage.setItem("_otAgeVerification", "enable");
   } else {
     localStorage.setItem("_otAgeVerification", "disable");
   }
 
   // SET BLOCK PRODUCTS
-  if (Array.isArray(layoutSettings.popupDisplaySelected)) {
-    if (layoutSettings.blockProducts.length > 0) {
+  if (Array.isArray(popupDisplaySelected)) {
+    if (blockProducts.length > 0) {
       const blockProdRIds = [];
-      layoutSettings.blockProducts.map(({ rid }) => {
+      blockProducts.map(({ rid }) => {
         return blockProdRIds.push(rid);
       });
       localStorage.setItem("_otBlockProducts", blockProdRIds);
     }
   }
   // SET BLOCK PAGES
-  if (Array.isArray(layoutSettings.popupDisplaySelected)) {
-    if (layoutSettings.popupDisplaySelected.length > 0) {
-      localStorage.setItem(
-        "_otBlockLocations",
-        layoutSettings.popupDisplaySelected
-      );
+  if (Array.isArray(popupDisplaySelected)) {
+    if (popupDisplaySelected.length > 0) {
+      localStorage.setItem("_otBlockLocations", popupDisplaySelected);
     }
   }
 }
@@ -442,11 +425,11 @@ function convertRgbToString(value) {
 }
 
 function omega_ageCheckSubmit() {
-  if (ageV_settings.layoutSettings.requireAgeSelected === "yes") {
+  if (ageV_settings.input_age == 1) {
     _otThis.getValues();
     if (_otThis.validateValues() === true) {
       _otThis.setAge();
-      if (_otThis.age >= ageV_settings.layoutSettings.minimumAge) {
+      if (_otThis.age >= ageV_settings.min_age) {
         _otThis.handleSuccess();
       } else {
         _otThis.handleUnderAge();
