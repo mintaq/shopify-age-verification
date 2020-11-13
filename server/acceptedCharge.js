@@ -56,7 +56,6 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
   );
 
   const responseJson = await response.json();
-  console.log(responseJson);
 
   await updateUserSettings(shop, {
     status: 'active'

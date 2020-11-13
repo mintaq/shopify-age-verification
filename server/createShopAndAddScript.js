@@ -16,9 +16,6 @@ import {
 } from "./services/defaultValues"
 
 const createShopAndAddScript = async function (shopDomain, accessToken) {
-  console.log(shopDomain);
-  console.log(accessToken);
-
   const shopInstalled = await getShopInstalled(shopDomain);
   const shopSettings = await getShopSettings(shopDomain);
   const userSettings = await getUserSettings(shopDomain);
@@ -40,7 +37,6 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
     });
     await insertTableRow("age_verifier_settings", {
       shop: shopDomain,
-      app_id: 1,
       themeId: theme_id + "",
       popupDisplaySelected: JSON.stringify(["home"]),
       blockProducts: JSON.stringify([]),
@@ -59,7 +55,6 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
   } else {
     // IF SHOP IS INSTALLED BEFORE
     // IF SHOP IS REINSTALL
-    console.log("Shop existed!");
     if (!shopSettings && !userSettings) {
       await insertTableRow("age_verifier_settings", {
         shop: shopDomain,

@@ -23,32 +23,49 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
 
   if (!shopInstalled) return (ctx.status = 404);
   if (userSettings) {
-    console.log('user settings', userSettings)
     confirmation_url = userSettings.confirmation_url;
     status = userSettings.status;
   }
 
   // *** CHECK CHARGE ***
   const { date_installed, date_uninstalled } = shopInstalled;
-  console.log("shop installed", shopInstalled);
   const _isOnTrial =
     nowMs - new Date(date_installed).getTime() < _7daysMs ? true : false;
 
-  // IF SHOP IS NOT ACTIVE AND NOT ON TRIAL TIME -> REDIRECT TO confirmation_url
-  if (confirmation_url && !_isOnTrial && status != "active")
-    return ctx.redirect(confirmation_url);
+  // IF SHOP IS NOT ACTIVE && NOT ON TRIAL TIME && NOT UNINSTALLED -> REDIRECT TO confirmation_url
+  if (confirmation_url && !_isOnTrial && status != "active") {
+    if (
+      new Date(date_installed).getTime() >= new Date("2020-11-13").getTime()
+    ) {
+      return ctx.redirect(confirmation_url);
+    } else {
+      const charge_id = confirmation_url.split("charges/")[1].split("/")[0];
+      console.log("charge_id", charge_id);
+      await fetch(
+        `https://${shop}/admin/api/2020-10/recurring_application_charges/${charge_id}.json`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": accessToken,
+          },
+        }
+      );
+    }
+  }
 
   // IF SHOP IS ACTIVE OR ON TRIAL TIME -> REDIRECT TO HOME
   if (
     (_isOnTrial || status == "active") &&
-    (date_uninstalled == null || date_uninstalled == "")
+    (date_uninstalled == null || date_uninstalled == "") &&
+    confirmation_url
   ) {
-    console.log("to home");
     return ctx.redirect("/");
   }
+
   // IF SHOP IS JUST INSTALLED -> CREATE NEW CHARGE
   // IF SHOP IS REINSTALLED -> CHECK TRIAL TIME
-  if (date_uninstalled == null || "") {
+  if (date_uninstalled == null || date_uninstalled == "") {
     TRIAL_TIME = 7;
   } else {
     const install_date_ms = new Date(date_installed).getTime();

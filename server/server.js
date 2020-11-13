@@ -5,19 +5,15 @@ import createShopifyAuth, { verifyRequest } from "@shopify/koa-shopify-auth";
 import graphQLProxy, { ApiVersion } from "@shopify/koa-shopify-graphql-proxy";
 import { receiveWebhook, registerWebhook } from "@shopify/koa-shopify-webhooks";
 import Koa from "koa";
-import mongoose from "mongoose";
 import next from "next";
 import Router from "koa-router";
 import session from "koa-session";
 import bodyParser from "koa-bodyparser";
 import cors from "@koa/cors";
-import { clearCookie, setCookie } from "koa-cookies";
 import * as handlers from "./handlers/index";
 import { createShopAndAddScript } from "./createShopAndAddScript";
-// import resizeImage from "./siervices/resizeImage";
 import getSubscriptionUrl from "./getSubscriptionUrl";
 import acceptedCharge from "./acceptedCharge";
-import axios from "axios";
 import {
   getShopSettings,
   updateTableRow,
@@ -42,32 +38,6 @@ const {
   HOST,
   API_VERSION,
 } = process.env;
-
-// MONGODB
-const options = {
-  useMongoClient: true,
-  useNewUrlParser: true,
-  autoIndex: false, // Don't build indexes
-  reconnectTries: 100, // Never stop trying to reconnect
-  reconnectInterval: 500, // Reconnect every 500ms
-  poolSize: 10, // Maintain up to 10 socket connections
-  // If not connected, return errors immediately rather than waiting for reconnect
-  bufferMaxEntries: 0,
-};
-// mongoose
-//   .connect(MONGODB_URI, { useNewUrlParser: true })
-//   .then(() => {
-//     console.log("connected to mongoDB");
-//   })
-//   .catch((err) => {
-//     console.log("err", err);
-//   });
-
-// import "./models/shop";
-// import "./models/InstalledShop";
-
-// const Shop = mongoose.model("shops");
-// const InstalledShop = mongoose.model("installed_shops");
 
 // SERVER
 app.prepare().then(() => {
@@ -103,7 +73,7 @@ app.prepare().then(() => {
         });
 
         // REGISTER WEBHOOK
-        const registration = await registerWebhook({
+        await registerWebhook({
           address: `${HOST}/webhooks/app/uninstalled`,
           topic: "APP_UNINSTALLED",
           accessToken,
@@ -111,11 +81,11 @@ app.prepare().then(() => {
           apiVersion: ApiVersion.October19,
         });
 
-        if (registration.success) {
-          console.log("Successfully registered webhook!");
-        } else {
-          console.log("Failed to register webhook", registration.result);
-        }
+        // if (registration.success) {
+        //   console.log("Successfully registered webhook!");
+        // } else {
+        //   console.log("Failed to register webhook", registration.result);
+        // }
 
         // CHECK CHARGE AND REDIRECT
         await getSubscriptionUrl(ctx, accessToken, shop);
@@ -161,7 +131,6 @@ app.prepare().then(() => {
       image_data
     );
 
-    console.log(res__image_data);
     ctx.status = 200;
   });
 
@@ -211,8 +180,6 @@ app.prepare().then(() => {
   });
 
   router.get("(.*)", verifyRequest(), async (ctx) => {
-    console.log(ctx.host);
-    console.log("cookie: ", ctx.cookies.get("shopOrigin"));
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
     ctx.res.statusCode = 200;
@@ -224,5 +191,3 @@ app.prepare().then(() => {
     console.log(`> Ready on http://localhost:${port}`);
   });
 });
-
-//ALTER TABLE `age_verifier_settings` ADD `popupBgColor` TEXT NOT NULL AFTER `overlayBgColor`;

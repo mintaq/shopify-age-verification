@@ -187,13 +187,17 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
           ageV_settings = result;
           setLocalStorage();
           getLocalStorage();
+
+          // INIT BLOCK DIV
           if (_lsAppStatus == "enable" && !_isVerified) {
-            if (
-              (_lsBlockLocations.includes("all") ||
-                _lsBlockLocations.includes(__st.p)) &&
+            if (_lsBlockLocations.includes("all")) {
+              $("body").addClass("stopScrolling");
+              $("body").append("<div class='otAgeVerification'></div>");
+              omega_displayAgeVerifyModal();
+            } else if (
+              _lsBlockLocations.includes(__st.p) &&
               __st.p != "product"
             ) {
-              $(".otInitBlock").fadeOut();
               $("body").addClass("stopScrolling");
               $("body").append("<div class='otAgeVerification'></div>");
               omega_displayAgeVerifyModal();
@@ -202,7 +206,6 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
               __st.p == "product"
             ) {
               if (_lsBlockProducts.includes(__st.rid + "")) {
-                $(".otInitBlock").fadeOut();
                 $("body").addClass("stopScrolling");
                 $("body").append("<div class='otAgeVerification'></div>");
                 omega_displayAgeVerifyModal();
@@ -270,11 +273,11 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
           background-color: ${convertRgbToString(popupBgColor)};
         }
         .otAgeVerification h1.ot-headline_text {
-          font-size: ${ageV_settings.headlineTextSize}px;
+          font-size: ${ageV_settings.headline_size}px;
           color: ${convertRgbToString(headlineTextColor)};
         }
         .otAgeVerification .ot-subhead_text {
-          font-size: ${ageV_settings.subHeadlineTextSize}px;
+          font-size: ${ageV_settings.subhead_size}px;
           color: ${convertRgbToString(subHeadlineTextColor)};
         }
         .otAgeVerification .ot-av-submit-btn {
@@ -425,7 +428,7 @@ function setLocalStorage() {
         return blockProdRIds.push(rid);
       });
       localStorage.setItem("_otBlockProducts", blockProdRIds);
-    }
+    } else localStorage.setItem("_otBlockProducts", []);
     // SET BLOCK PAGES
     if (popupDisplaySelected.length > 0) {
       localStorage.setItem("_otBlockLocations", popupDisplaySelected);

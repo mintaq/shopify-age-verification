@@ -31,7 +31,7 @@ import classes from "./index.css";
 const Index = ({ shopOrigin }) => {
   const [themeId, set__themeId] = useState("");
   const [user_settings, set__user_settings] = useState({});
-  const [installedShop, setInstalledShop] = useState({});
+  const [is_saving, set__is_saving] = useState(false);
   const [chargeStatus, setChargeStatus] = useState(true);
   const [openResourcePicker, setOpenResourcePicker] = useState(false);
   const [tabSelected, setTabSelected] = useState(0);
@@ -288,9 +288,10 @@ const Index = ({ shopOrigin }) => {
         `/api/shops/user_settings/${shopOrigin}`
       );
       if (!user_settings) return;
-      set__user_settings({ ...user_settings.data });
 
-      const isActive = await checkAppChargeStatus();
+      set__user_settings(user_settings.data);
+
+      const isActive = await checkAppChargeStatus(user_settings.data);
       if (isActive) {
         const { data } = await axios.get(`/api/shops/settings/${shopOrigin}`);
 
@@ -377,20 +378,18 @@ const Index = ({ shopOrigin }) => {
     setTabSelected(selectedTabIndex)
   );
 
-  const checkAppChargeStatus = async () => {
+  const checkAppChargeStatus = async (data) => {
     let _isOnTrial;
     let _isActive;
     const nowDate = new Date().getTime();
     const _7daysMs = 7 * 24 * 60 * 60 * 1000;
-    const installedDate = new Date(user_settings.installed_date).getTime();
+    const installedDate = new Date(data.installed_date).getTime();
 
     nowDate - installedDate < _7daysMs
-      ? (_isOnTrial = false)
-      : (_isOnTrial = true);
+      ? (_isOnTrial = true)
+      : (_isOnTrial = false);
 
-    installedShop.status === "active"
-      ? (_isActive = true)
-      : (_isActive = false);
+    data.status == "active" ? (_isActive = true) : (_isActive = false);
 
     return _isActive || _isOnTrial;
   };
@@ -427,7 +426,6 @@ const Index = ({ shopOrigin }) => {
         case "text_color":
           if (newColor_name == "headlineTextColor") {
             set__headlineTextColor(colorConverter(oldColor));
-            console.log(colorConverter(oldColor));
           } else {
             set__subHeadlineTextColor(colorConverter(oldColor));
           }
@@ -498,7 +496,6 @@ const Index = ({ shopOrigin }) => {
 
   // LAYOUT SETTINGS HANDLERS
   const handlePopupDisplayChange = useCallback((popupDisplaySelected) => {
-    console.log(popupDisplaySelected);
     if (
       prevDisplayOpts.includes("all") &&
       (!popupDisplaySelected.includes("home") ||
@@ -640,9 +637,9 @@ const Index = ({ shopOrigin }) => {
   });
 
   // OTHERS HANDLERS
-  // TODO: NEED FIX
+  // *** HANDLE SAVE SETTINGS ***
   const handleSaveSetting = async () => {
-    setSaveToastActivate(true);
+    set__is_saving(true);
 
     await axios.put(`/api/shops/${shopOrigin}`, {
       app_enable: Number.parseInt(app_enable),
@@ -716,6 +713,9 @@ const Index = ({ shopOrigin }) => {
         themeId,
       });
     }
+
+    setSaveToastActivate(true);
+    set__is_saving(false);
   };
 
   const handleAppStatusChange = async () => {
@@ -729,7 +729,6 @@ const Index = ({ shopOrigin }) => {
   };
 
   const handleDisableModalClose = () => {
-    // console.log(bgImage_data)
     setDisableModalActivate(false);
     set__app_enable(1);
   };
@@ -760,7 +759,6 @@ const Index = ({ shopOrigin }) => {
   };
 
   const handleSubmitBgImage = () => {
-    console.log(uploadBgImage);
     handleBgImageTempChange(uploadBgImage);
     setUploadBgImage(null);
   };
@@ -892,7 +890,6 @@ const Index = ({ shopOrigin }) => {
                 <DropzoneAreaBase
                   acceptedFiles={["image/*"]}
                   onAdd={(fileObjs) => {
-                    console.log(fileObjs);
                     setUploadBgImage(fileObjs[0]);
                   }}
                   onDelete={(fileObj) => setUploadBgImage({})}
@@ -1037,7 +1034,6 @@ const Index = ({ shopOrigin }) => {
                 open={openResourcePicker}
                 initialSelectionIds={blockProducts}
                 onSelection={(v) => {
-                  console.log(v);
                   handleResourcePickerSelection(v);
                 }}
                 showVariants={false}
@@ -1049,8 +1045,13 @@ const Index = ({ shopOrigin }) => {
       ) : null}
 
       <Layout.Section>
-        <Button fullWidth primary={true} onClick={handleSaveSetting}>
-          Save
+        <Button
+          disabled={is_saving}
+          fullWidth
+          primary={true}
+          onClick={handleSaveSetting}
+        >
+          {is_saving ? "Saving..." : "Save"}
         </Button>
       </Layout.Section>
     </Layout>
@@ -1395,8 +1396,13 @@ const Index = ({ shopOrigin }) => {
       ) : null}
 
       <Layout.Section>
-        <Button fullWidth primary={true} onClick={handleSaveSetting}>
-          Save
+        <Button
+          disabled={is_saving}
+          fullWidth
+          primary={true}
+          onClick={handleSaveSetting}
+        >
+          {is_saving ? "Saving..." : "Save"}
         </Button>
       </Layout.Section>
     </Layout>
@@ -1444,8 +1450,13 @@ const Index = ({ shopOrigin }) => {
       </Layout.Section>
 
       <Layout.Section>
-        <Button fullWidth primary={true} onClick={handleSaveSetting}>
-          Save
+        <Button
+          disabled={is_saving}
+          fullWidth
+          primary={true}
+          onClick={handleSaveSetting}
+        >
+          {is_saving ? "Saving..." : "Save"}
         </Button>
       </Layout.Section>
     </Layout>
@@ -1575,7 +1586,7 @@ const Index = ({ shopOrigin }) => {
                             type="text"
                             className="av-year"
                             maxLength="4"
-                            placeholder="1998"
+                            placeholder="1970"
                           />
                         </div>
                       ) : null}
@@ -1609,7 +1620,16 @@ const Index = ({ shopOrigin }) => {
       </Layout>
     </Frame>
   ) : (
-    <div>asdfF</div>
+    <div>
+      <h1>Charge now, pay later</h1>
+      <p>
+        To proceed with the installation, click below to activate the app and
+        approve the charge.
+      </p>
+      <a target="_blank" href={`${user_settings["confirmation_url"]}`}>
+        Activate App
+      </a>
+    </div>
   );
 
   return finalRender;

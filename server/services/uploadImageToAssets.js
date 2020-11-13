@@ -23,7 +23,6 @@ const uploadImageToAssets = async (shop, accessToken, themeId, img_data) => {
     { shop }
   );
 
-  console.log(res__selectTable);
   if (res__selectTable[query_field] != null) {
     // IF IMAGE IS EXISTED
     if (img_base64_data != null && img_name != null) {
@@ -38,8 +37,6 @@ const uploadImageToAssets = async (shop, accessToken, themeId, img_data) => {
           },
         }
       );
-
-      console.log("delete assets", res__deleteAssets.data);
 
       // CREATE NEW IMAGE IN ASSETS
       const axiosImageRes = await axios.put(
@@ -85,7 +82,6 @@ const uploadImageToAssets = async (shop, accessToken, themeId, img_data) => {
           },
         }
       );
-      console.log("delete assets", res__deleteAssets.data);
 
       // UPDATE TO DB
       const updateData =

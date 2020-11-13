@@ -65,7 +65,6 @@ export const insertShopInstalled = (data) => {
 
   query = `INSERT INTO shop_installed (${sql_Fields}) VALUES (${sql_Values})`;
 
-  console.log("insert shop install: ", query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -94,7 +93,6 @@ export const updateUserSettings = (shop, data) => {
 
   query = `UPDATE tbl_usersettings SET ${sql_Set} WHERE store_name = '${shop}'`;
 
-  console.log("update user setting: ", query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -142,7 +140,6 @@ export const updateTableRow = (table, data, where) => {
 
   query = `UPDATE ${table} SET ${sql_Set} WHERE ${sql_Where}`;
 
-  console.log("update table row: ", query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -160,8 +157,6 @@ export const updateTableRow = (table, data, where) => {
 
 export const insertTableRow = (table, data) => {
   const dataKeys = Object.keys(data);
-  console.log("data:", data);
-  console.log("datakeys:", dataKeys);
   let query = "";
   let sql_Fields = "";
   let sql_Values = "";
@@ -173,12 +168,7 @@ export const insertTableRow = (table, data) => {
     }`;
   }
 
-  console.log("fields, ", sql_Fields);
-  console.log("values, ", sql_Values);
-
   query = `INSERT INTO ${table} (${sql_Fields}) VALUES (${sql_Values})`;
-
-  console.log("insert table row: ", query);
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -205,8 +195,6 @@ export const selectTableRow = (table, field, where) => {
 
   query = `SELECT ${field} FROM ${table} WHERE ${sql_Where}`;
 
-  console.log("select table row: ", query);
-
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
       connection.query(query, function (err, results, fields) {
@@ -232,8 +220,6 @@ export const deleteTableRow = (table, where) => {
 
   query = `DELETE FROM ${table} WHERE ${sql_Where}`;
 
-  console.log("delete table row: ", query);
-
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
       connection.query(query, function (err, results, fields) {
@@ -242,7 +228,6 @@ export const deleteTableRow = (table, where) => {
           reject(err);
         }
 
-        console.log(results);
         resolve(results[0]);
       });
     });

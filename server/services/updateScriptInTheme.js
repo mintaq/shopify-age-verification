@@ -28,7 +28,6 @@ export default async function updateScriptInTheme(domain, accessToken) {
   // FETCH THEME LIST
   const themeList = await shopify.theme.list();
   let { id } = themeList.find((theme) => theme.role == "main");
-  console.log("theme id ", id);
 
   // GET layout/theme.liquid
   const layoutLiquidRes = await axios.get(
