@@ -469,7 +469,7 @@ const Index = ({ shopOrigin }) => {
         set__popupDisplaySelected(["collection"]);
       } else if (old_block_type == 3) {
         set__popupDisplaySelected(["product"]);
-        if (old_specific_products != "" || old_specific_products != null) {
+        if (old_specific_products != "" && old_specific_products != null) {
           const old_prod_temp = JSON.parse(old_specific_products);
           let temp_arr = [];
           if (Array.isArray(old_prod_temp)) {
@@ -480,15 +480,19 @@ const Index = ({ shopOrigin }) => {
               });
             });
             set__blockProducts(temp_arr);
+          } else {
+            set__blockProducts([]);
           }
         }
       } else {
         set__popupDisplaySelected(["home"]);
+        set__blockProducts([]);
       }
     } else {
       set__popupDisplaySelected(JSON.parse(new_popupDisplaySelected));
-      if (new_blockProducts != "" || new_blockProducts != null)
+      if (new_blockProducts != "" && new_blockProducts != null) {
         set__blockProducts(JSON.parse(new_blockProducts));
+      } else set__blockProducts([]);
     }
   };
 
@@ -1201,7 +1205,7 @@ const Index = ({ shopOrigin }) => {
     >
       <Popover.Section>
         <SketchPicker
-          color={popup_bgcolor}
+          color={popupBgColor}
           onChange={(color) => handlePopupBgColorChange(color.rgb)}
         />
       </Popover.Section>

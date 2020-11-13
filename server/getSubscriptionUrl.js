@@ -6,28 +6,16 @@ import {
   APP_NAME,
 } from "../age-verification.config";
 import axios from "axios";
-import mongoose from "mongoose";
-import "./models/shop";
-import "./models/InstalledShop";
 import {
   getUserSettings,
   getShopInstalled,
   updateUserSettings,
 } from "./sql/sqlQueries";
 
-const Shop = mongoose.model("shops");
-const InstalledShop = mongoose.model("installed_shops");
-
 const _7daysMs = 7 * 24 * 60 * 60 * 1000;
 const nowMs = new Date().getTime();
 
 const getSubscriptionUrl = async (ctx, accessToken, shop) => {
-  // const fetchedShop = await Shop.findOne({ domain: shop });
-  // const fetchedInstalledShop = await InstalledShop.findOne({ shop });
-  // if (!fetchedInstalledShop && !fetchedShop) return;
-
-  // const {confirmation_url} = fetchedInstalledShop;
-
   const userSettings = await getUserSettings(shop);
   const shopInstalled = await getShopInstalled(shop);
   let TRIAL_TIME;
@@ -35,7 +23,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
 
   if (!shopInstalled) return (ctx.status = 404);
   if (userSettings) {
-    console.log(userSettings);
+    console.log('user settings', userSettings)
     confirmation_url = userSettings.confirmation_url;
     status = userSettings.status;
   }
@@ -49,9 +37,6 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
   // IF SHOP IS NOT ACTIVE AND NOT ON TRIAL TIME -> REDIRECT TO confirmation_url
   if (confirmation_url && !_isOnTrial && status != "active")
     return ctx.redirect(confirmation_url);
-
-  console.log("date_uninstall", date_uninstalled == null || "");
-  console.log("trial", _isOnTrial);
 
   // IF SHOP IS ACTIVE OR ON TRIAL TIME -> REDIRECT TO HOME
   if (
@@ -68,9 +53,13 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
   } else {
     const install_date_ms = new Date(date_installed).getTime();
     const uninstall_date_ms = new Date(date_uninstalled).getTime();
-    TRIAL_TIME = Math.floor(
-      (uninstall_date_ms - install_date_ms) / 1000 / 60 / 60 / 24
-    );
+    const end_trial_date_ms = install_date_ms + _7daysMs;
+    let remain_trial_time;
+    if (uninstall_date_ms < end_trial_date_ms) {
+      remain_trial_time =
+        (end_trial_date_ms - uninstall_date_ms) / 1000 / 60 / 60 / 24;
+    } else remain_trial_time = 0;
+    TRIAL_TIME = Math.floor(remain_trial_time);
   }
 
   const postBody = {
@@ -97,14 +86,11 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
   );
 
   const responseJson = await response.json();
-  console.log(responseJson);
   const res_confirmation_url =
     responseJson.recurring_application_charge.confirmation_url;
   const res_status = responseJson.recurring_application_charge.status;
 
   // TODO: update mysql: confirmation_url, shop status
-  // await Shop.updateOne({ domain: shop }, { confirmation_url: confirmationUrl });
-  // await InstalledShop.updateOne({ shop }, { status });
 
   await updateUserSettings(shop, {
     confirmation_url: res_confirmation_url,

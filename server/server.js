@@ -54,20 +54,20 @@ const options = {
   // If not connected, return errors immediately rather than waiting for reconnect
   bufferMaxEntries: 0,
 };
-mongoose
-  .connect(MONGODB_URI, { useNewUrlParser: true })
-  .then(() => {
-    console.log("connected to mongoDB");
-  })
-  .catch((err) => {
-    console.log("err", err);
-  });
+// mongoose
+//   .connect(MONGODB_URI, { useNewUrlParser: true })
+//   .then(() => {
+//     console.log("connected to mongoDB");
+//   })
+//   .catch((err) => {
+//     console.log("err", err);
+//   });
 
-import "./models/shop";
-import "./models/InstalledShop";
+// import "./models/shop";
+// import "./models/InstalledShop";
 
-const Shop = mongoose.model("shops");
-const InstalledShop = mongoose.model("installed_shops");
+// const Shop = mongoose.model("shops");
+// const InstalledShop = mongoose.model("installed_shops");
 
 // SERVER
 app.prepare().then(() => {

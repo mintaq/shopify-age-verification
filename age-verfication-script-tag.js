@@ -128,7 +128,7 @@ let _isOnTrial;
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV_Server = "https://f5fd1a9b869f.ngrok.io";
+var rootLinkAgeV_Server = "https://minhlocal.omegatheme.com";
 // var rootLinkAgeV_File =
 //   "https://minhlocal.omegatheme.com/age-verification-omega";
 var rootLinkAgeV_File = "https://minh.omegatheme.com";
@@ -172,6 +172,8 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
       dataType: "json",
     }).done((result) => {
       ageV_installedShop = result;
+
+      if (!ageV_installedShop) return;
 
       _otThis.checkOnTrial();
       _otThis.checkChargeStatus();
@@ -219,8 +221,30 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
       var customCSS = "";
       var otLogo = "";
 
+      // COLOR CHECK
+      const popupBgColor =
+        ageV_settings.popupBgColor == ""
+          ? colorConverter(ageV_settings.popup_bgcolor)
+          : JSON.parse(ageV_settings.popupBgColor);
+      const headlineTextColor =
+        ageV_settings.headlineTextColor == ""
+          ? colorConverter(ageV_settings.text_color)
+          : JSON.parse(ageV_settings.headlineTextColor);
+      const subHeadlineTextColor =
+        ageV_settings.subHeadlineTextColor == ""
+          ? colorConverter(ageV_settings.text_color)
+          : JSON.parse(ageV_settings.subHeadlineTextColor);
+      const submitBtnBgColor =
+        ageV_settings.submitBtnBgColor == ""
+          ? colorConverter(ageV_settings.submit_bgcolor)
+          : JSON.parse(ageV_settings.submitBtnBgColor);
+      const cancelBtnBgColor =
+        ageV_settings.cancelBtnBgColor == ""
+          ? colorConverter(ageV_settings.cancel_bgcolor)
+          : JSON.parse(ageV_settings.cancelBtnBgColor);
+
       // BACKGROUND IMAGE
-      if (ageV_settings.av_layout != 2 && ageV_settings.popup_bg != null) {
+      if (ageV_settings.av_layout == 2 && ageV_settings.popup_bg != null) {
         layoutCSS += `.otAgeVerification #ot-av-overlay-wrap {
             background-image: url(${ageV_settings.popup_bg});
             background-repeat: no-repeat;
@@ -243,34 +267,24 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
       // OTHER STUFF
       styleCSS += `
         .otAgeVerification #ot-av-overlay-form {
-          background-color: ${convertRgbToString(
-            JSON.parse(ageV_settings.popupBgColor)
-          )};
+          background-color: ${convertRgbToString(popupBgColor)};
         }
         .otAgeVerification h1.ot-headline_text {
           font-size: ${ageV_settings.headlineTextSize}px;
-          color: ${convertRgbToString(
-            JSON.parse(ageV_settings.headlineTextColor)
-          )};
+          color: ${convertRgbToString(headlineTextColor)};
         }
         .otAgeVerification .ot-subhead_text {
           font-size: ${ageV_settings.subHeadlineTextSize}px;
-          color: ${convertRgbToString(
-            JSON.parse(ageV_settings.subHeadlineTextColor)
-          )};
+          color: ${convertRgbToString(subHeadlineTextColor)};
         }
         .otAgeVerification .ot-av-submit-btn {
-          background-color: ${convertRgbToString(
-            JSON.parse(ageV_settings.submitBtnBgColor)
-          )};
+          background-color: ${convertRgbToString(submitBtnBgColor)};
           color: ${convertRgbToString(
             JSON.parse(ageV_settings.submitBtnLabelColor)
           )};
         }
         .otAgeVerification .ot-av-cancel-btn {
-          background-color: ${convertRgbToString(
-            JSON.parse(ageV_settings.cancelBtnBgColor)
-          )};
+          background-color: ${convertRgbToString(cancelBtnBgColor)};
           color: ${convertRgbToString(
             JSON.parse(ageV_settings.cancelBtnLabelColor)
           )};
@@ -289,8 +303,16 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
           <div id='ot-av-overlay-wrap'>
             <div id='ot-av-overlay-form'>
               ${otLogo}
-              <h1 class='ot-headline_text'>${ageV_settings.headline_text}</h1>
-              <p class='ot-subhead_text' id='ot-subhead_text'>${ageV_settings.subhead_text}</p>
+              <h1 class='ot-headline_text'>${
+                ageV_settings.headline_text
+              }</h1>         
+                  <p class="ot-subhead_text" id="ot-subhead_text">
+                    ${
+                      ageV_settings.subhead_text != null
+                        ? ageV_settings.subhead_text
+                        : ""
+                    }
+                  </p>        
             </div>
           </div>
       `);
@@ -312,7 +334,7 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
               ${months}
             </select>
             <input type='text' class='av-day' maxlength="2" placeholder="01"/>
-            <input type='text' class='av-year' maxlength="4" placeholder="1998"/>
+            <input type='text' class='av-year' maxlength="4" placeholder="1970"/>
           </div>
           <div class="ot-av-error"></div>
           <div class='ot-av-submit-form'>
@@ -386,9 +408,6 @@ function eraseCookie(name) {
 }
 
 function setLocalStorage() {
-  const popupDisplaySelected = JSON.parse(ageV_settings.popupDisplaySelected);
-  const blockProducts = JSON.parse(ageV_settings.blockProducts);
-
   // SET APP STATUS
   if (ageV_settings.app_enable == 1) {
     localStorage.setItem("_otAgeVerification", "enable");
@@ -396,18 +415,18 @@ function setLocalStorage() {
     localStorage.setItem("_otAgeVerification", "disable");
   }
 
-  // SET BLOCK PRODUCTS
+  const popupDisplaySelected = JSON.parse(ageV_settings.popupDisplaySelected);
   if (Array.isArray(popupDisplaySelected)) {
-    if (blockProducts.length > 0) {
+    // SET BLOCK PRODUCTS
+    const blockProducts = JSON.parse(ageV_settings.blockProducts);
+    if (Array.isArray(blockProducts) && blockProducts.length > 0) {
       const blockProdRIds = [];
       blockProducts.map(({ rid }) => {
         return blockProdRIds.push(rid);
       });
       localStorage.setItem("_otBlockProducts", blockProdRIds);
     }
-  }
-  // SET BLOCK PAGES
-  if (Array.isArray(popupDisplaySelected)) {
+    // SET BLOCK PAGES
     if (popupDisplaySelected.length > 0) {
       localStorage.setItem("_otBlockLocations", popupDisplaySelected);
     }
@@ -437,5 +456,28 @@ function omega_ageCheckSubmit() {
     }
   } else {
     _otThis.handleSuccess();
+  }
+}
+
+function colorConverter(color) {
+  if (color.includes("#")) {
+    color = color.split("#")[1];
+    var values = color.match(/.{1,2}/g);
+
+    return {
+      r: parseInt(values[0], 16),
+      g: parseInt(values[1], 16),
+      b: parseInt(values[2], 16),
+      a: 1,
+    };
+  } else if (color != null && color != "") {
+    return JSON.parse(color);
+  } else {
+    return {
+      r: 255,
+      g: 255,
+      b: 255,
+      a: 1,
+    };
   }
 }

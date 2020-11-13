@@ -7,24 +7,17 @@ import {
   APP_NAME,
 } from "../age-verification.config";
 import axios from "axios";
-import mongoose from "mongoose";
-import "./models/shop";
-import "./models/InstalledShop";
 import {
   getUserSettings,
   getShopInstalled,
   updateUserSettings,
 } from "./sql/sqlQueries"; 
 
-const Shop = mongoose.model("shops");
-const InstalledShop = mongoose.model("installed_shops");
 
 const _7daysMs = new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
 const TRIAL_END = new Date(_7daysMs).toISOString();
 
 const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
-  // const fetchedShop = await Shop.findOne({ domain: shop });
-  // const fetchedInstalledShop = await InstalledShop.findOne({ shop });
   const userSettings = await getUserSettings(shop);
   const shopInstalled = await getShopInstalled(shop);
 
@@ -68,7 +61,6 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
   await updateUserSettings(shop, {
     status: 'active'
   })
-  // await InstalledShop.updateOne({ shop }, { status: "active" });
 
   return ctx.redirect("/");
 };
