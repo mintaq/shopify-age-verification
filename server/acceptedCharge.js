@@ -23,10 +23,8 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
 
   if (!userSettings && !shopInstalled) return ctx.status = 404;
 
-  const { confirmation_url } = userSettings;
-
-  // if (confirmation_url) {
-  //   return ctx.redirect(confirmation_url);
+  // if (userSettings.confirmation_url) {
+  //   return ctx.redirect(userSettings.confirmation_url);
   // }
 
   // *** ACTIVATE CHARGE ***
@@ -38,7 +36,6 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
       status: "accepted",
       return_url: HOST,
       test: true,
-      trial_days: TRIAL_TIME,
       decorated_return_url: HOST + `?charge_id=${charge_id}`,
     },
   };

@@ -76,7 +76,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
       remain_trial_time =
         (end_trial_date_ms - uninstall_date_ms) / 1000 / 60 / 60 / 24;
     } else remain_trial_time = 0;
-    TRIAL_TIME = Math.floor(remain_trial_time);
+    TRIAL_TIME = Number.parseInt(remain_trial_time + "");
   }
 
   const postBody = {

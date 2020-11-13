@@ -128,7 +128,7 @@ let _isOnTrial;
 // if (typeof omega_ageV == "undefined") {
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
-var rootLinkAgeV_Server = "https://minhlocal.omegatheme.com";
+var rootLinkAgeV_Server = "https://minh.omegatheme.com";
 // var rootLinkAgeV_File =
 //   "https://minhlocal.omegatheme.com/age-verification-omega";
 var rootLinkAgeV_File = "https://minh.omegatheme.com";
@@ -432,6 +432,8 @@ function setLocalStorage() {
     // SET BLOCK PAGES
     if (popupDisplaySelected.length > 0) {
       localStorage.setItem("_otBlockLocations", popupDisplaySelected);
+    } else {
+      localStorage.setItem("_otBlockLocations", []);
     }
   }
 }
