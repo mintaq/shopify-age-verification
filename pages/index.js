@@ -679,7 +679,6 @@ const Index = ({ shopOrigin }) => {
           name: `${shopOrigin}_ageBg.${type}`,
           field: "popup_bg_name",
         },
-        themeId,
       });
     } else if (bgImage_temp == null && popup_bg == null) {
       await axios.put(`/api/shops/upload_img/${shopOrigin}`, {
@@ -688,7 +687,6 @@ const Index = ({ shopOrigin }) => {
           name: null,
           field: "popup_bg_name",
         },
-        themeId,
       });
     }
 
@@ -701,7 +699,6 @@ const Index = ({ shopOrigin }) => {
           name: `${shopOrigin}_ageLogo.${type}`,
           field: "logo_name",
         },
-        themeId,
       });
     } else if (logo_temp == null && logo == null) {
       await axios.put(`/api/shops/upload_img/${shopOrigin}`, {
@@ -710,7 +707,6 @@ const Index = ({ shopOrigin }) => {
           name: null,
           field: "logo_name",
         },
-        themeId,
       });
     }
 

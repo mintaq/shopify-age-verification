@@ -1,20 +1,22 @@
 import mysql from "mysql";
 
-// var mysqlLib = mysql.createPool({
-//   host: "192.168.1.80",
-//   user: "minhtq",
-//   password: "password",
-//   database: "shopify_minh",
-//   connectionLimit: 10,
-// });
+const { MYSQL_HOST } = process.env;
 
 var mysqlLib = mysql.createPool({
-  host: "192.168.11.128",
+  host: MYSQL_HOST,
   user: "minhtq",
   password: "password",
   database: "shopify_minh",
-  connectionLimit: 10
+  connectionLimit: 10,
 });
+
+// var mysqlLib = mysql.createPool({
+//   host: "192.168.11.128",
+//   user: "minhtq",
+//   password: "password",
+//   database: "shopify_minh",
+//   connectionLimit: 10
+// });
 
 // mysqlLib.connect(function(err) {
 //   if (err) {

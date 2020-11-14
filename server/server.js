@@ -122,12 +122,11 @@ app.prepare().then(() => {
   });
 
   router.put("/api/shops/upload_img/:domain", verifyRequest(), async (ctx) => {
-    const { image_data, themeId } = ctx.request.body;
+    const { image_data } = ctx.request.body;
 
-    const res__image_data = await uploadImageToAssets(
+    await uploadImageToAssets(
       ctx.params.domain,
       ctx.session.accessToken,
-      themeId,
       image_data
     );
 

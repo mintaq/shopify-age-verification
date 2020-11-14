@@ -1,5 +1,6 @@
 import axios from "axios";
 import { selectTableRow, updateTableRow } from "../sql/sqlQueries";
+import updateScriptInTheme from "./updateScriptInTheme";
 
 /**
  * 1. check if image existed or changed
@@ -8,7 +9,8 @@ import { selectTableRow, updateTableRow } from "../sql/sqlQueries";
  *
  */
 
-const uploadImageToAssets = async (shop, accessToken, themeId, img_data) => {
+const uploadImageToAssets = async (shop, accessToken, img_data) => {
+  const themeId = await updateScriptInTheme(shop, accessToken);
   const query_field = img_data.field;
   const img_name =
     img_data.name != null
@@ -28,7 +30,7 @@ const uploadImageToAssets = async (shop, accessToken, themeId, img_data) => {
     if (img_base64_data != null && img_name != null) {
       // IF INPUT DATA NOT NULL
       // DELETE OLD IMAGE IN ASSETS
-      const res__deleteAssets = await axios.delete(
+      await axios.delete(
         `https://${shop}/admin/api/2020-10/themes/${themeId}/assets.json?asset[key]=assets/${res__selectTable[query_field]}`,
         {
           headers: {
@@ -61,10 +63,12 @@ const uploadImageToAssets = async (shop, accessToken, themeId, img_data) => {
           ? {
               popup_bg_name: axiosImageRes.data.asset.key.split("/")[1],
               popup_bg: axiosImageRes.data.asset.public_url,
+              themeId,
             }
           : {
               logo_name: axiosImageRes.data.asset.key.split("/")[1],
               logo: axiosImageRes.data.asset.public_url,
+              themeId,
             };
 
       await updateTableRow("age_verifier_settings", updateData, { shop });
@@ -73,7 +77,7 @@ const uploadImageToAssets = async (shop, accessToken, themeId, img_data) => {
     } else {
       // IF INPUT DATA IS NULL (REMOVE EXISTED IMAGE)
       // DELETE IMAGE IN ASSETS
-      const res__deleteAssets = await axios.delete(
+      await axios.delete(
         `https://${shop}/admin/api/2020-10/themes/${themeId}/assets.json?asset[key]=assets/${res__selectTable[query_field]}`,
         {
           headers: {
@@ -89,10 +93,12 @@ const uploadImageToAssets = async (shop, accessToken, themeId, img_data) => {
           ? {
               popup_bg_name: null,
               popup_bg: null,
+              themeId,
             }
           : {
               logo_name: null,
               logo: null,
+              themeId,
             };
 
       await updateTableRow("age_verifier_settings", updateData, { shop });
@@ -123,10 +129,12 @@ const uploadImageToAssets = async (shop, accessToken, themeId, img_data) => {
           ? {
               popup_bg_name: axiosImageRes.data.asset.key.split("/")[1],
               popup_bg: axiosImageRes.data.asset.public_url,
+              themeId,
             }
           : {
               logo_name: axiosImageRes.data.asset.key.split("/")[1],
               logo: axiosImageRes.data.asset.public_url,
+              themeId,
             };
 
       await updateTableRow("age_verifier_settings", updateData, { shop });
