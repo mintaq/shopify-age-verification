@@ -1530,8 +1530,9 @@ const Index = ({ shopOrigin }) => {
                     type="text/css"
                     href="https://scrip-tag.000webhostapp.com/index.css"
                   />
+                  <link rel="preconnect" href="https://fonts.gstatic.com" />
                   <link
-                    href="https://fonts.googleapis.com/css?family=Oswald:400,700"
+                    href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&display=swap"
                     rel="stylesheet"
                   />
                   <div id="ot-av-overlay-wrap" style={avOverlayWrapStyle}>

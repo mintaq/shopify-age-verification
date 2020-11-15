@@ -158,10 +158,14 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
 
   var myAppJavaScript = function ($) {
     $("head").append(`
-        <link href='${rootLinkAgeV_File}/age-verification.css?v=${Math.floor(
+      <link href='${rootLinkAgeV_File}/age-verification.css?v=${Math.floor(
       Math.random() * 100000
-    )}' rel='stylesheet' type='text/css'>
-        <link href="https://fonts.googleapis.com/css?family=Oswald:400,700"  rel="stylesheet" />
+    )}' rel='stylesheet' type='text/css' />
+      <link rel="preconnect" href="https://fonts.gstatic.com" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&display=swap"
+        rel="stylesheet"
+      />
       `);
 
     $.ajax({

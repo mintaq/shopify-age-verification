@@ -53,12 +53,13 @@
   animation-fill-mode: both;
   width: 96%;
   max-width: 800px;
-  font-family: "Oswald", sans-serif;
+  font-family: "EB Garamond", sans-serif;
 }
 
 h1.ot-headline_text {
   text-transform: uppercase;
-  margin: 10px 10px 0;
+  margin: 0px 10px 0;
+  font-family: inherit;
 }
 
 select.av_datepicker {
@@ -224,7 +225,6 @@ select.av_datepicker {
     transform: rotate(360deg);
   }
 }
-
 
 @-webkit-keyframes form_shake {
   0%,
