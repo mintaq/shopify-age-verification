@@ -1528,7 +1528,7 @@ const Index = ({ shopOrigin }) => {
                   <link
                     rel="stylesheet"
                     type="text/css"
-                    href="https://scrip-tag.000webhostapp.com/index.css"
+                    href="https://minh.omegatheme.com/index.css"
                   />
                   <link rel="preconnect" href="https://fonts.gstatic.com" />
                   <link

@@ -59,7 +59,7 @@
 h1.ot-headline_text {
   text-transform: uppercase;
   margin: 0px 10px 0;
-  font-family: inherit;
+  font-family: "Inter", sans-serif;
 }
 
 select.av_datepicker {
@@ -92,7 +92,7 @@ select.av_datepicker {
 .av_submit_form:hover,
 .av_submit_form:focus {
   text-transform: uppercase;
-  font-family: "Oswald", sans-serif !important;
+  font-family: "Inter", sans-serif !important;
   outline: none !important;
 }
 

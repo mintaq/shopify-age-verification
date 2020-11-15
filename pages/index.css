@@ -43,6 +43,7 @@
 h1.headline_text {
   text-transform: uppercase;
   margin: 10px;
+  font-family: "Inter", sans-serif;
 }
 
 select.av_datepicker {
