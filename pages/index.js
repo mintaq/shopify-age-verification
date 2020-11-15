@@ -669,6 +669,9 @@ const Index = ({ shopOrigin }) => {
       cancelBtnBgColor: JSON.stringify(cancelBtnBgColor),
     });
 
+    setSaveToastActivate(true);
+    set__is_saving(false);
+
     // SAVE IMAGEs
     // Background img
     if (bgImage_temp != null) {
@@ -709,9 +712,6 @@ const Index = ({ shopOrigin }) => {
         },
       });
     }
-
-    setSaveToastActivate(true);
-    set__is_saving(false);
   };
 
   const handleAppStatusChange = async () => {
