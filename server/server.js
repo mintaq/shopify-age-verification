@@ -172,10 +172,16 @@ app.prepare().then(() => {
     );
   });
 
-  router.get("/check_charge", async (ctx) => {
+  router.get("/activate_charge", async (ctx) => {
     const { shop, accessToken } = ctx.session;
 
     await acceptedCharge(ctx, accessToken, shop, ctx.query.charge_id);
+  });
+
+  route.get("/check_charge", async (ctx) => {
+    const { shop, accessToken } = ctx.session;
+
+    await getSubscriptionUrl(ctx, accessToken, shop);
   });
 
   router.get("(.*)", verifyRequest(), async (ctx) => {

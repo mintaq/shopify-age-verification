@@ -1,12 +1,12 @@
 import mysql from "mysql";
 
-const { MYSQL_HOST } = process.env;
+const { MYSQL_HOST, MYSQL_USER, MYSQL_PWD, MYSQL_DB } = process.env;
 
 var mysqlLib = mysql.createPool({
   host: MYSQL_HOST,
-  user: "minhtq",
-  password: "password",
-  database: "shopify_minh",
+  user: MYSQL_USER,
+  password: MYSQL_PWD,
+  database: MYSQL_DB,
   connectionLimit: 10,
 });
 

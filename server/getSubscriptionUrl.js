@@ -55,11 +55,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
   }
 
   // IF SHOP IS ACTIVE OR ON TRIAL TIME -> REDIRECT TO HOME
-  if (
-    (_isOnTrial || status == "active") &&
-    (date_uninstalled == null || date_uninstalled == "") &&
-    confirmation_url
-  ) {
+  if ((_isOnTrial || status == "active") && confirmation_url) {
     return ctx.redirect("/");
   }
 

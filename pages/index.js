@@ -1622,7 +1622,7 @@ const Index = ({ shopOrigin }) => {
         To proceed with the installation, click below to activate the app and
         approve the charge.
       </p>
-      <a target="_blank" href={`${user_settings["confirmation_url"]}`}>
+      <a target="_blank" href={`https://minh.omegatheme.com/check_chage`}>
         Activate App
       </a>
     </div>
