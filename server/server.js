@@ -175,13 +175,21 @@ app.prepare().then(() => {
   router.get("/activate_charge", async (ctx) => {
     const { shop, accessToken } = ctx.session;
 
-    await acceptedCharge(ctx, accessToken, shop, ctx.query.charge_id);
+    try {
+      await acceptedCharge(ctx, accessToken, shop, ctx.query.charge_id);
+    } catch (err) {
+      ctx.status = 500;
+    }
   });
 
-  route.get("/check_charge", async (ctx) => {
+  router.get("/check_charge", async (ctx) => {
     const { shop, accessToken } = ctx.session;
 
-    await getSubscriptionUrl(ctx, accessToken, shop);
+    try {
+      await getSubscriptionUrl(ctx, accessToken, shop);
+    } catch (err) {
+      ctx.status = 500;
+    }
   });
 
   router.get("(.*)", verifyRequest(), async (ctx) => {
