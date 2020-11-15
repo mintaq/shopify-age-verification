@@ -41,16 +41,16 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
     } else {
       const charge_id = confirmation_url.split("charges/")[1].split("/")[0];
       console.log("charge_id", charge_id);
-      await fetch(
-        `https://${shop}/admin/api/2020-10/recurring_application_charges/${charge_id}.json`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Shopify-Access-Token": accessToken,
-          },
-        }
-      );
+      // await fetch(
+      //   `https://${shop}/admin/api/2020-10/recurring_application_charges/${charge_id}.json`,
+      //   {
+      //     method: "DELETE",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //       "X-Shopify-Access-Token": accessToken,
+      //     },
+      //   }
+      // );
     }
   }
 
