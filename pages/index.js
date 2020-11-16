@@ -285,7 +285,7 @@ const Index = ({ shopOrigin }) => {
   useEffect(() => {
     async function fetchShop() {
       const user_settings = await axios.get(
-        `/age-verifier/api/shops/user-settings/${shopOrigin}`
+        `/api/shops/user-settings/${shopOrigin}`
       );
       if (!user_settings) return;
 
