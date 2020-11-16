@@ -16,15 +16,8 @@ const _7daysMs = 7 * 24 * 60 * 60 * 1000;
 const nowMs = new Date().getTime();
 
 const getSubscriptionUrl = async (ctx, accessToken, shop) => {
-  let userSettings;
-  let shopInstalled;
-
-  try {
-    userSettings = await getUserSettings(shop);
-    shopInstalled = await getShopInstalled(shop);
-  } catch (err) {
-    return;
-  }
+  const userSettings = await getUserSettings(shop);
+  const shopInstalled = await getShopInstalled(shop);
 
   let TRIAL_TIME;
   let confirmation_url, status;
