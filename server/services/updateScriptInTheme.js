@@ -5,7 +5,7 @@ import ShopifyAPIClient from "shopify-api-node";
 //   "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js";
 
 const BASE_SCRIPT_URL =
-  "https://minh.omegatheme.com/age-verfication-script-tag.js";
+  "https://minh.omegatheme.com/age-verifier/age-verfication-script-tag.js";
 
 function getEleByIdUsingRegex(tag, id, html) {
   return new RegExp(
