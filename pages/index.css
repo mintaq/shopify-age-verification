@@ -126,19 +126,18 @@ select.av_datepicker {
 .ot-av-datepicker-fields select,
 .ot-av-datepicker-fields input {
   box-sizing: border-box;
-  color: #555;
+  color: rgb(1, 1, 1);
   padding: 5px 10px;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
   border-radius: 5px;
   margin-right: 3px;
   border: 1px solid #ccc;
 }
 
-.ot-av-datepicker-fields input.av-day {
+.ot-av-datepicker-fields av-day {
   box-sizing: border-box;
-  width: 45px;
-  height: 28px;
+  width: 56px;
 }
 
 .ot-av-datepicker-fields input.av-year {

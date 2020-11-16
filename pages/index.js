@@ -1459,13 +1459,22 @@ const Index = ({ shopOrigin }) => {
     </Layout>
   );
 
-  var months = listMonths.map((month, index) => {
+  let months = listMonths.map((month, index) => {
     return (
       <option key={index} value={custom_date[month]}>
         {custom_date[month]}
       </option>
     );
   });
+
+  let days = [];
+  for (let i = 1; i <= 31; i++) {
+    days.push(
+      <option key={i} value={i}>
+        {i < 10 ? "0" + i : i}
+      </option>
+    );
+  }
 
   const avOverlayWrapStyle =
     av_layout == 2 && popup_bg != null && popup_bg != "" && bgImage_temp == null
@@ -1574,12 +1583,7 @@ const Index = ({ shopOrigin }) => {
                       {input_age == 1 ? (
                         <div className="ot-av-datepicker-fields">
                           <select className="av-month">${months}</select>
-                          <input
-                            type="text"
-                            className="av-day"
-                            maxLength="2"
-                            placeholder="01"
-                          />
+                          <select className="av-day">${days}</select>
                           <input
                             type="text"
                             className="av-year"

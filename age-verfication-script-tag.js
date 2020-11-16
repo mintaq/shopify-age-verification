@@ -19,9 +19,7 @@ let _otThis = {
   errors: [],
   getValues() {
     _otThis.month = $(".ot-av-datepicker-fields .av-month").val();
-    _otThis.day = $(".ot-av-datepicker-fields .av-day")
-      .val()
-      .replace(/^0+/, "");
+    _otThis.day = $(".ot-av-datepicker-fields .av-day").val();
     _otThis.year = $(".ot-av-datepicker-fields .av-year").val();
   },
   validateValues() {
@@ -326,7 +324,8 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com/age-verifier";
 
       if (ageV_settings.input_age == 1) {
         const customMonths = JSON.parse(ageV_settings.custom_date);
-        var months = "";
+        let months = "";
+        let days = "";
 
         const customMonthsKeys = Object.keys(customMonths);
         for (let i = 0; i < customMonthsKeys.length; i++) {
@@ -335,12 +334,18 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com/age-verifier";
           }</option>`;
         }
 
+        for (let i = 1; i <= 31; i++) {
+          days += `<option value="${i}">${i < 10 ? "0" + i : i}</option>`;
+        }
+
         $(".otAgeVerification #ot-av-overlay-form").append(`
           <div class='ot-av-datepicker-fields'>
             <select class='av-month'>
               ${months}
             </select>
-            <input type='text' class='av-day' maxlength="2" placeholder="01"/>
+            <select class='av-day'>
+              ${days}
+            </select>
             <input type='text' class='av-year' maxlength="4" placeholder="1970"/>
           </div>
           <div class="ot-av-error"></div>
