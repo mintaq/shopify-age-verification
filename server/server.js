@@ -103,14 +103,14 @@ app.prepare().then(() => {
   // });
 
   // ROUTES
-  router.get("/api/shops/settings/:domain", async (ctx) => {
+  router.get("/age-verifier/api/shops/settings/:domain", async (ctx) => {
     const res = await getShopSettings(ctx.params.domain);
     if (!res) return (ctx.status = 404);
 
     ctx.body = res;
   });
 
-  router.get("/api/shops/public/user_settings/:domain", async (ctx) => {
+  router.get("/age-verifier/api/shops/public/user-settings/:domain", async (ctx) => {
     const res = await getUserSettings(ctx.params.domain);
     if (!res) return (ctx.status = 404);
     const res_body = {

@@ -285,7 +285,7 @@ const Index = ({ shopOrigin }) => {
   useEffect(() => {
     async function fetchShop() {
       const user_settings = await axios.get(
-        `/api/shops/user_settings/${shopOrigin}`
+        `/age-verifier/api/shops/user-settings/${shopOrigin}`
       );
       if (!user_settings) return;
 
@@ -293,7 +293,7 @@ const Index = ({ shopOrigin }) => {
 
       const isActive = await checkAppChargeStatus(user_settings.data);
       if (isActive) {
-        const { data } = await axios.get(`/api/shops/settings/${shopOrigin}`);
+        const { data } = await axios.get(`/age-verifier/api/shops/settings/${shopOrigin}`);
 
         // *** LAYOUT STATES ***
         set__themeId(data.themeId);

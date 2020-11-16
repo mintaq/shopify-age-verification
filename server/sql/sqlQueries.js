@@ -5,6 +5,10 @@ export const getShopSettings = (shop) => {
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
+      if (err) {
+        reject(err);
+        return;
+      }
       connection.query(query, function (err, results, fields) {
         connection.release();
         if (err) {
@@ -12,6 +16,10 @@ export const getShopSettings = (shop) => {
         }
 
         resolve(results[0]);
+      });
+      connection.on("error", function (err) {
+        reject(err);
+        return;
       });
     });
   });
@@ -22,6 +30,10 @@ export const getUserSettings = (shop) => {
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
+      if (err) {
+        reject(err);
+        return;
+      }
       connection.query(query, function (err, results, fields) {
         connection.release();
         if (err) {
@@ -29,6 +41,10 @@ export const getUserSettings = (shop) => {
         }
 
         resolve(results[0]);
+      });
+      connection.on("error", function (err) {
+        reject(err);
+        return;
       });
     });
   });
@@ -39,6 +55,10 @@ export const getShopInstalled = (shop) => {
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
+      if (err) {
+        reject(err);
+        return;
+      }
       connection.query(query, function (err, results, fields) {
         connection.release();
         if (err) {
@@ -46,6 +66,10 @@ export const getShopInstalled = (shop) => {
         }
 
         resolve(results[0]);
+      });
+      connection.on("error", function (err) {
+        reject(err);
+        return;
       });
     });
   });
@@ -60,14 +84,19 @@ export const insertShopInstalled = (data) => {
 
   for (let i = 0; i < dataKeys.length; i++) {
     sql_Fields += `${dataKeys[i]}${i == dataKeys.length - 1 ? "" : ", "}`;
-    sql_Values += `'${data[dataKeys[i]]}'${i == dataKeys.length - 1 ? "" : ", "}`;
+    sql_Values += `'${data[dataKeys[i]]}'${
+      i == dataKeys.length - 1 ? "" : ", "
+    }`;
   }
 
   query = `INSERT INTO shop_installed (${sql_Fields}) VALUES (${sql_Values})`;
 
-
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
+      if (err) {
+        reject(err);
+        return;
+      }
       connection.query(query, function (err, results, fields) {
         connection.release();
         if (err) {
@@ -75,6 +104,10 @@ export const insertShopInstalled = (data) => {
         }
 
         resolve(results);
+      });
+      connection.on("error", function (err) {
+        reject(err);
+        return;
       });
     });
   });
@@ -93,9 +126,12 @@ export const updateUserSettings = (shop, data) => {
 
   query = `UPDATE tbl_usersettings SET ${sql_Set} WHERE store_name = '${shop}'`;
 
-
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
+      if (err) {
+        reject(err);
+        return;
+      }
       connection.query(query, function (err, results, fields) {
         connection.release();
         if (err) {
@@ -103,6 +139,10 @@ export const updateUserSettings = (shop, data) => {
         }
 
         resolve(results);
+      });
+      connection.on("error", function (err) {
+        reject(err);
+        return;
       });
     });
   });
@@ -140,9 +180,12 @@ export const updateTableRow = (table, data, where) => {
 
   query = `UPDATE ${table} SET ${sql_Set} WHERE ${sql_Where}`;
 
-
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
+      if (err) {
+        reject(err);
+        return;
+      }
       connection.query(query, function (err, results, fields) {
         connection.release();
         if (err) {
@@ -150,6 +193,10 @@ export const updateTableRow = (table, data, where) => {
         }
 
         resolve(results);
+      });
+      connection.on("error", function (err) {
+        reject(err);
+        return;
       });
     });
   });
@@ -172,6 +219,10 @@ export const insertTableRow = (table, data) => {
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
+      if (err) {
+        reject(err);
+        return;
+      }
       connection.query(query, function (err, results, fields) {
         connection.release();
         if (err) {
@@ -179,6 +230,10 @@ export const insertTableRow = (table, data) => {
         }
 
         resolve(results);
+      });
+      connection.on("error", function (err) {
+        reject(err);
+        return;
       });
     });
   });
@@ -197,6 +252,10 @@ export const selectTableRow = (table, field, where) => {
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
+      if (err) {
+        reject(err);
+        return;
+      }
       connection.query(query, function (err, results, fields) {
         connection.release();
         if (err) {
@@ -204,6 +263,10 @@ export const selectTableRow = (table, field, where) => {
         }
 
         resolve(results[0]);
+      });
+      connection.on("error", function (err) {
+        reject(err);
+        return;
       });
     });
   });
@@ -222,6 +285,10 @@ export const deleteTableRow = (table, where) => {
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
+      if (err) {
+        reject(err);
+        return;
+      }
       connection.query(query, function (err, results, fields) {
         connection.release();
         if (err) {
@@ -229,6 +296,10 @@ export const deleteTableRow = (table, where) => {
         }
 
         resolve(results[0]);
+      });
+      connection.on("error", function (err) {
+        reject(err);
+        return;
       });
     });
   });

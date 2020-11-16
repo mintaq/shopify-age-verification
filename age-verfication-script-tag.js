@@ -105,7 +105,9 @@ let _otThis = {
     $(".otAgeVerification").fadeOut();
   },
   handleUnderAge() {
-    const underAgeMsg = `<h3>${ageV_settings.validate_error}</h3>`;
+    const underAgeMsg = `<h3>${
+      ageV_settings.validate_error ? ageV_settings.validate_error : ""
+    }</h3>`;
     $(".otAgeVerification .ot-av-error").html(underAgeMsg);
     if (ageV_settings.exit_link !== "") {
       setTimeout(() => {
@@ -129,7 +131,7 @@ let _isOnTrial;
 var omega_ageV = 1;
 var omega_ageV_shopDomain = Shopify.shop;
 var rootLinkAgeV_Server = "https://minh.omegatheme.com";
-var rootLinkAgeV_File = "https://minh.omegatheme.com";
+var rootLinkAgeV_File = "https://minh.omegatheme.com/age-verifier";
 
 // ******* INIT
 (function () {
@@ -169,7 +171,7 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
       `);
 
     $.ajax({
-      url: `${rootLinkAgeV_Server}/api/shops/public/user_settings/${omega_ageV_shopDomain}`,
+      url: `${rootLinkAgeV_Server}/age-verifier/api/shops/public/user-settings/${omega_ageV_shopDomain}`,
       type: "GET",
       dataType: "json",
     }).done((result) => {
@@ -182,7 +184,7 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com";
 
       if (_isOnTrial || _isActivated) {
         $.ajax({
-          url: `${rootLinkAgeV_Server}/api/shops/settings/${omega_ageV_shopDomain}`,
+          url: `${rootLinkAgeV_Server}/age-verifier/api/shops/settings/${omega_ageV_shopDomain}`,
           type: "GET",
           dataType: "json",
         }).done((result) => {
