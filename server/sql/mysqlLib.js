@@ -18,12 +18,4 @@ var mysqlLib = mysql.createPool({
 //   connectionLimit: 10
 // });
 
-// mysqlLib.connect(function(err) {
-//   if (err) {
-//     console.log(err);
-//     return;
-//   }
-//   console.log("Mysql connected!");
-// });
-
 export default mysqlLib;

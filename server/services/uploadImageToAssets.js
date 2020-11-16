@@ -18,12 +18,17 @@ const uploadImageToAssets = async (shop, accessToken, img_data) => {
       : null;
   const img_base64_data =
     img_data.data != null ? img_data.data.split(";base64,")[1] : null;
+  let res__selectTable;
 
-  const res__selectTable = await selectTableRow(
-    "age_verifier_settings",
-    query_field,
-    { shop }
-  );
+  try {
+    res__selectTable = await selectTableRow(
+      "age_verifier_settings",
+      query_field,
+      { shop }
+    );
+  } catch (err) {
+    return;
+  }
 
   if (res__selectTable[query_field] != null) {
     // IF IMAGE IS EXISTED
@@ -71,7 +76,11 @@ const uploadImageToAssets = async (shop, accessToken, img_data) => {
               themeId,
             };
 
-      await updateTableRow("age_verifier_settings", updateData, { shop });
+      try {
+        await updateTableRow("age_verifier_settings", updateData, { shop });
+      } catch (err) {
+        return;
+      }
 
       return 1;
     } else {
@@ -101,7 +110,11 @@ const uploadImageToAssets = async (shop, accessToken, img_data) => {
               themeId,
             };
 
-      await updateTableRow("age_verifier_settings", updateData, { shop });
+      try {
+        await updateTableRow("age_verifier_settings", updateData, { shop });
+      } catch (err) {
+        return;
+      }
       return 2;
     }
   } else {
@@ -137,7 +150,11 @@ const uploadImageToAssets = async (shop, accessToken, img_data) => {
               themeId,
             };
 
-      await updateTableRow("age_verifier_settings", updateData, { shop });
+      try {
+        await updateTableRow("age_verifier_settings", updateData, { shop });
+      } catch (err) {
+        return;
+      }
 
       return 3;
     } else return 4;

@@ -13,7 +13,7 @@ import {
   cancelBtnLabelColor,
   overlayBgColor,
   custom_date,
-} from "./services/defaultValues"
+} from "./services/defaultValues";
 
 const createShopAndAddScript = async function (shopDomain, accessToken) {
   const shopInstalled = await getShopInstalled(shopDomain);
@@ -30,32 +30,12 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
   if (!shopInstalled) {
     // IF SHOP IS NOT INSTALLED
 
-    await insertTableRow("shop_installed", {
-      shop: shopDomain,
-      date_installed: cur_date_installed,
-      app_id: 1,
-    });
-    await insertTableRow("age_verifier_settings", {
-      shop: shopDomain,
-      themeId: theme_id + "",
-      popupDisplaySelected: JSON.stringify(["home"]),
-      blockProducts: JSON.stringify([]),
-      custom_date: JSON.stringify(custom_date),
-      overlayBgColor: JSON.stringify(overlayBgColor),
-      submitBtnLabelColor: JSON.stringify(submitBtnLabelColor),
-      cancelBtnLabelColor: JSON.stringify(cancelBtnLabelColor),
-    });
-    await insertTableRow("tbl_usersettings", {
-      access_token: accessToken,
-      store_name: shopDomain,
-      app_id: 1,
-      installed_date: cur_date_installed,
-    });
-    return;
-  } else {
-    // IF SHOP IS INSTALLED BEFORE
-    // IF SHOP IS REINSTALL
-    if (!shopSettings && !userSettings) {
+    try {
+      await insertTableRow("shop_installed", {
+        shop: shopDomain,
+        date_installed: cur_date_installed,
+        app_id: 1,
+      });
       await insertTableRow("age_verifier_settings", {
         shop: shopDomain,
         themeId: theme_id + "",
@@ -70,22 +50,55 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
         access_token: accessToken,
         store_name: shopDomain,
         app_id: 1,
-        installed_date: shopInstalled.date_installed,
+        installed_date: cur_date_installed,
       });
+    } catch (err) {
       return;
     }
 
-    await updateTableRow(
-      "age_verifier_settings",
-      { themeId: theme_id + "" },
-      { shop: shopDomain }
-    );
-    await updateTableRow(
-      "tbl_usersettings",
-      { access_token: accessToken },
-      { store_name: shopDomain }
-    );
     return;
+  } else {
+    // IF SHOP IS INSTALLED BEFORE
+    // IF SHOP IS REINSTALL
+    if (!shopSettings && !userSettings) {
+      try {
+        await insertTableRow("age_verifier_settings", {
+          shop: shopDomain,
+          themeId: theme_id + "",
+          popupDisplaySelected: JSON.stringify(["home"]),
+          blockProducts: JSON.stringify([]),
+          custom_date: JSON.stringify(custom_date),
+          overlayBgColor: JSON.stringify(overlayBgColor),
+          submitBtnLabelColor: JSON.stringify(submitBtnLabelColor),
+          cancelBtnLabelColor: JSON.stringify(cancelBtnLabelColor),
+        });
+        await insertTableRow("tbl_usersettings", {
+          access_token: accessToken,
+          store_name: shopDomain,
+          app_id: 1,
+          installed_date: shopInstalled.date_installed,
+        });
+        return;
+      } catch (err) {
+        return;
+      }
+    }
+
+    try {
+      await updateTableRow(
+        "age_verifier_settings",
+        { themeId: theme_id + "" },
+        { shop: shopDomain }
+      );
+      await updateTableRow(
+        "tbl_usersettings",
+        { access_token: accessToken },
+        { store_name: shopDomain }
+      );
+      return;
+    } catch (err) {
+      return;
+    }
   }
 };
 

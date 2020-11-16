@@ -16,8 +16,16 @@ const _7daysMs = 7 * 24 * 60 * 60 * 1000;
 const nowMs = new Date().getTime();
 
 const getSubscriptionUrl = async (ctx, accessToken, shop) => {
-  const userSettings = await getUserSettings(shop);
-  const shopInstalled = await getShopInstalled(shop);
+  let userSettings;
+  let shopInstalled;
+
+  try {
+    userSettings = await getUserSettings(shop);
+    shopInstalled = await getShopInstalled(shop);
+  } catch (err) {
+    return;
+  }
+
   let TRIAL_TIME;
   let confirmation_url, status;
 
@@ -40,7 +48,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
       return ctx.redirect(confirmation_url);
     } else {
       const charge_id = confirmation_url.split("charges/")[1].split("/")[0];
-      console.log("charge_id", charge_id);
+      // console.log("charge_id", charge_id);
       // await fetch(
       //   `https://${shop}/admin/api/2020-10/recurring_application_charges/${charge_id}.json`,
       //   {
@@ -105,10 +113,14 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
 
   // TODO: update mysql: confirmation_url, shop status
 
-  await updateUserSettings(shop, {
-    confirmation_url: res_confirmation_url,
-    status: res_status,
-  });
+  try {
+    await updateUserSettings(shop, {
+      confirmation_url: res_confirmation_url,
+      status: res_status,
+    });
+  } catch (err) {
+    return;
+  }
 
   return ctx.redirect(res_confirmation_url);
 };

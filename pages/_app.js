@@ -1,5 +1,6 @@
-import ApolloClient from "apollo-boost";
-import { ApolloProvider } from "react-apollo";
+// import ApolloClient from "apollo-boost";
+// import fetch from "node-fetch";
+// import { ApolloProvider } from "react-apollo";
 import App, { Container } from "next/app";
 import { AppProvider } from "@shopify/polaris";
 import { Provider } from "@shopify/app-bridge-react";
@@ -7,11 +8,9 @@ import Cookies from "js-cookie";
 import "@shopify/polaris/dist/styles.css";
 import translations from "@shopify/polaris/locales/en.json";
 
-const client = new ApolloClient({
-  fetchOptions: {
-    credentials: "include",
-  },
-});
+// const client = new ApolloClient({
+//   fetch: fetch,
+// });
 class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
@@ -26,9 +25,9 @@ class MyApp extends App {
               forceRedirect: true,
             }}
           >
-            <ApolloProvider client={client}>
-              <Component {...pageProps} shopOrigin={shopOrigin} />
-            </ApolloProvider>
+            {/* <ApolloProvider client={client}> */}
+            <Component {...pageProps} shopOrigin={shopOrigin} />
+            {/* </ApolloProvider> */}
           </Provider>
         </AppProvider>
       </Container>

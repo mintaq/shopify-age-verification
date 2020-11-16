@@ -11,8 +11,7 @@ import {
   getUserSettings,
   getShopInstalled,
   updateUserSettings,
-} from "./sql/sqlQueries"; 
-
+} from "./sql/sqlQueries";
 
 const _7daysMs = new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
 const TRIAL_END = new Date(_7daysMs).toISOString();
@@ -21,7 +20,7 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
   const userSettings = await getUserSettings(shop);
   const shopInstalled = await getShopInstalled(shop);
 
-  if (!userSettings && !shopInstalled) return ctx.status = 404;
+  if (!userSettings && !shopInstalled) return (ctx.status = 404);
 
   // if (userSettings.confirmation_url) {
   //   return ctx.redirect(userSettings.confirmation_url);
@@ -54,9 +53,13 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
 
   const responseJson = await response.json();
 
-  await updateUserSettings(shop, {
-    status: 'active'
-  })
+  try {
+    await updateUserSettings(shop, {
+      status: "active",
+    });
+  } catch (err) {
+    return (ctx.status = 500);
+  }
 
   return ctx.redirect("/");
 };

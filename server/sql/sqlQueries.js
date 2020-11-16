@@ -155,8 +155,6 @@ export const updateTableRow = (table, data, where) => {
   let sql_Where = "";
   let query = "";
 
-  // console.log(data)
-
   whereKeys.map((col, i) => {
     sql_Where += `${col} = "${where[col]}"`;
   });

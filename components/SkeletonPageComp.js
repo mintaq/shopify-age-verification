@@ -8,42 +8,42 @@ import {
   SkeletonPage,
 } from "@shopify/polaris";
 
-export default class SkeletonPageComp extends React.Component {
-  render() {
-    return (
-      <SkeletonPage primaryAction secondaryActions={1}>
-        <Layout>
-          <Layout.Section>
-            <Card sectioned>
+function SkeletonPageComp() {
+  return (
+    <SkeletonPage primaryAction secondaryActions={1}>
+      <Layout>
+        <Layout.Section>
+          <Card sectioned>
+            <SkeletonBodyText />
+          </Card>
+          <Card sectioned>
+            <TextContainer>
+              <SkeletonDisplayText size="large" />
               <SkeletonBodyText />
-            </Card>
-            <Card sectioned>
-              <TextContainer>
-                <SkeletonDisplayText size="large" />
-                <SkeletonBodyText />
-              </TextContainer>
-            </Card>
-            <Card sectioned>
-              <TextContainer>
-                <SkeletonDisplayText size="large" />
-                <SkeletonBodyText />
-              </TextContainer>
-            </Card>
-            <Card sectioned>
-              <TextContainer>
-                <SkeletonDisplayText size="large" />
-                <SkeletonBodyText />
-              </TextContainer>
-            </Card>
-            <Card sectioned>
-              <TextContainer>
-                <SkeletonDisplayText size="large" />
-                <SkeletonBodyText />
-              </TextContainer>
-            </Card>
-          </Layout.Section>
-        </Layout>
-      </SkeletonPage>
-    );
-  }
+            </TextContainer>
+          </Card>
+          <Card sectioned>
+            <TextContainer>
+              <SkeletonDisplayText size="large" />
+              <SkeletonBodyText />
+            </TextContainer>
+          </Card>
+          <Card sectioned>
+            <TextContainer>
+              <SkeletonDisplayText size="large" />
+              <SkeletonBodyText />
+            </TextContainer>
+          </Card>
+          <Card sectioned>
+            <TextContainer>
+              <SkeletonDisplayText size="large" />
+              <SkeletonBodyText />
+            </TextContainer>
+          </Card>
+        </Layout.Section>
+      </Layout>
+    </SkeletonPage>
+  );
 }
+
+export default SkeletonPageComp;

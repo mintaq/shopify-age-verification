@@ -56,7 +56,6 @@
     "material-ui-color-picker": "^3.5.1",
     "material-ui-dropzone": "^3.5.0",
     "material-ui-popup-state": "^1.7.0",
-    "mdbreact": "^4.27.0",
     "mongoose": "^5.10.9",
     "mysql": "^2.18.1",
     "next": "^8.1.0",
@@ -67,11 +66,8 @@
     "react-apollo": "^3.1.5",
     "react-color": "^2.18.1",
     "react-dom": "^16.10.1",
-    "react-dropzone-material-ui": "^2.0.0",
-    "react-select": "^3.1.0",
     "shopify-api-node": "^3.4.4",
-    "styled-components": "^5.2.0",
-    "webp-converter": "^2.3.0"
+    "styled-components": "^5.2.0"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.11.5",

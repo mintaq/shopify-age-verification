@@ -104,58 +104,73 @@ app.prepare().then(() => {
 
   // ROUTES
   router.get("/age-verifier/api/shops/settings/:domain", async (ctx) => {
-    const res = await getShopSettings(ctx.params.domain);
-    if (!res) return (ctx.status = 404);
-
-    ctx.body = res;
+    try {
+      const res = await getShopSettings(ctx.params.domain);
+      ctx.body = res;
+    } catch (err) {
+      return (ctx.status = 404);
+    }
   });
 
-  router.get("/age-verifier/api/shops/public/user-settings/:domain", async (ctx) => {
-    const res = await getUserSettings(ctx.params.domain);
-    if (!res) return (ctx.status = 404);
-    const res_body = {
-      installed_date: res.installed_date,
-      status: res.status,
-    };
-
-    ctx.body = res_body;
-  });
+  router.get(
+    "/age-verifier/api/shops/public/user-settings/:domain",
+    async (ctx) => {
+      try {
+        const res = await getUserSettings(ctx.params.domain);
+        const res_body = {
+          installed_date: res.installed_date,
+          status: res.status,
+        };
+        ctx.body = res_body;
+      } catch (err) {
+        return (ctx.status = 404);
+      }
+    }
+  );
 
   router.put("/api/shops/upload_img/:domain", verifyRequest(), async (ctx) => {
     const { image_data } = ctx.request.body;
 
-    await uploadImageToAssets(
-      ctx.params.domain,
-      ctx.session.accessToken,
-      image_data
-    );
+    try {
+      await uploadImageToAssets(
+        ctx.params.domain,
+        ctx.session.accessToken,
+        image_data
+      );
 
-    ctx.status = 200;
+      ctx.status = 200;
+    } catch (err) {
+      ctx.status = 400;
+    }
   });
 
   router.get(
     "/api/shops/user-settings/:domain",
     verifyRequest(),
     async (ctx) => {
-      const res = await getUserSettings(ctx.params.domain);
-      if (!res) return (ctx.status = 404);
-
-      ctx.body = res;
+      try {
+        const res = await getUserSettings(ctx.params.domain);
+        ctx.body = res;
+      } catch (err) {
+        return (ctx.status = 404);
+      }
     }
   );
 
   router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
-    await updateTableRow("age_verifier_settings", ctx.request.body, {
-      shop: ctx.params.domain,
-    });
-
-    ctx.res.statusCode = 200;
+    try {
+      await updateTableRow("age_verifier_settings", ctx.request.body, {
+        shop: ctx.params.domain,
+      });
+      ctx.res.statusCode = 200;
+    } catch (err) {
+      ctx.status = 400;
+    }
   });
 
   const webhook = receiveWebhook({ secret: SHOPIFY_API_SECRET });
 
   router.post("/webhooks/app/uninstalled", webhook, async (ctx) => {
-    // console.log("received webhook: ", ctx.state.webhook);
     const cur_date = new Date();
     const cur_date_uninstalled =
       cur_date.toISOString().split("T")[0] +
@@ -163,13 +178,17 @@ app.prepare().then(() => {
       cur_date.toTimeString().split(" ")[0];
 
     const { payload } = ctx.state.webhook;
-    await deleteTableRow("age_verifier_settings", { shop: payload.domain });
-    await deleteTableRow("tbl_usersettings", { store_name: payload.domain });
-    await updateTableRow(
-      "shop_installed",
-      { date_uninstalled: cur_date_uninstalled },
-      { shop: payload.domain }
-    );
+    try {
+      await deleteTableRow("age_verifier_settings", { shop: payload.domain });
+      await deleteTableRow("tbl_usersettings", { store_name: payload.domain });
+      await updateTableRow(
+        "shop_installed",
+        { date_uninstalled: cur_date_uninstalled },
+        { shop: payload.domain }
+      );
+    } catch (err) {
+      ctx.status = 400;
+    }
   });
 
   router.get("/activate-charge", async (ctx) => {

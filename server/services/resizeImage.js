@@ -17,7 +17,6 @@
 //         return resizedBase64;
 //       });
 
-//     // console.log(sharpRes);
 //     const newImage = { ...image, data: sharpRes };
 //     return newImage;
 //   } else return 0;

@@ -25,7 +25,6 @@ import SkeletonPageComp from "../components/SkeletonPageComp";
 import styled from "styled-components";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import axios from "axios";
-// import sharp from "sharp";
 import classes from "./index.css";
 
 const Index = ({ shopOrigin }) => {
@@ -293,7 +292,9 @@ const Index = ({ shopOrigin }) => {
 
       const isActive = await checkAppChargeStatus(user_settings.data);
       if (isActive) {
-        const { data } = await axios.get(`/age-verifier/api/shops/settings/${shopOrigin}`);
+        const { data } = await axios.get(
+          `/age-verifier/api/shops/settings/${shopOrigin}`
+        );
 
         // *** LAYOUT STATES ***
         set__themeId(data.themeId);
@@ -1528,7 +1529,7 @@ const Index = ({ shopOrigin }) => {
                   <link
                     rel="stylesheet"
                     type="text/css"
-                    href="https://minh.omegatheme.com/index.css"
+                    href="https://minh.omegatheme.com/age-verifier/index.css"
                   />
                   <link rel="preconnect" href="https://fonts.gstatic.com" />
                   <link
