@@ -134,7 +134,7 @@ app.prepare().then(() => {
   });
 
   router.get(
-    "/api/shops/user_settings/:domain",
+    "/api/shops/user-settings/:domain",
     verifyRequest(),
     async (ctx) => {
       const res = await getUserSettings(ctx.params.domain);
@@ -172,7 +172,7 @@ app.prepare().then(() => {
     );
   });
 
-  router.get("/activate_charge", async (ctx) => {
+  router.get("/activate-charge", async (ctx) => {
     const { shop, accessToken } = ctx.session;
 
     try {
@@ -182,7 +182,7 @@ app.prepare().then(() => {
     }
   });
 
-  router.get("/check_charge", async (ctx) => {
+  router.get("/check-charge", async (ctx) => {
     const { shop, accessToken } = ctx.session;
 
     try {
