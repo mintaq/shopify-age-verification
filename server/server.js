@@ -37,15 +37,15 @@ app.prepare().then(() => {
   const server = new Koa();
   const router = new Router();
   server.use(cors());
-  server.use(
-    session(
-      {
-        sameSite: "none",
-        secure: true,
-      },
-      server
-    )
-  );
+  // server.use(
+  //   session(
+  //     {
+  //       sameSite: "none",
+  //       secure: true,
+  //     },
+  //     server
+  //   )
+  // );
   server.keys = [SHOPIFY_API_SECRET];
   server.use(
     shopifyAuth({
@@ -54,6 +54,7 @@ app.prepare().then(() => {
       scopes: [SCOPES],
 
       async afterAuth(ctx) {
+        console.log("ctx", ctx);
         const { shop, accessToken } = ctx.session;
 
         // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
