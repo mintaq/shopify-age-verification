@@ -37,15 +37,15 @@ app.prepare().then(() => {
   const server = new Koa();
   const router = new Router();
   server.use(cors());
-  server.use(
-    session(
-      {
-        sameSite: "none",
-        secure: true,
-      },
-      server
-    )
-  );
+  // server.use(
+  //   session(
+  //     {
+  //       sameSite: "none",
+  //       secure: true,
+  //     },
+  //     server
+  //   )
+  // );
   server.keys = [SHOPIFY_API_SECRET];
   server.use(
     shopifyAuth({
@@ -121,7 +121,8 @@ app.prepare().then(() => {
     }
   );
 
-  router.put("/api/shops/upload_img/:domain", verifyRequest(), async (ctx) => {
+  // AUTH ROUTES
+  router.put("/api/shops/upload_img/:domain", async (ctx) => {
     const { image_data } = ctx.request.body;
 
     try {
@@ -139,7 +140,7 @@ app.prepare().then(() => {
 
   router.get(
     "/api/shops/user-settings/:domain",
-    verifyRequest(),
+
     async (ctx) => {
       try {
         const res = await getUserSettings(ctx.params.domain);
@@ -150,7 +151,7 @@ app.prepare().then(() => {
     }
   );
 
-  router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
+  router.put("/api/shops/:domain", async (ctx, next) => {
     try {
       await updateTableRow("age_verifier_settings", ctx.request.body, {
         shop: ctx.params.domain,
@@ -160,6 +161,8 @@ app.prepare().then(() => {
       ctx.status = 400;
     }
   });
+
+  // END AUTH ROUTES
 
   const webhook = receiveWebhook({ secret: SHOPIFY_API_SECRET });
 
