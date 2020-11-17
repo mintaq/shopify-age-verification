@@ -1282,6 +1282,7 @@ const Index = ({ shopOrigin }) => {
                 <TextField
                   value={subhead_text}
                   onChange={handleSubHeadlineTextChange}
+                  placeholder="You must at least 18 to visit this shop!"
                 />
               </Card.Section>
             </Stack.Item>
