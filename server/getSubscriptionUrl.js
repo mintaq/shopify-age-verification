@@ -2,7 +2,7 @@ import {
   CHARGE_TIME,
   CHARGE_TITLE,
   PRICE,
-  HOST,
+  RETURN_URL,
   APP_NAME,
 } from "../age-verification.config";
 import axios from "axios";
@@ -80,7 +80,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
     recurring_application_charge: {
       name: CHARGE_TITLE,
       price: PRICE,
-      return_url: HOST,
+      return_url: RETURN_URL,
       test: true,
       trial_days: Number.parseInt(TRIAL_TIME),
     },

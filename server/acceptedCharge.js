@@ -3,7 +3,7 @@ import {
   CHARGE_TIME,
   CHARGE_TITLE,
   PRICE,
-  HOST,
+  RETURN_URL,
   APP_NAME,
 } from "../age-verification.config";
 import axios from "axios";
@@ -33,9 +33,9 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
       name: CHARGE_TITLE,
       price: PRICE,
       status: "accepted",
-      return_url: HOST,
+      return_url: RETURN_URL,
       test: true,
-      decorated_return_url: HOST + `?charge_id=${charge_id}`,
+      decorated_return_url: RETURN_URL + `?charge_id=${charge_id}`,
     },
   };
 

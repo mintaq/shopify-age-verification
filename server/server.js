@@ -1,7 +1,7 @@
 import "@babel/polyfill";
 import dotenv from "dotenv";
 import "isomorphic-fetch";
-import createShopifyAuth, { verifyRequest } from "@shopify/koa-shopify-auth";
+import shopifyAuth, { verifyRequest } from "@shopify/koa-shopify-auth";
 import graphQLProxy, { ApiVersion } from "@shopify/koa-shopify-graphql-proxy";
 import { receiveWebhook, registerWebhook } from "@shopify/koa-shopify-webhooks";
 import Koa from "koa";
@@ -30,14 +30,7 @@ const app = next({
   dev,
 });
 const handle = app.getRequestHandler();
-const {
-  SHOPIFY_API_SECRET,
-  SHOPIFY_API_KEY,
-  SCOPES,
-  MONGODB_URI,
-  HOST,
-  API_VERSION,
-} = process.env;
+const { SHOPIFY_API_SECRET, SHOPIFY_API_KEY, SCOPES, HOST } = process.env;
 
 // SERVER
 app.prepare().then(() => {
@@ -55,7 +48,7 @@ app.prepare().then(() => {
   );
   server.keys = [SHOPIFY_API_SECRET];
   server.use(
-    createShopifyAuth({
+    shopifyAuth({
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET,
       scopes: [SCOPES],
@@ -68,8 +61,8 @@ app.prepare().then(() => {
 
         ctx.cookies.set("shopOrigin", shop, {
           httpOnly: false,
-          secure: true,
           sameSite: "none",
+          secure: true,
         });
 
         // REGISTER WEBHOOK
@@ -192,6 +185,7 @@ app.prepare().then(() => {
   });
 
   router.get("/activate-charge", async (ctx) => {
+    console.log("active");
     const { shop, accessToken } = ctx.session;
 
     try {
@@ -202,6 +196,7 @@ app.prepare().then(() => {
   });
 
   router.get("/check-charge", async (ctx) => {
+    console.log("check");
     const { shop, accessToken } = ctx.session;
 
     try {

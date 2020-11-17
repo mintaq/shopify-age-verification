@@ -1,6 +1,10 @@
 import mysql from "mysql";
-
-const { MYSQL_HOST, MYSQL_USER, MYSQL_PWD, MYSQL_DB } = process.env;
+import {
+  MYSQL_HOST,
+  MYSQL_USER,
+  MYSQL_PWD,
+  MYSQL_DB,
+} from "../../age-verification.config";
 
 var mysqlLib = mysql.createPool({
   host: MYSQL_HOST,

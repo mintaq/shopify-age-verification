@@ -28,7 +28,7 @@
     "@shopify/app-bridge-react": "^1.15.0",
     "@shopify/app-cli-node-generator-helper": "^1.1.2",
     "@shopify/javascript-utilities": "^2.4.1",
-    "@shopify/koa-shopify-auth": "^3.1.56",
+    "@shopify/koa-shopify-auth": "^3.1.72",
     "@shopify/koa-shopify-graphql-proxy": "^4.0.2",
     "@shopify/koa-shopify-webhooks": "^2.5.2",
     "@shopify/polaris": "^5.6.1",
