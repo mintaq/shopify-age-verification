@@ -54,7 +54,7 @@ app.prepare().then(() => {
       scopes: [SCOPES],
 
       async afterAuth(ctx) {
-        console.log("ctx", ctx);
+        console.log("ctx", ctx.session);
         const { shop, accessToken } = ctx.session;
 
         // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
