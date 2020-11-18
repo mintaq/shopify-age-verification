@@ -56,16 +56,16 @@ app.prepare().then(() => {
 
       async afterAuth(ctx) {
         console.log("ctx", ctx);
-        // const { shop, accessToken } = ctx.session;
+        const { shop, accessToken } = ctx.session;
 
         // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
         await createShopAndAddScript(shop, accessToken);
 
-        // ctx.cookies.set("shopOrigin", shop, {
-        //   httpOnly: false,
-        //   sameSite: "none",
-        //   secure: true,
-        // });
+        ctx.cookies.set("shopOrigin", shop, {
+          httpOnly: false,
+          sameSite: "none",
+          secure: true,
+        });
 
         // REGISTER WEBHOOK
         await registerWebhook({
@@ -124,7 +124,7 @@ app.prepare().then(() => {
   );
 
   // AUTH ROUTES
-  router.put("/api/shops/upload_img/:domain", async (ctx) => {
+  router.put("/api/shops/upload_img/:domain", verifyRequest(), async (ctx) => {
     const { image_data } = ctx.request.body;
 
     try {
@@ -142,7 +142,7 @@ app.prepare().then(() => {
 
   router.get(
     "/api/shops/user-settings/:domain",
-
+    verifyRequest(),
     async (ctx) => {
       try {
         const res = await getUserSettings(ctx.params.domain);
@@ -153,7 +153,7 @@ app.prepare().then(() => {
     }
   );
 
-  router.put("/api/shops/:domain", async (ctx, next) => {
+  router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
     try {
       await updateTableRow("age_verifier_settings", ctx.request.body, {
         shop: ctx.params.domain,
@@ -190,7 +190,6 @@ app.prepare().then(() => {
   });
 
   router.get("/activate-charge", async (ctx) => {
-    console.log("active");
     const { shop, accessToken } = ctx.session;
 
     try {
@@ -201,7 +200,6 @@ app.prepare().then(() => {
   });
 
   router.get("/check-charge", async (ctx) => {
-    console.log("check");
     const { shop, accessToken } = ctx.session;
 
     try {
