@@ -1,11 +1,11 @@
 import axios from "axios";
 import ShopifyAPIClient from "shopify-api-node";
+import { HOST } from "../../age-verification.config";
 
 // const BASE_SCRIPT_URL =
 //   "https://minhlocal.omegatheme.com/age-verification-omega/age-verfication-script-tag.js";
 
-const BASE_SCRIPT_URL =
-  "https://minh.omegatheme.com/age-verifier/age-verfication-script-tag.js";
+const BASE_SCRIPT_URL = `${HOST}/age-verifier/age-verfication-script-tag.js`;
 
 function getEleByIdUsingRegex(tag, id, html) {
   return new RegExp(

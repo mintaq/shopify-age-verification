@@ -25,7 +25,7 @@ import SkeletonPageComp from "../components/SkeletonPageComp";
 import styled from "styled-components";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import axios from "axios";
-import classes from "./index.css";
+import { HOST } from "../age-verification.config";
 
 const Index = ({ shopOrigin }) => {
   const [themeId, set__themeId] = useState("");
@@ -1549,7 +1549,7 @@ const Index = ({ shopOrigin }) => {
                   <link
                     rel="stylesheet"
                     type="text/css"
-                    href="https://minh.omegatheme.com/age-verifier/index.css"
+                    href={`${HOST}/age-verifier/index.css`}
                   />
                   <link rel="preconnect" href="https://fonts.gstatic.com" />
                   <link
@@ -1640,10 +1640,7 @@ const Index = ({ shopOrigin }) => {
         To proceed with the installation, click below to activate the app and
         approve the charge.
       </p>
-      <a
-        target="_blank"
-        href={`https://minh.omegatheme.com/check-charge/${shopOrigin}`}
-      >
+      <a target="_blank" href={`${HOST}/check-charge/${shopOrigin}`}>
         Activate App
       </a>
     </div>
