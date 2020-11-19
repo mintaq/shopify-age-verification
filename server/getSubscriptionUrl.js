@@ -4,6 +4,7 @@ import {
   PRICE,
   RETURN_URL,
   APP_NAME,
+  TEST_MODE,
 } from "../age-verification.config";
 import axios from "axios";
 import {
@@ -81,7 +82,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
       name: CHARGE_TITLE,
       price: PRICE,
       return_url: RETURN_URL + `/${shop}`,
-      test: true,
+      test: TEST_MODE,
       trial_days: Number.parseInt(TRIAL_TIME),
     },
   };

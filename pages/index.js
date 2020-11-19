@@ -1596,12 +1596,6 @@ const Index = ({ shopOrigin }) => {
                           <select className="av-month">${months}</select>
                           <select className="av-day">${days}</select>
                           <select className="av-year">${years}</select>
-                          {/* <input
-                            type="text"
-                            className="av-year"
-                            maxLength="4"
-                            placeholder="1970"
-                          /> */}
                         </div>
                       ) : null}
                       <div className="ot-av-submit-form">

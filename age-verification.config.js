@@ -9,3 +9,4 @@ export const MYSQL_USER = "minhtq";
 export const MYSQL_PWD = "password";
 export const MYSQL_DB = "shopify_minh";
 export const HOST = "https://minh.omegatheme.com";
+export const TEST_MODE = true;
