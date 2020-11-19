@@ -65,7 +65,6 @@ app.prepare().then(() => {
         console.log("state shopify", ctx.state.shopify);
         const redirectQuery = redirectQueryString(ctx);
         console.log("redirectQuery", redirectQuery);
-        ctx.redirect(`/?${redirectQuery}`);
         const { shop, accessToken } = ctx.state.shopify;
 
         // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
@@ -108,9 +107,9 @@ app.prepare().then(() => {
   // });
 
   // ROUTES
-  router.get("/age-verifier/api/shops/settings/:domain", async (ctx) => {
+  router.get("/age-verifier/api/shops/settings/:shop", async (ctx) => {
     try {
-      const res = await getShopSettings(ctx.params.domain);
+      const res = await getShopSettings(ctx.params.shop);
       ctx.body = res;
     } catch (err) {
       return (ctx.status = 404);
@@ -118,10 +117,10 @@ app.prepare().then(() => {
   });
 
   router.get(
-    "/age-verifier/api/shops/public/user-settings/:domain",
+    "/age-verifier/api/shops/public/user-settings/:shop",
     async (ctx) => {
       try {
-        const res = await getUserSettings(ctx.params.domain);
+        const res = await getUserSettings(ctx.params.shop);
         const res_body = {
           installed_date: res.installed_date,
           status: res.status,
@@ -134,15 +133,13 @@ app.prepare().then(() => {
   );
 
   // AUTH ROUTES
-  router.put("/api/shops/upload_img/:domain", async (ctx) => {
+  router.put("/api/shops/upload_img/:shop", async (ctx) => {
     const { image_data } = ctx.request.body;
 
     try {
-      await uploadImageToAssets(
-        ctx.params.domain,
-        ctx.state.shopify.accessToken,
-        image_data
-      );
+      const userSettings = await getUserSettings(ctx.params.shop);
+      const { access_token } = userSettings;
+      await uploadImageToAssets(ctx.params.shop, access_token, image_data);
 
       ctx.status = 200;
     } catch (err) {
@@ -151,11 +148,11 @@ app.prepare().then(() => {
   });
 
   router.get(
-    "/api/shops/user-settings/:domain",
+    "/api/shops/user-settings/:shop",
 
     async (ctx) => {
       try {
-        const res = await getUserSettings(ctx.params.domain);
+        const res = await getUserSettings(ctx.params.shop);
         ctx.body = res;
       } catch (err) {
         return (ctx.status = 404);
@@ -163,10 +160,10 @@ app.prepare().then(() => {
     }
   );
 
-  router.put("/api/shops/:domain", async (ctx, next) => {
+  router.put("/api/shops/:shop", async (ctx, next) => {
     try {
       await updateTableRow("age_verifier_settings", ctx.request.body, {
-        shop: ctx.params.domain,
+        shop: ctx.params.shop,
       });
       ctx.res.statusCode = 200;
     } catch (err) {
@@ -199,21 +196,25 @@ app.prepare().then(() => {
     }
   });
 
-  router.get("/activate-charge", async (ctx) => {
-    const { shop, accessToken } = ctx.state.shopify;
+  router.get("/activate-charge/:shop", async (ctx) => {
+    // const { shop, accessToken } = ctx.state.shopify;
 
     try {
-      await acceptedCharge(ctx, accessToken, shop, ctx.query.charge_id);
+      const userSettings = await getUserSettings(ctx.params.shop);
+      const { access_token, store_name } = userSettings;
+      await acceptedCharge(ctx, access_token, store_name, ctx.query.charge_id);
     } catch (err) {
       ctx.status = 500;
     }
   });
 
-  router.get("/check-charge", async (ctx) => {
-    const { shop, accessToken } = ctx.state.shopify;
+  router.get("/check-charge/:shop", async (ctx) => {
+    // const { shop, accessToken } = ctx.state.shopify;
 
     try {
-      await getSubscriptionUrl(ctx, accessToken, shop);
+      const userSettings = await getUserSettings(ctx.params.shop);
+      const { access_token, store_name } = userSettings;
+      await getSubscriptionUrl(ctx, access_token, store_name);
     } catch (err) {
       ctx.status = 500;
     }

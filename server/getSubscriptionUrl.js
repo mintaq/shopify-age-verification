@@ -80,7 +80,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
     recurring_application_charge: {
       name: CHARGE_TITLE,
       price: PRICE,
-      return_url: RETURN_URL,
+      return_url: RETURN_URL + `/${shop}`,
       test: true,
       trial_days: Number.parseInt(TRIAL_TIME),
     },
