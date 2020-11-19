@@ -197,7 +197,9 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com/age-verifier";
               $("body").append("<div class='otAgeVerification'></div>");
               omega_displayAgeVerifyModal();
             } else if (
-              _lsBlockLocations.includes(__st.p) &&
+              (_lsBlockLocations.includes(__st.p) ||
+                (_lsBlockLocations.includes("collection") &&
+                  __st.p == "collections")) &&
               __st.p != "product"
             ) {
               $("body").addClass("stopScrolling");
