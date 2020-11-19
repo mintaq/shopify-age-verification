@@ -52,7 +52,6 @@ app.prepare().then(() => {
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET,
       scopes: [SCOPES],
-      accessMode: "offline",
 
       async afterAuth(ctx) {
         const { shop, accessToken } = ctx.session;
