@@ -1477,6 +1477,16 @@ const Index = ({ shopOrigin }) => {
     );
   }
 
+  let years = [];
+  const current_year = new Date().getFullYear();
+  for (let i = current_year; i > current_year - 80; i--) {
+    years.push(
+      <option key={i} value={i}>
+        {i}
+      </option>
+    );
+  }
+
   const avOverlayWrapStyle =
     av_layout == 2 && popup_bg != null && popup_bg != "" && bgImage_temp == null
       ? {
@@ -1585,12 +1595,13 @@ const Index = ({ shopOrigin }) => {
                         <div className="ot-av-datepicker-fields">
                           <select className="av-month">${months}</select>
                           <select className="av-day">${days}</select>
-                          <input
+                          <select className="av-year">${years}</select>
+                          {/* <input
                             type="text"
                             className="av-year"
                             maxLength="4"
                             placeholder="1970"
-                          />
+                          /> */}
                         </div>
                       ) : null}
                       <div className="ot-av-submit-form">

@@ -326,7 +326,9 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com/age-verifier";
         const customMonths = JSON.parse(ageV_settings.custom_date);
         let months = "";
         let days = "";
+        let years = "";
 
+        const current_year = new Date().getFullYear();
         const customMonthsKeys = Object.keys(customMonths);
         for (let i = 0; i < customMonthsKeys.length; i++) {
           months += `<option value="${i + 1}">${
@@ -338,6 +340,10 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com/age-verifier";
           days += `<option value="${i}">${i < 10 ? "0" + i : i}</option>`;
         }
 
+        for (let i = current_year; i > current_year - 80; i--) {
+          years += `<option value="${i}">${i}</option>`;
+        }
+
         $(".otAgeVerification #ot-av-overlay-form").append(`
           <div class='ot-av-datepicker-fields'>
             <select class='av-month'>
@@ -346,7 +352,9 @@ var rootLinkAgeV_File = "https://minh.omegatheme.com/age-verifier";
             <select class='av-day'>
               ${days}
             </select>
-            <input type='text' class='av-year' maxlength="4" placeholder="1970"/>
+            <select class='av-year'>
+              ${years}
+            </select>
           </div>
           <div class="ot-av-error"></div>
           <div class='ot-av-submit-form'>

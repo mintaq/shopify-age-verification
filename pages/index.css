@@ -135,15 +135,12 @@ select.av_datepicker {
   border: 1px solid #ccc;
 }
 
-.ot-av-datepicker-fields av-day {
-  box-sizing: border-box;
-  width: 56px;
+.ot-av-datepicker-fields .av-day {
+  width: 60px;
 }
 
-.ot-av-datepicker-fields input.av-year {
-  box-sizing: border-box;
-  width: 70px;
-  height: 28px;
+.ot-av-datepicker-fields .av-year {
+  width: 75px;
 }
 
 .otAgeVerification .ot-av-submit-form {
