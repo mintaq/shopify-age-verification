@@ -55,7 +55,6 @@ app.prepare().then(() => {
       accessMode: "offline",
 
       async afterAuth(ctx) {
-        console.log("ctx", ctx);
         const { shop, accessToken } = ctx.session;
 
         // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
