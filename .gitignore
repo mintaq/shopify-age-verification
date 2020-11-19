@@ -1,5 +1,6 @@
 # Environment Configuration
 .env
+age-verification.config.js
 
 # Dependency directory
 node_modules
