@@ -53,6 +53,7 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
   );
 
   const responseJson = await response.json();
+  console.log(responseJson);
 
   try {
     await updateUserSettings(shop, {
@@ -62,7 +63,7 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
     return (ctx.status = 500);
   }
 
-  return ctx.redirect("/");
+  return ctx.redirect(`https://${shop}/admin/apps/${APP_NAME}`);
 };
 
 module.exports = acceptedCharge;

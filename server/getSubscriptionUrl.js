@@ -57,7 +57,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
 
   // IF SHOP IS ACTIVE OR ON TRIAL TIME -> REDIRECT TO HOME
   if ((_isOnTrial || status == "active") && confirmation_url) {
-    return ctx.redirect("/");
+    return ctx.redirect(`https://${shop}/admin/apps/${APP_NAME}`);
   }
 
   // IF SHOP IS JUST INSTALLED -> CREATE NEW CHARGE
