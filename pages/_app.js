@@ -18,7 +18,17 @@ const MyApp = ({ Component, pageProps }) => {
   const [shopOrigin, set_shopOrigin] = useState("");
 
   useEffect(() => {
-    console.log(window);
+    // console.log(window);
+    if (window) {
+      const { search } = window.location;
+      const searchParams = new URLSearchParams(search);
+      // Get the `shop` (same as `shopOrigin`) URL parameter from the embedded app
+      if (searchParams.has("shop")) {
+        // Redirect to the auth callback
+        // window.location = `/auth/inline?shop=${searchParams.get("shop")}`;
+        set_shopOrigin(searchParams.get("shop"));
+      }
+    }
   });
 
   const finalRender = shopOrigin ? (
