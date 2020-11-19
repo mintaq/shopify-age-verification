@@ -138,7 +138,7 @@ app.prepare().then(() => {
     try {
       await uploadImageToAssets(
         ctx.params.domain,
-        ctx.session.accessToken,
+        ctx.state.shopify.accessToken,
         image_data
       );
 
@@ -198,7 +198,7 @@ app.prepare().then(() => {
   });
 
   router.get("/activate-charge", async (ctx) => {
-    const { shop, accessToken } = ctx.session;
+    const { shop, accessToken } = ctx.state.shopify;
 
     try {
       await acceptedCharge(ctx, accessToken, shop, ctx.query.charge_id);
@@ -208,7 +208,7 @@ app.prepare().then(() => {
   });
 
   router.get("/check-charge", async (ctx) => {
-    const { shop, accessToken } = ctx.session;
+    const { shop, accessToken } = ctx.state.shopify;
 
     try {
       await getSubscriptionUrl(ctx, accessToken, shop);
@@ -217,7 +217,7 @@ app.prepare().then(() => {
     }
   });
 
-  router.get("(.*)", verifyRequest(), async (ctx) => {
+  router.get("(.*)", async (ctx) => {
     await handle(ctx.req, ctx.res);
     ctx.respond = false;
     ctx.res.statusCode = 200;
