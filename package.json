@@ -50,6 +50,7 @@
     "koa-proxy": "^1.0.0-alpha.3",
     "koa-router": "^9.4.0",
     "koa-session": "^6.1.0",
+    "koa-shopify-auth-cookieless": "^1.0.26",
     "lscache": "^1.3.0",
     "material-components-web": "^7.0.0",
     "material-ui-color": "^0.4.6",

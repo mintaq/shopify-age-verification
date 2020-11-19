@@ -1,7 +1,14 @@
 import "@babel/polyfill";
 import dotenv from "dotenv";
 import "isomorphic-fetch";
-import shopifyAuth, { verifyRequest } from "@shopify/koa-shopify-auth";
+// import shopifyAuth, { verifyRequest } from "@shopify/koa-shopify-auth";
+import {
+  createShopifyAuth,
+  verifyToken,
+  getQueryKey,
+  redirectQueryString,
+} from "koa-shopify-auth-cookieless";
+
 import graphQLProxy, { ApiVersion } from "@shopify/koa-shopify-graphql-proxy";
 import { receiveWebhook, registerWebhook } from "@shopify/koa-shopify-webhooks";
 import Koa from "koa";
@@ -37,33 +44,34 @@ app.prepare().then(() => {
   const server = new Koa();
   const router = new Router();
   server.use(cors());
-  server.use(
-    session(
-      {
-        sameSite: "none",
-        secure: true,
-      },
-      server
-    )
-  );
+  // server.use(
+  //   session(
+  //     {
+  //       sameSite: "none",
+  //       secure: true,
+  //     },
+  //     server
+  //   )
+  // );
   server.keys = [SHOPIFY_API_SECRET];
   server.use(
-    shopifyAuth({
+    createShopifyAuth({
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET,
       scopes: [SCOPES],
 
       async afterAuth(ctx) {
-        const { shop, accessToken } = ctx.session;
+        console.log("state shopify", ctx.state.shopify);
+        const { shop, accessToken } = ctx.state.shopify;
 
         // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
         await createShopAndAddScript(shop, accessToken);
 
-        ctx.cookies.set("shopOrigin", shop, {
-          httpOnly: false,
-          sameSite: "none",
-          secure: true,
-        });
+        // ctx.cookies.set("shopOrigin", shop, {
+        //   httpOnly: false,
+        //   sameSite: "none",
+        //   secure: true,
+        // });
 
         // REGISTER WEBHOOK
         await registerWebhook({

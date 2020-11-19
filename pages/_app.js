@@ -14,7 +14,9 @@ import translations from "@shopify/polaris/locales/en.json";
 class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
-    const shopOrigin = Cookies.get("shopOrigin");
+    // const shopOrigin = Cookies.get("shopOrigin");
+    const shopOrigin = "minh-testapp.shopify.com";
+
     return (
       <Container>
         <AppProvider i18n={translations}>
