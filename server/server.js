@@ -62,9 +62,6 @@ app.prepare().then(() => {
       accessMode: "offline",
 
       async afterAuth(ctx) {
-        console.log("state shopify", ctx.state.shopify);
-        const redirectQuery = redirectQueryString(ctx);
-        console.log("redirectQuery", redirectQuery);
         const { shop, accessToken } = ctx.state.shopify;
 
         // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
@@ -147,18 +144,14 @@ app.prepare().then(() => {
     }
   });
 
-  router.get(
-    "/api/shops/user-settings/:shop",
-
-    async (ctx) => {
-      try {
-        const res = await getUserSettings(ctx.params.shop);
-        ctx.body = res;
-      } catch (err) {
-        return (ctx.status = 404);
-      }
+  router.get("/api/shops/user-settings/:shop", async (ctx) => {
+    try {
+      const res = await getUserSettings(ctx.params.shop);
+      ctx.body = res;
+    } catch (err) {
+      return (ctx.status = 404);
     }
-  );
+  });
 
   router.put("/api/shops/:shop", async (ctx, next) => {
     try {
@@ -197,8 +190,6 @@ app.prepare().then(() => {
   });
 
   router.get("/activate-charge/:shop", async (ctx) => {
-    // const { shop, accessToken } = ctx.state.shopify;
-
     try {
       const userSettings = await getUserSettings(ctx.params.shop);
       const { access_token, store_name } = userSettings;
@@ -209,8 +200,6 @@ app.prepare().then(() => {
   });
 
   router.get("/check-charge/:shop", async (ctx) => {
-    // const { shop, accessToken } = ctx.state.shopify;
-
     try {
       const userSettings = await getUserSettings(ctx.params.shop);
       const { access_token, store_name } = userSettings;
