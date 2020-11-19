@@ -59,9 +59,11 @@ app.prepare().then(() => {
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET,
       scopes: [SCOPES],
+      accessMode: "offline",
 
       async afterAuth(ctx) {
         console.log("state shopify", ctx.state.shopify);
+        console.log("redirectQuery", redirectQueryString(ctx));
         const { shop, accessToken } = ctx.state.shopify;
 
         // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
@@ -130,7 +132,7 @@ app.prepare().then(() => {
   );
 
   // AUTH ROUTES
-  router.put("/api/shops/upload_img/:domain", verifyRequest(), async (ctx) => {
+  router.put("/api/shops/upload_img/:domain", async (ctx) => {
     const { image_data } = ctx.request.body;
 
     try {
@@ -148,7 +150,7 @@ app.prepare().then(() => {
 
   router.get(
     "/api/shops/user-settings/:domain",
-    verifyRequest(),
+
     async (ctx) => {
       try {
         const res = await getUserSettings(ctx.params.domain);
@@ -159,7 +161,7 @@ app.prepare().then(() => {
     }
   );
 
-  router.put("/api/shops/:domain", verifyRequest(), async (ctx, next) => {
+  router.put("/api/shops/:domain", async (ctx, next) => {
     try {
       await updateTableRow("age_verifier_settings", ctx.request.body, {
         shop: ctx.params.domain,
