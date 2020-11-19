@@ -15,7 +15,7 @@ class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
     // const shopOrigin = Cookies.get("shopOrigin");
-    const shopOrigin = "minh-testapp.shopify.com";
+    const shopOrigin = "minh-testapp.myshopify.com";
 
     return (
       <Container>
