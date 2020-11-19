@@ -63,7 +63,9 @@ app.prepare().then(() => {
 
       async afterAuth(ctx) {
         console.log("state shopify", ctx.state.shopify);
-        console.log("redirectQuery", redirectQueryString(ctx));
+        const redirectQuery = redirectQueryString(ctx);
+        console.log("redirectQuery", redirectQuery);
+        ctx.redirect(`/?${redirectQuery}`);
         const { shop, accessToken } = ctx.state.shopify;
 
         // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
