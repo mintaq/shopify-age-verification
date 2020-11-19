@@ -14,12 +14,4 @@ var mysqlLib = mysql.createPool({
   connectionLimit: 10,
 });
 
-// var mysqlLib = mysql.createPool({
-//   host: "192.168.11.128",
-//   user: "minhtq",
-//   password: "password",
-//   database: "shopify_minh",
-//   connectionLimit: 10
-// });
-
 export default mysqlLib;
