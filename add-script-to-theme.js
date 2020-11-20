@@ -198,16 +198,6 @@ async function updateScriptInTheme(domain, accessToken) {
 
 (async function a() {
   const user_settings_arr = await getUserSettings();
-  user_settings_arr.push(
-    {
-      store_name: "sunshine-coast-vape-store-ltd.myshopify.com",
-      access_token: "11943401712a42199d06ec7534bb6b64",
-    },
-    {
-      store_name: "bamboo-cycles.myshopify.com",
-      access_token: "7fb07d8f20e5f3f6abc3d8ec307999b2",
-    }
-  );
   let promises = await Promise.all(
     user_settings_arr.map(async ({ access_token, store_name }) => {
       try {
