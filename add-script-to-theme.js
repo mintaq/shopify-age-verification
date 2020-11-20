@@ -1,17 +1,23 @@
 const axios = require("axios");
 const ShopifyAPIClient = require("shopify-api-node");
-// const { HOST } = require("./age-verification.config.js") ;
-// const { getUserSettings } = require("./server/sql/sqlQueries.js") ;
 const mysql = require("mysql");
+
+/* CONFIG*/
 const HOST = "https://minh.omegatheme.com";
 const STATIC_FILE_FOLDER = "age-verifier";
+const MYSQL_HOST = "192.168.11.128";
+const MYSQL_USER = "minhtq";
+const MYSQL_PWD = "password";
+const MYSQL_DB = "shopify_minh";
+/* END CONFIG */
+
 const BASE_SCRIPT_URL = `${HOST}/${STATIC_FILE_FOLDER}/age-verfication-script-tag.js`;
 
 var mysqlLib = mysql.createPool({
-  host: "192.168.11.128",
-  user: "minhtq",
-  password: "password",
-  database: "shopify_minh",
+  host: MYSQL_HOST,
+  user: MYSQL_USER,
+  password: MYSQL_PWD,
+  database: MYSQL_DB,
   connectionLimit: 10,
 });
 
