@@ -25,7 +25,7 @@ import SkeletonPageComp from "../components/SkeletonPageComp";
 import styled from "styled-components";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import axios from "axios";
-import { HOST } from "../age-verification.config";
+import { HOST, STATIC_FILE_FOLDER } from "../age-verification.config";
 
 const Index = ({ shopOrigin }) => {
   const [themeId, set__themeId] = useState("");
@@ -1549,7 +1549,7 @@ const Index = ({ shopOrigin }) => {
                   <link
                     rel="stylesheet"
                     type="text/css"
-                    href={`${HOST}/age-verifier/index.css`}
+                    href={`${HOST}/${STATIC_FILE_FOLDER}/index.css`}
                   />
                   <link rel="preconnect" href="https://fonts.gstatic.com" />
                   <link

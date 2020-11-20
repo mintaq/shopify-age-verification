@@ -4,10 +4,11 @@ const ShopifyAPIClient = require("shopify-api-node");
 // const { getUserSettings } = require("./server/sql/sqlQueries.js") ;
 const mysql = require("mysql");
 const HOST = "https://minh.omegatheme.com";
-const BASE_SCRIPT_URL = `${HOST}/age-verifier/age-verfication-script-tag.js`;
+const STATIC_FILE_FOLDER = "age-verifier";
+const BASE_SCRIPT_URL = `${HOST}/${STATIC_FILE_FOLDER}/age-verfication-script-tag.js`;
 
 var mysqlLib = mysql.createPool({
-  host: "192.168.1.80",
+  host: "192.168.11.128",
   user: "minhtq",
   password: "password",
   database: "shopify_minh",
@@ -106,7 +107,6 @@ function getEleByIdUsingRegex(tag, id, html) {
 }
 
 async function updateScriptInTheme(domain, accessToken) {
-  console.log("domain", domain);
   const shopify = new ShopifyAPIClient({
     shopName: domain,
     accessToken: accessToken,
@@ -117,10 +117,8 @@ async function updateScriptInTheme(domain, accessToken) {
   try {
     const themeList = await shopify.theme.list();
     const theme = themeList.find((theme) => theme.role == "main");
-    console.log("theme", theme);
     id = theme.id;
   } catch (err) {
-    console.log("err", err);
     return;
   }
 
@@ -180,8 +178,6 @@ async function updateScriptInTheme(domain, accessToken) {
       }
     );
 
-    console.log("data", axiosThemeRes.data);
-
     await updateTableRow(
       "age_verifier_settings",
       { themeId: id + "" },
@@ -190,7 +186,6 @@ async function updateScriptInTheme(domain, accessToken) {
 
     return id;
   } catch (err) {
-    console.log("axios err", err);
     return;
   }
 }
@@ -217,6 +212,6 @@ async function updateScriptInTheme(domain, accessToken) {
       }
     })
   );
-
-  console.log("promises", promises);
+  // console.log(promises)
+  console.log("Done!");
 })();
