@@ -16,6 +16,7 @@ import next from "next";
 import Router from "koa-router";
 import session from "koa-session";
 import bodyParser from "koa-bodyparser";
+import { parse } from "url";
 import cors from "@koa/cors";
 import * as handlers from "./handlers/index";
 import { createShopAndAddScript } from "./createShopAndAddScript";
@@ -56,6 +57,7 @@ app.prepare().then(() => {
   server.keys = [SHOPIFY_API_SECRET];
   server.use(
     createShopifyAuth({
+      prefix: "/age-verification",
       apiKey: SHOPIFY_API_KEY,
       secret: SHOPIFY_API_SECRET,
       scopes: [SCOPES],
@@ -104,7 +106,7 @@ app.prepare().then(() => {
   // });
 
   // ROUTES
-  router.get("/age-verifier/api/shops/settings/:shop", async (ctx) => {
+  router.get("/age-verification/api/shops/settings/:shop", async (ctx) => {
     try {
       const res = await getShopSettings(ctx.params.shop);
       ctx.body = res;
@@ -114,7 +116,7 @@ app.prepare().then(() => {
   });
 
   router.get(
-    "/age-verifier/api/shops/public/user-settings/:shop",
+    "/age-verification/api/shops/public/user-settings/:shop",
     async (ctx) => {
       try {
         const res = await getUserSettings(ctx.params.shop);
@@ -130,7 +132,7 @@ app.prepare().then(() => {
   );
 
   // AUTH ROUTES
-  router.put("/api/shops/upload_img/:shop", async (ctx) => {
+  router.put("/age-verification/api/shops/upload_img/:shop", async (ctx) => {
     const { image_data } = ctx.request.body;
 
     try {
@@ -144,7 +146,7 @@ app.prepare().then(() => {
     }
   });
 
-  router.get("/api/shops/user-settings/:shop", async (ctx) => {
+  router.get("/age-verification/api/shops/user-settings/:shop", async (ctx) => {
     try {
       const res = await getUserSettings(ctx.params.shop);
       ctx.body = res;
@@ -153,7 +155,7 @@ app.prepare().then(() => {
     }
   });
 
-  router.put("/api/shops/:shop", async (ctx, next) => {
+  router.put("/age-verification/api/shops/:shop", async (ctx, next) => {
     try {
       await updateTableRow("age_verifier_settings", ctx.request.body, {
         shop: ctx.params.shop,
@@ -168,28 +170,35 @@ app.prepare().then(() => {
 
   const webhook = receiveWebhook({ secret: SHOPIFY_API_SECRET });
 
-  router.post("/webhooks/app/uninstalled", webhook, async (ctx) => {
-    const cur_date = new Date();
-    const cur_date_uninstalled =
-      cur_date.toISOString().split("T")[0] +
-      " " +
-      cur_date.toTimeString().split(" ")[0];
+  router.post(
+    "/age-verification/webhooks/app/uninstalled",
+    webhook,
+    async (ctx) => {
+      const cur_date = new Date();
+      const cur_date_uninstalled =
+        cur_date.toISOString().split("T")[0] +
+        " " +
+        cur_date.toTimeString().split(" ")[0];
 
-    const { payload } = ctx.state.webhook;
-    try {
-      await deleteTableRow("age_verifier_settings", { shop: payload.domain });
-      await deleteTableRow("tbl_usersettings", { store_name: payload.domain });
-      await updateTableRow(
-        "shop_installed",
-        { date_uninstalled: cur_date_uninstalled },
-        { shop: payload.domain }
-      );
-    } catch (err) {
-      ctx.status = 400;
+      const { payload } = ctx.state.webhook;
+      try {
+        await deleteTableRow("age_verifier_settings", { shop: payload.domain });
+        await deleteTableRow("tbl_usersettings", {
+          store_name: payload.domain,
+        });
+        await updateTableRow(
+          "shop_installed",
+          { date_uninstalled: cur_date_uninstalled },
+          { shop: payload.domain }
+        );
+      } catch (err) {
+        ctx.status = 400;
+      }
     }
-  });
+  );
 
-  router.get("/activate-charge/:shop", async (ctx) => {
+  router.get("/age-verification/activate-charge/:shop", async (ctx) => {
+    console.log("active charge");
     try {
       const userSettings = await getUserSettings(ctx.params.shop);
       const { access_token, store_name } = userSettings;
@@ -199,7 +208,7 @@ app.prepare().then(() => {
     }
   });
 
-  router.get("/check-charge/:shop", async (ctx) => {
+  router.get("/age-verification/check-charge/:shop", async (ctx) => {
     try {
       const userSettings = await getUserSettings(ctx.params.shop);
       const { access_token, store_name } = userSettings;
@@ -210,7 +219,7 @@ app.prepare().then(() => {
   });
 
   router.get("(.*)", async (ctx) => {
-    await handle(ctx.req, ctx.res);
+    app.render(ctx.req, ctx.res, "/age-verification", ctx.query);
     ctx.respond = false;
     ctx.res.statusCode = 200;
   });

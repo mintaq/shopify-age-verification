@@ -21,11 +21,11 @@ import {
 } from "@shopify/polaris";
 import { SketchPicker } from "react-color";
 import { DropzoneAreaBase } from "material-ui-dropzone";
-import SkeletonPageComp from "../components/SkeletonPageComp";
+import SkeletonPageComp from "../../components/SkeletonPageComp";
 import styled from "styled-components";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import axios from "axios";
-import { HOST, STATIC_FILE_FOLDER } from "../age-verification.config";
+import { HOST, STATIC_FILE_FOLDER } from "../../age-verification.config";
 
 const Index = ({ shopOrigin }) => {
   const [themeId, set__themeId] = useState("");
@@ -283,8 +283,9 @@ const Index = ({ shopOrigin }) => {
   // *** INIT DATA ***
   useEffect(() => {
     async function fetchShop() {
+      console.log("shop", shopOrigin);
       const user_settings = await axios.get(
-        `/api/shops/user-settings/${shopOrigin}`
+        `/age-verification/api/shops/user-settings/${shopOrigin}`
       );
       if (!user_settings) return;
 
@@ -293,7 +294,7 @@ const Index = ({ shopOrigin }) => {
       const isActive = await checkAppChargeStatus(user_settings.data);
       if (isActive) {
         const { data } = await axios.get(
-          `/age-verifier/api/shops/settings/${shopOrigin}`
+          `/age-verification/api/shops/settings/${shopOrigin}`
         );
 
         // *** LAYOUT STATES ***
@@ -642,7 +643,7 @@ const Index = ({ shopOrigin }) => {
   const handleSaveSetting = async () => {
     set__is_saving(true);
 
-    await axios.put(`/api/shops/${shopOrigin}`, {
+    await axios.put(`/age-verification/api/shops/${shopOrigin}`, {
       app_enable: Number.parseInt(app_enable),
       av_layout: Number.parseInt(av_layout),
       input_age: Number.parseInt(input_age),
@@ -674,7 +675,7 @@ const Index = ({ shopOrigin }) => {
     // Background img
     if (bgImage_temp != null) {
       const type = bgImage_temp.file.type.split("/")[1];
-      await axios.put(`/api/shops/upload_img/${shopOrigin}`, {
+      await axios.put(`/age-verification/api/shops/upload_img/${shopOrigin}`, {
         image_data: {
           data: bgImage_temp.data,
           name: `${shopOrigin}_ageBg.${type}`,
@@ -682,7 +683,7 @@ const Index = ({ shopOrigin }) => {
         },
       });
     } else if (bgImage_temp == null && popup_bg == null) {
-      await axios.put(`/api/shops/upload_img/${shopOrigin}`, {
+      await axios.put(`/age-verification/api/shops/upload_img/${shopOrigin}`, {
         image_data: {
           data: null,
           name: null,
@@ -694,7 +695,7 @@ const Index = ({ shopOrigin }) => {
     // Logo
     if (logo_temp != null) {
       const type = logo_temp.file.type.split("/")[1];
-      await axios.put(`/api/shops/upload_img/${shopOrigin}`, {
+      await axios.put(`/age-verification/api/shops/upload_img/${shopOrigin}`, {
         image_data: {
           data: logo_temp.data,
           name: `${shopOrigin}_ageLogo.${type}`,
@@ -702,7 +703,7 @@ const Index = ({ shopOrigin }) => {
         },
       });
     } else if (logo_temp == null && logo == null) {
-      await axios.put(`/api/shops/upload_img/${shopOrigin}`, {
+      await axios.put(`/age-verification/api/shops/upload_img/${shopOrigin}`, {
         image_data: {
           data: null,
           name: null,
@@ -719,7 +720,7 @@ const Index = ({ shopOrigin }) => {
     if (app_enable != 1) {
       set__app_enable(1);
       setEnableToastActivate(true);
-      await axios.put(`/api/shops/${shopOrigin}`, {
+      await axios.put(`/age-verification/api/shops/${shopOrigin}`, {
         app_enable: 1,
       });
     } else setDisableModalActivate(true);
@@ -734,7 +735,7 @@ const Index = ({ shopOrigin }) => {
     setDisableModalActivate(false);
     setDisableToastActivate(true);
     set__app_enable(0);
-    await axios.put(`/api/shops/${shopOrigin}`, {
+    await axios.put(`/age-verification/api/shops/${shopOrigin}`, {
       app_enable: 0,
     });
   };
@@ -1549,7 +1550,7 @@ const Index = ({ shopOrigin }) => {
                   <link
                     rel="stylesheet"
                     type="text/css"
-                    href={`${HOST}/${STATIC_FILE_FOLDER}/index.css`}
+                    href={`${STATIC_FILE_FOLDER}/index.css`}
                   />
                   <link rel="preconnect" href="https://fonts.gstatic.com" />
                   <link

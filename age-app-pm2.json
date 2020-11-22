@@ -3,7 +3,7 @@
     {
       "name": "age-app",
       "script": "./server/index.js",
-      "instances": "max",
+      "instances": "4",
       "exec_mode": "cluster",
       "watch": true,
       "env": {

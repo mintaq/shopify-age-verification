@@ -16,7 +16,7 @@ const MyApp = ({ Component, pageProps }) => {
         set_shopOrigin(searchParams.get("shop"));
       }
     }
-  });
+  }, []);
 
   const finalRender = shopOrigin ? (
     <Container>

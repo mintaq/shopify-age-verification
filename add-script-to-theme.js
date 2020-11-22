@@ -3,15 +3,14 @@ const ShopifyAPIClient = require("shopify-api-node");
 const mysql = require("mysql");
 
 /* CONFIG*/
-const HOST = "https://minh.omegatheme.com";
-const STATIC_FILE_FOLDER = "age-verifier";
+const STATIC_FILE_FOLDER = "https://minh.omegatheme.com/age-verifier";
 const MYSQL_HOST = "192.168.11.128";
 const MYSQL_USER = "minhtq";
 const MYSQL_PWD = "password";
 const MYSQL_DB = "shopify_minh";
 /* END CONFIG */
 
-const BASE_SCRIPT_URL = `${HOST}/${STATIC_FILE_FOLDER}/age-verfication-script-tag.js`;
+const BASE_SCRIPT_URL = `${STATIC_FILE_FOLDER}/age-verfication-script-tag.js`;
 
 var mysqlLib = mysql.createPool({
   host: MYSQL_HOST,
