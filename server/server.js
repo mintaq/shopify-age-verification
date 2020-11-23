@@ -8,7 +8,6 @@ import {
   getQueryKey,
   redirectQueryString,
 } from "koa-shopify-auth-cookieless";
-
 import graphQLProxy, { ApiVersion } from "@shopify/koa-shopify-graphql-proxy";
 import { receiveWebhook, registerWebhook } from "@shopify/koa-shopify-webhooks";
 import Koa from "koa";
@@ -16,7 +15,6 @@ import next from "next";
 import Router from "koa-router";
 import session from "koa-session";
 import bodyParser from "koa-bodyparser";
-import { parse } from "url";
 import cors from "@koa/cors";
 import * as handlers from "./handlers/index";
 import { createShopAndAddScript } from "./createShopAndAddScript";
@@ -45,15 +43,6 @@ app.prepare().then(() => {
   const server = new Koa();
   const router = new Router();
   server.use(cors());
-  // server.use(
-  //   session(
-  //     {
-  //       sameSite: "none",
-  //       secure: true,
-  //     },
-  //     server
-  //   )
-  // );
   server.keys = [SHOPIFY_API_SECRET];
   server.use(
     createShopifyAuth({
@@ -69,12 +58,6 @@ app.prepare().then(() => {
         // CREATE/UPDATE SHOP AND ADD/UPDATE SCRIPT TO THEME
         await createShopAndAddScript(shop, accessToken);
 
-        // ctx.cookies.set("shopOrigin", shop, {
-        //   httpOnly: false,
-        //   sameSite: "none",
-        //   secure: true,
-        // });
-
         // REGISTER WEBHOOK
         await registerWebhook({
           address: `${HOST}/webhooks/app/uninstalled`,
@@ -83,12 +66,6 @@ app.prepare().then(() => {
           shop,
           apiVersion: ApiVersion.October19,
         });
-
-        // if (registration.success) {
-        //   console.log("Successfully registered webhook!");
-        // } else {
-        //   console.log("Failed to register webhook", registration.result);
-        // }
 
         // CHECK CHARGE AND REDIRECT
         await getSubscriptionUrl(ctx, accessToken, shop);
@@ -198,7 +175,6 @@ app.prepare().then(() => {
   );
 
   router.get("/age-verification/activate-charge/:shop", async (ctx) => {
-    console.log("active charge");
     try {
       const userSettings = await getUserSettings(ctx.params.shop);
       const { access_token, store_name } = userSettings;

@@ -1,13 +1,20 @@
+require("isomorphic-fetch");
 const axios = require("axios");
 const ShopifyAPIClient = require("shopify-api-node");
 const mysql = require("mysql");
+const { registerWebhook } = require("@shopify/koa-shopify-webhooks");
+const { ApiVersion } = require("@shopify/koa-shopify-graphql-proxy");
+const config = require("./age-verification.config");
 
 /* CONFIG*/
-const STATIC_FILE_FOLDER = "https://minh.omegatheme.com/age-verifier";
-const MYSQL_HOST = "192.168.11.128";
-const MYSQL_USER = "minhtq";
-const MYSQL_PWD = "password";
-const MYSQL_DB = "shopify_minh";
+const {
+  HOST,
+  STATIC_FILE_FOLDER,
+  MYSQL_HOST,
+  MYSQL_DB,
+  MYSQL_PWD,
+  MYSQL_USER,
+} = config;
 /* END CONFIG */
 
 const BASE_SCRIPT_URL = `${STATIC_FILE_FOLDER}/age-verfication-script-tag.js`;
@@ -111,9 +118,9 @@ function getEleByIdUsingRegex(tag, id, html) {
   ).exec(html);
 }
 
-async function updateScriptInTheme(domain, accessToken) {
+async function updateScriptInTheme(shop, accessToken) {
   const shopify = new ShopifyAPIClient({
-    shopName: domain,
+    shopName: shop,
     accessToken: accessToken,
   });
 
@@ -129,7 +136,7 @@ async function updateScriptInTheme(domain, accessToken) {
 
   // GET layout/theme.liquid
   const layoutLiquidRes = await axios.get(
-    `https://${domain}/admin/api/2020-10/themes/${id}/assets.json?asset[key]=layout/theme.liquid`,
+    `https://${shop}/admin/api/2020-10/themes/${id}/assets.json?asset[key]=layout/theme.liquid`,
     {
       headers: {
         "X-Shopify-Access-Token": accessToken,
@@ -167,8 +174,8 @@ async function updateScriptInTheme(domain, accessToken) {
 
   // PUT SCRIPT TO THEME
   try {
-    const axiosThemeRes = await axios.put(
-      `https://${domain}/admin/api/2020-10/themes/${id}/assets.json`,
+    await axios.put(
+      `https://${shop}/admin/api/2020-10/themes/${id}/assets.json`,
       {
         asset: {
           key: "layout/theme.liquid",
@@ -186,16 +193,27 @@ async function updateScriptInTheme(domain, accessToken) {
     await updateTableRow(
       "age_verifier_settings",
       { themeId: id + "" },
-      { shop: domain }
+      { shop }
     );
+
+    // REGISTER WEBHOOK
+    await registerWebhook({
+      address: `${HOST}/webhooks/app/uninstalled`,
+      topic: "APP_UNINSTALLED",
+      accessToken,
+      shop,
+      apiVersion: ApiVersion.October19,
+    });
 
     return id;
   } catch (err) {
+    console.log("err", err);
     return;
   }
 }
 
 (async function a() {
+  console.log("Processing...");
   const user_settings_arr = await getUserSettings();
   let promises = await Promise.all(
     user_settings_arr.map(async ({ access_token, store_name }) => {
@@ -207,6 +225,7 @@ async function updateScriptInTheme(domain, accessToken) {
       }
     })
   );
-  // console.log(promises)
+  // console.log(promises);
   console.log("Done!");
+  process.exit(0);
 })();

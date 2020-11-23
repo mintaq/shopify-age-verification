@@ -283,7 +283,6 @@ const Index = ({ shopOrigin }) => {
   // *** INIT DATA ***
   useEffect(() => {
     async function fetchShop() {
-      console.log("shop", shopOrigin);
       const user_settings = await axios.get(
         `/age-verification/api/shops/user-settings/${shopOrigin}`
       );
