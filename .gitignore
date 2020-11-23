@@ -2,7 +2,7 @@
 .env
 age-verification.config.js
 age-verfication-script-tag.js
-age-verfication.css
+age-verification.css
 pages/index.css
 
 # Dependency directory
