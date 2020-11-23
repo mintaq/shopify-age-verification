@@ -10,7 +10,7 @@ module.exports = {
     return config;
   },
   assetPrefix: "/age-verification",
-  async rewrites() {
+  rewrites() {
     return [
       {
         source: "/age-verification/_next/:path*",
