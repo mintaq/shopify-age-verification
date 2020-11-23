@@ -194,7 +194,14 @@ app.prepare().then(() => {
     }
   });
 
+  // router.get('/age-verification/_next/(.*)', async (ctx) => {
+  //   ctx.req.url = ctx.req.url.replace('/age-verification', '')
+  //   return ctx.redirect(ctx.req.url)
+  // })
+
   router.get("(.*)", async (ctx) => {
+    // ctx.req.url = ctx.req.url.replace('/age-verification', '')
+    // await handle(ctx.req,ctx.res)
     app.render(ctx.req, ctx.res, "/age-verification", ctx.query);
     ctx.respond = false;
     ctx.res.statusCode = 200;

@@ -1,6 +1,9 @@
 # Environment Configuration
 .env
 age-verification.config.js
+age-verfication-script-tag.js
+age-verfication.css
+pages/index.css
 
 # Dependency directory
 node_modules
