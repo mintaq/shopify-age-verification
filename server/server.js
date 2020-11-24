@@ -88,6 +88,7 @@ app.prepare().then(() => {
       const res = await getShopSettings(ctx.params.shop);
       ctx.body = res;
     } catch (err) {
+      console.log(err);
       return (ctx.status = 404);
     }
   });
@@ -103,6 +104,7 @@ app.prepare().then(() => {
         };
         ctx.body = res_body;
       } catch (err) {
+        console.log(err);
         return (ctx.status = 404);
       }
     }
@@ -119,6 +121,7 @@ app.prepare().then(() => {
 
       ctx.status = 200;
     } catch (err) {
+      console.log(err);
       ctx.status = 400;
     }
   });
@@ -128,6 +131,7 @@ app.prepare().then(() => {
       const res = await getUserSettings(ctx.params.shop);
       ctx.body = res;
     } catch (err) {
+      console.log(err);
       return (ctx.status = 404);
     }
   });
@@ -139,6 +143,7 @@ app.prepare().then(() => {
       });
       ctx.res.statusCode = 200;
     } catch (err) {
+      console.log(err);
       ctx.status = 400;
     }
   });
@@ -169,6 +174,7 @@ app.prepare().then(() => {
           { shop: payload.domain }
         );
       } catch (err) {
+        console.log(err);
         ctx.status = 400;
       }
     }
@@ -180,6 +186,7 @@ app.prepare().then(() => {
       const { access_token, store_name } = userSettings;
       await acceptedCharge(ctx, access_token, store_name, ctx.query.charge_id);
     } catch (err) {
+      console.log(err);
       ctx.status = 500;
     }
   });
@@ -190,6 +197,7 @@ app.prepare().then(() => {
       const { access_token, store_name } = userSettings;
       await getSubscriptionUrl(ctx, access_token, store_name);
     } catch (err) {
+      console.log(err);
       ctx.status = 500;
     }
   });
