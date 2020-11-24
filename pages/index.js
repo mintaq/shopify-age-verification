@@ -1633,7 +1633,7 @@ const Index = ({ shopOrigin }) => {
         To proceed with the installation, click below to activate the app and
         approve the charge.
       </p>
-      <a target="_blank" href={`${HOST}/check-charge/${shopOrigin}`}>
+      <a target="_blank" href={`${HOST}check-charge/${shopOrigin}`}>
         Activate App
       </a>
     </div>

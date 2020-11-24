@@ -198,7 +198,7 @@ async function updateScriptInTheme(shop, accessToken) {
 
     // REGISTER WEBHOOK
     await registerWebhook({
-      address: `${HOST}/webhooks/app/uninstalled`,
+      address: `${HOST}webhooks/app/uninstalled`,
       topic: "APP_UNINSTALLED",
       accessToken,
       shop,
