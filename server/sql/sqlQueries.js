@@ -165,12 +165,20 @@ export const updateTableRow = (table, data, where) => {
 
     if (value == null) {
       sql_Set += `${field}=NULL`;
-    } else if (!Number.isNaN(value) || value == true || value == false) {
+    } else if (
+      field == "cancel_label" ||
+      field == "headline_text" ||
+      field == "subhead_text" ||
+      field == "submit_label" ||
+      field == "validate_error" ||
+      field == "customcss" ||
+      field == "exit_link"
+    ) {
+      sql_Set += `${field}="${value}"`;
+    } else if (JSON.parse(value) && typeof JSON.parse(value) == "object") {
       sql_Set += `${field}='${value}'`;
-    } else if (typeof value == "object") {
-      sql_Set += `${field}=${JSON.stringify(value)}`;
     } else {
-      sql_Set += `${field}=${value}`;
+      sql_Set += `${field}="${value}"`;
     }
 
     sql_Set += i == dataKeys.length - 1 ? "" : ", ";
