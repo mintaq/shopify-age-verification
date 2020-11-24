@@ -17,7 +17,7 @@ const {
 } = config;
 /* END CONFIG */
 
-const BASE_SCRIPT_URL = `${STATIC_FILE_FOLDER}/age-verfication-script-tag.js`;
+const BASE_SCRIPT_URL = `${STATIC_FILE_FOLDER}age-verfication-script-tag.js`;
 
 var mysqlLib = mysql.createPool({
   host: MYSQL_HOST,

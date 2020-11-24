@@ -1549,7 +1549,7 @@ const Index = ({ shopOrigin }) => {
                   <link
                     rel="stylesheet"
                     type="text/css"
-                    href={`${STATIC_FILE_FOLDER}/index.css`}
+                    href={`${STATIC_FILE_FOLDER}index.css`}
                   />
                   <link rel="preconnect" href="https://fonts.gstatic.com" />
                   <link

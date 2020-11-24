@@ -2,7 +2,7 @@ import axios from "axios";
 import ShopifyAPIClient from "shopify-api-node";
 import { HOST, STATIC_FILE_FOLDER } from "../../age-verification.config";
 
-const BASE_SCRIPT_URL = `${STATIC_FILE_FOLDER}/age-verfication-script-tag.js`;
+const BASE_SCRIPT_URL = `${STATIC_FILE_FOLDER}age-verfication-script-tag.js`;
 
 function getEleByIdUsingRegex(tag, id, html) {
   return new RegExp(
