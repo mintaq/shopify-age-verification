@@ -71,12 +71,20 @@ function updateTableRow(table, data, where) {
 
     if (value == null) {
       sql_Set += `${field}=NULL`;
-    } else if (!Number.isNaN(value) || value == true || value == false) {
+    } else if (
+      field == "cancel_label" ||
+      field == "headline_text" ||
+      field == "subhead_text" ||
+      field == "submit_label" ||
+      field == "validate_error" ||
+      field == "customcss" ||
+      field == "exit_link"
+    ) {
+      sql_Set += `${field}="${value}"`;
+    } else if (JSON.parse(value) && typeof JSON.parse(value) == "object") {
       sql_Set += `${field}='${value}'`;
-    } else if (typeof value == "object") {
-      sql_Set += `${field}=${JSON.stringify(value)}`;
     } else {
-      sql_Set += `${field}=${value}`;
+      sql_Set += `${field}="${value}"`;
     }
 
     sql_Set += i == dataKeys.length - 1 ? "" : ", ";
@@ -119,15 +127,36 @@ function getEleByIdUsingRegex(tag, id, html) {
 }
 
 async function updateScriptInTheme(shop, accessToken) {
-  const shopify = new ShopifyAPIClient({
-    shopName: shop,
-    accessToken: accessToken,
-  });
+  let shopify;
+
+  if (!shop && !accessToken) {
+    return;
+  }
+
+  try {
+    shopify = new ShopifyAPIClient({
+      shopName: shop,
+      accessToken: accessToken,
+    });
+  } catch (err) {
+    return;
+  }
 
   // FETCH THEME LIST
   let id;
   try {
     const themeList = await shopify.theme.list();
+    const scriptList = await axios.get(
+      `https://${shop}/admin/api/2020-10/script_tags.json`,
+      {
+        headers: {
+          "X-Shopify-Access-Token": accessToken,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(shop);
+    console.log(scriptList.data);
     const theme = themeList.find((theme) => theme.role == "main");
     id = theme.id;
   } catch (err) {
@@ -202,7 +231,15 @@ async function updateScriptInTheme(shop, accessToken) {
       topic: "APP_UNINSTALLED",
       accessToken,
       shop,
-      apiVersion: ApiVersion.October19,
+      apiVersion: ApiVersion.April20,
+    });
+
+    await registerWebhook({
+      address: `${HOST}webhooks/themes/update`,
+      topic: "THEMES_UPDATE",
+      accessToken,
+      shop,
+      apiVersion: ApiVersion.April20,
     });
 
     return id;
@@ -215,6 +252,16 @@ async function updateScriptInTheme(shop, accessToken) {
 (async function a() {
   console.log("Processing...");
   const user_settings_arr = await getUserSettings();
+  user_settings_arr.push(
+    {
+      store_name: "sunshine-coast-vape-store-ltd.myshopify.com",
+      access_token: "11943401712a42199d06ec7534bb6b64",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    }
+  );
   let promises = await Promise.all(
     user_settings_arr.map(async ({ access_token, store_name }) => {
       try {
@@ -225,7 +272,7 @@ async function updateScriptInTheme(shop, accessToken) {
       }
     })
   );
-  // console.log(promises);
+  console.log(promises);
   console.log("Done!");
   process.exit(0);
 })();

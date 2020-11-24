@@ -64,7 +64,15 @@ app.prepare().then(() => {
           topic: "APP_UNINSTALLED",
           accessToken,
           shop,
-          apiVersion: ApiVersion.October19,
+          apiVersion: ApiVersion.April20,
+        });
+
+        await registerWebhook({
+          address: `${HOST}webhooks/themes/update`,
+          topic: "THEMES_UPDATE",
+          accessToken,
+          shop,
+          apiVersion: ApiVersion.April20,
         });
 
         // CHECK CHARGE AND REDIRECT
@@ -74,7 +82,7 @@ app.prepare().then(() => {
   );
   server.use(
     graphQLProxy({
-      version: ApiVersion.October19,
+      version: ApiVersion.April20,
     })
   );
   server.use(bodyParser({ jsonLimit: "10mb" }));
@@ -177,6 +185,14 @@ app.prepare().then(() => {
         console.log(err);
         ctx.status = 400;
       }
+    }
+  );
+
+  router.post(
+    "/age-verification/webhooks/themes/update",
+    webhook,
+    async (ctx) => {
+      console.log(ctx.state.webhook);
     }
   );
 
