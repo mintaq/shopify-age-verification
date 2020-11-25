@@ -175,8 +175,17 @@ export const updateTableRow = (table, data, where) => {
       field == "exit_link"
     ) {
       sql_Set += `${field}="${value}"`;
-    } else if (JSON.parse(value) && typeof JSON.parse(value) == "object") {
-      sql_Set += `${field}='${value}'`;
+    } else if (
+      typeof value == "string" &&
+      (value.includes("[") || value.includes("{"))
+    ) {
+      try {
+        if (typeof JSON.parse(value) == "object") {
+          sql_Set += `${field}='${value}'`;
+        }
+      } catch (e) {
+        sql_Set += `${field}="${value}"`;
+      }
     } else {
       sql_Set += `${field}="${value}"`;
     }

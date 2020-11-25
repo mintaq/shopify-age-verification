@@ -27,6 +27,7 @@ import {
   deleteTableRow,
 } from "./sql/sqlQueries";
 import uploadImageToAssets from "./services/uploadImageToAssets";
+import updateScriptInTheme from "./services/updateScriptInTheme";
 
 // CONFIG
 dotenv.config();
@@ -181,6 +182,7 @@ app.prepare().then(() => {
           { date_uninstalled: cur_date_uninstalled },
           { shop: payload.domain }
         );
+        ctx.status = 200;
       } catch (err) {
         console.log(err);
         ctx.status = 400;
@@ -192,7 +194,21 @@ app.prepare().then(() => {
     "/age-verification/webhooks/themes/update",
     webhook,
     async (ctx) => {
-      console.log(ctx.state.webhook);
+      const { domain } = ctx.state.webhook;
+      try {
+        const userSettings = await getUserSettings(domain);
+        const { store_name, access_token } = userSettings;
+        const theme_id = await updateScriptInTheme(store_name, access_token);
+        await updateTableRow(
+          "age_verifier_settings",
+          { themeId: theme_id + "" },
+          { shop: domain }
+        );
+        ctx.status = 200;
+      } catch (err) {
+        console.log(err);
+        ctx.status = 400;
+      }
     }
   );
 
@@ -217,11 +233,6 @@ app.prepare().then(() => {
       ctx.status = 500;
     }
   });
-
-  // router.get('/age-verification/_next/(.*)', async (ctx) => {
-  //   ctx.req.url = ctx.req.url.replace('/age-verification', '')
-  //   return ctx.redirect(ctx.req.url)
-  // })
 
   router.get("(.*)", async (ctx) => {
     // ctx.req.url = ctx.req.url.replace("/age-verification", "");
