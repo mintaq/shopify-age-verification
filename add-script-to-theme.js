@@ -128,8 +128,10 @@ function getEleByIdUsingRegex(tag, id, html) {
 
 async function updateScriptInTheme(shop, accessToken) {
   let shopify;
+  // console.log(shop);
+  // console.log(accessToken);
 
-  if (!shop && !accessToken) {
+  if (!shop || !accessToken) {
     return;
   }
 
@@ -142,30 +144,39 @@ async function updateScriptInTheme(shop, accessToken) {
     return;
   }
 
-  // FETCH THEME LIST
-  let id;
+  // FETCH THEME LIST, SCRIPT-TAG LIST
+  let theme;
+  let theme_id;
+  let scriptTag;
+  let scriptTag_id;
+  let scriptTag_src;
+
   try {
     const themeList = await shopify.theme.list();
-    const scriptList = await axios.get(
-      `https://${shop}/admin/api/2020-10/script_tags.json`,
-      {
-        headers: {
-          "X-Shopify-Access-Token": accessToken,
-          "Content-Type": "application/json",
-        },
+    const scriptList = await shopify.scriptTag.list();
+
+    theme = themeList.find((theme) => theme.role == "main");
+    theme_id = theme.id;
+    console.log("shop", shop);
+    console.log("themid", theme_id);
+
+    if (Array.isArray(scriptList) && scriptList.length > 0) {
+      scriptTag = scriptList.find((scriptTag) =>
+        scriptTag.src.includes("/age-verifier/")
+      );
+      if (scriptTag) {
+        scriptTag_id = scriptTag.id;
+        scriptTag_src = scriptTag.src;
       }
-    );
-    console.log(shop);
-    console.log(scriptList.data);
-    const theme = themeList.find((theme) => theme.role == "main");
-    id = theme.id;
+    }
   } catch (err) {
+    console.log("err", err);
     return;
   }
 
   // GET layout/theme.liquid
   const layoutLiquidRes = await axios.get(
-    `https://${shop}/admin/api/2020-10/themes/${id}/assets.json?asset[key]=layout/theme.liquid`,
+    `https://${shop}/admin/api/2020-10/themes/${theme_id}/assets.json?asset[key]=layout/theme.liquid`,
     {
       headers: {
         "X-Shopify-Access-Token": accessToken,
@@ -201,10 +212,11 @@ async function updateScriptInTheme(shop, accessToken) {
     );
   }
 
-  // PUT SCRIPT TO THEME
+  // PUT/UPDATE SCRIPT TO THEME/SCRIPT-TAG, REGISTE WEBHOOKS
   try {
+    // PUT SCRIPT TO THEME
     await axios.put(
-      `https://${shop}/admin/api/2020-10/themes/${id}/assets.json`,
+      `https://${shop}/admin/api/2020-10/themes/${theme_id}/assets.json`,
       {
         asset: {
           key: "layout/theme.liquid",
@@ -219,11 +231,24 @@ async function updateScriptInTheme(shop, accessToken) {
       }
     );
 
-    await updateTableRow(
-      "age_verifier_settings",
-      { themeId: id + "" },
-      { shop }
-    );
+    // UPDATE SCRIPT TAG
+    if (scriptTag_id && scriptTag_src) {
+      await axios.put(
+        `https://${shop}/admin/api/2020-10/script_tags/${scriptTag_id}.json`,
+        {
+          script_tag: {
+            id: scriptTag_id,
+            src: scriptTag_src.replace("/age-verifier/", "/age-verifier123/"),
+          },
+        },
+        {
+          headers: {
+            "X-Shopify-Access-Token": accessToken,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
 
     // REGISTER WEBHOOK
     await registerWebhook({
@@ -242,7 +267,14 @@ async function updateScriptInTheme(shop, accessToken) {
       apiVersion: ApiVersion.April20,
     });
 
-    return id;
+    // UPDATE THEME ID
+    await updateTableRow(
+      "age_verifier_settings",
+      { themeId: theme_id + "" },
+      { shop }
+    );
+
+    return theme_id;
   } catch (err) {
     console.log("err", err);
     return;
@@ -251,7 +283,7 @@ async function updateScriptInTheme(shop, accessToken) {
 
 (async function a() {
   console.log("Processing...");
-  const user_settings_arr = await getUserSettings();
+  let user_settings_arr = await getUserSettings();
   user_settings_arr.push(
     {
       store_name: "sunshine-coast-vape-store-ltd.myshopify.com",
@@ -260,8 +292,13 @@ async function updateScriptInTheme(shop, accessToken) {
     {
       store_name: "testapp-32.myshopify.com",
       access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "bamboo-cycles.myshopify.com",
+      access_token: "7fb07d8f20e5f3f6abc3d8ec307999b2",
     }
   );
+
   let promises = await Promise.all(
     user_settings_arr.map(async ({ access_token, store_name }) => {
       try {

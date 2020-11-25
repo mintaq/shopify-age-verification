@@ -217,6 +217,7 @@ app.prepare().then(() => {
       const userSettings = await getUserSettings(ctx.params.shop);
       const { access_token, store_name } = userSettings;
       await acceptedCharge(ctx, access_token, store_name, ctx.query.charge_id);
+      ctx.status = 200;
     } catch (err) {
       console.log(err);
       ctx.status = 500;

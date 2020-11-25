@@ -181,6 +181,7 @@ export const updateTableRow = (table, data, where) => {
     ) {
       try {
         if (typeof JSON.parse(value) == "object") {
+          value = value.replace("'", "''");
           sql_Set += `${field}='${value}'`;
         }
       } catch (e) {
