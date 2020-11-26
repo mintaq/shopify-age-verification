@@ -138,8 +138,6 @@ function getEleByIdUsingRegex(tag, id, html) {
 
 async function updateScriptInTheme(shop, accessToken) {
   let shopify;
-  // console.log(shop);
-  // console.log(accessToken);
 
   if (!shop || !accessToken) {
     return;
@@ -167,8 +165,6 @@ async function updateScriptInTheme(shop, accessToken) {
 
     theme = themeList.find((theme) => theme.role == "main");
     theme_id = theme.id;
-    console.log("shop", shop);
-    console.log("themid", theme_id);
 
     if (Array.isArray(scriptList) && scriptList.length > 0) {
       scriptTag = scriptList.find((scriptTag) =>
@@ -294,20 +290,6 @@ async function updateScriptInTheme(shop, accessToken) {
 (async function a() {
   console.log("Processing...");
   let user_settings_arr = await getUserSettings();
-  user_settings_arr.push(
-    {
-      store_name: "sunshine-coast-vape-store-ltd.myshopify.com",
-      access_token: "11943401712a42199d06ec7534bb6b64",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "bamboo-cycles.myshopify.com",
-      access_token: "7fb07d8f20e5f3f6abc3d8ec307999b2",
-    }
-  );
 
   let promises = await Promise.all(
     user_settings_arr.map(async ({ access_token, store_name }) => {
@@ -319,7 +301,7 @@ async function updateScriptInTheme(shop, accessToken) {
       }
     })
   );
-  console.log(promises);
+  // console.log(promises);
   console.log("Done!");
   process.exit(0);
 })();
