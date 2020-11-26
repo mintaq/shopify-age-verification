@@ -5,8 +5,8 @@
   "scripts": {
     "test": "jest",
     "dev": "cross-env NODE_ENV=development nodemon ./server/index.js --watch ./server/index.js",
-    "build": "next build && next export -o ../public_html/age-verification/",
-    "next-export" : "next export -o ../public_html/age-verification/",
+    "build": "next build && next export && next export -o ../public_html/age-verification/",
+    "next-export" : "next export && next export -o ../public_html/age-verification/",
     "start": "cross-env NODE_ENV=production node ./server/index.js"
   },
   "repository": {
