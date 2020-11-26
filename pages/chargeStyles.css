@@ -1,0 +1,22 @@
+.charge-container {
+  padding: 25px 0;
+  margin: 10% 25%;
+  border: 5px solid #ec342e;
+  max-width: 600px;
+  text-align: center;
+}
+
+.charge-container h1 {
+  font-size: 30px;
+  text-transform: uppercase;
+  margin: 25px 0 10px;
+}
+
+.charge-container p {
+  margin-bottom: 10px;
+  padding: 0 20px;
+}
+
+.charge-container img {
+  max-width: 120px;
+}

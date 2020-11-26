@@ -1627,7 +1627,8 @@ const Index = ({ shopOrigin }) => {
       </Layout>
     </Frame>
   ) : (
-    <div>
+    <div className="charge-container">
+      <img src="https://cdn.shopify.com/s/files/applications/e03e0948951b94a7b424d1a55634d891_512x512.png" />
       <h1>Charge now, pay later</h1>
       <p>
         To proceed with the installation, click below to activate the app and
