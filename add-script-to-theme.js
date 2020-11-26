@@ -168,7 +168,7 @@ async function updateScriptInTheme(shop, accessToken) {
 
     if (Array.isArray(scriptList) && scriptList.length > 0) {
       scriptTag = scriptList.find((scriptTag) =>
-        scriptTag.src.includes("https://apps.omegatheme.com/age-verifier/")
+        scriptTag.src.includes("https://apps.omegatheme.com/age-verifier123/")
       );
       if (scriptTag) {
         scriptTag_id = scriptTag.id;
@@ -245,8 +245,8 @@ async function updateScriptInTheme(shop, accessToken) {
           script_tag: {
             id: scriptTag_id,
             src: scriptTag_src.replace(
-              "https://apps.omegatheme.com/age-verifier/",
-              "https://apps.omegatheme.com/age-verifier123/"
+              "https://apps.omegatheme.com/age-verifier123/",
+              "https://apps.omegatheme.com/age-verifier1/"
             ),
           },
         },
@@ -292,7 +292,22 @@ async function updateScriptInTheme(shop, accessToken) {
 
 (async function a() {
   console.log("Processing...");
-  let user_settings_arr = await getUserSettings();
+  // let user_settings_arr = await getUserSettings();
+  let user_settings_arr = [];
+  user_settings_arr.push(
+    {
+      store_name: "shaltihazaken.myshopify.com",
+      access_token: "d41e2cd158c46869fecdfc4f0936330b",
+    },
+    {
+      store_name: "evapedk.myshopify.com",
+      access_token: "bc3268f896d30ab24937eb10a7650be1",
+    },
+    {
+      store_name: "obriens-bottle-shop.myshopify.com",
+      access_token: "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",
+    }
+  );
 
   let promises = await Promise.all(
     user_settings_arr.map(async ({ access_token, store_name }) => {
@@ -304,7 +319,7 @@ async function updateScriptInTheme(shop, accessToken) {
       }
     })
   );
-  // console.log(promises);
+  console.log(promises);
   console.log("Done!");
   process.exit(0);
 })();
