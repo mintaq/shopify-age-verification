@@ -168,7 +168,7 @@ async function updateScriptInTheme(shop, accessToken) {
 
     if (Array.isArray(scriptList) && scriptList.length > 0) {
       scriptTag = scriptList.find((scriptTag) =>
-        scriptTag.src.includes("/age-verifier/")
+        scriptTag.src.includes("https://apps.omegatheme.com/age-verifier/")
       );
       if (scriptTag) {
         scriptTag_id = scriptTag.id;
@@ -244,7 +244,10 @@ async function updateScriptInTheme(shop, accessToken) {
         {
           script_tag: {
             id: scriptTag_id,
-            src: scriptTag_src.replace("/age-verifier/", "/age-verifier123/"),
+            src: scriptTag_src.replace(
+              "https://apps.omegatheme.com/age-verifier/",
+              "https://apps.omegatheme.com/age-verifier123/"
+            ),
           },
         },
         {
