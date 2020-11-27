@@ -246,7 +246,7 @@ async function updateScriptInTheme(shop, accessToken) {
             id: scriptTag_id,
             src: scriptTag_src.replace(
               "https://apps.omegatheme.com/age-verifier/",
-              "https://apps.omegatheme.com/age-verifier123/"
+              "https://apps.omegatheme.com/age-verifier1/"
             ),
           },
         },

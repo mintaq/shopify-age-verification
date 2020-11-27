@@ -353,7 +353,9 @@ const Index = ({ shopOrigin }) => {
         set__submitBtnLabelColor(colorConverter(data.submitBtnLabelColor));
         set__cancelBtnLabelColor(colorConverter(data.cancelBtnLabelColor));
         set__text_color(colorConverter(data.text_color));
-        set__custom_date(JSON.parse(data.custom_date));
+        if (data.custom_date) {
+          set__custom_date(JSON.parse(data.custom_date));
+        }
         set__validate_error(data.validate_error);
 
         // *** ADVANCE STATES ***
