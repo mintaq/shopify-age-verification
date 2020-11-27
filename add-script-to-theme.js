@@ -283,6 +283,7 @@ async function updateScriptInTheme(shop, accessToken) {
       { shop }
     );
 
+    console.log(theme_id);
     return theme_id;
   } catch (err) {
     console.log("err", err);
@@ -292,19 +293,84 @@ async function updateScriptInTheme(shop, accessToken) {
 
 (async function a() {
   console.log("Processing...");
-  let user_settings_arr = await getUserSettings();
+  // let user_settings_arr = await getUserSettings();
+  let user_settings_arr = [];
+  user_settings_arr.push(
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    },
+    {
+      store_name: "testapp-32.myshopify.com",
+      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
+    }
+  );
 
   let promises = await Promise.all(
-    user_settings_arr.map(async ({ access_token, store_name }) => {
-      try {
-        let themeId = await updateScriptInTheme(store_name, access_token);
-        return themeId;
-      } catch (err) {
-        throw err;
-      }
+    user_settings_arr.map(async ({ access_token, store_name }, i) => {
+      setTimeout(async () => {
+        await updateScriptInTheme(store_name, access_token);
+      }, i * 1500);
+      // return themeId;
     })
   );
-  // console.log(promises);
+  console.log(promises);
   console.log("Done!");
-  process.exit(0);
+  // process.exit(0);
 })();
