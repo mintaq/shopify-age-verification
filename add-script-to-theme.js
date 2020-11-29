@@ -176,7 +176,7 @@ async function updateScriptInTheme(shop, accessToken) {
       }
     }
   } catch (err) {
-    console.log("err", err);
+    // console.log("err", err);
     return;
   }
 
@@ -283,94 +283,31 @@ async function updateScriptInTheme(shop, accessToken) {
       { shop }
     );
 
-    console.log(theme_id);
+    console.log(`> ${shop}`);
     return theme_id;
   } catch (err) {
-    console.log("err", err);
+    // console.log("err", err);
     return;
   }
 }
 
 (async function a() {
   console.log("Processing...");
-  // let user_settings_arr = await getUserSettings();
-  let user_settings_arr = [];
-  user_settings_arr.push(
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    },
-    {
-      store_name: "testapp-32.myshopify.com",
-      access_token: "b93aee8c74a2af9a987af1dd5eb89bec",
-    }
-  );
+  let user_settings_arr = await getUserSettings();
 
-  let promises = await Promise.all(
-    user_settings_arr.map(async ({ access_token, store_name }, i) => {
-      setTimeout(async () => {
-        await updateScriptInTheme(store_name, access_token);
-      }, i * 1500);
-      // return themeId;
-    })
-  );
-  console.log(promises);
-  console.log("Done!");
-  // process.exit(0);
+  const start = new Date().getTime();
+  user_settings_arr.map(async ({ access_token, store_name }, i) => {
+    setTimeout(async () => {
+      await updateScriptInTheme(store_name, access_token);
+      // console.log("#", i);
+      if (i == user_settings_arr.length - 1) {
+        const end = new Date().getTime();
+        console.log("Finished in: ", (end - start) / 1000, "s");
+        console.log("Shops: ", i + 1);
+        console.log("Done!");
+        process.exit(0);
+      }
+    }, i * 2000);
+  });
+  // console.log(promises);
 })();
