@@ -301,9 +301,9 @@ async function updateScriptInTheme(shop, accessToken) {
       await updateScriptInTheme(store_name, access_token);
       // console.log("#", i);
       if (i == user_settings_arr.length - 1) {
-        const end = new Date().getTime();
-        console.log("Finished in: ", (end - start) / 1000, "s");
-        console.log("Shops: ", i + 1);
+        // const end = new Date().getTime();
+        // console.log("Finished in: ", (end - start) / 1000, "s");
+        // console.log("Shops: ", i + 1);
         console.log("Done!");
         process.exit(0);
       }
