@@ -196,14 +196,14 @@ async function updateScriptInTheme(shop, accessToken) {
   let newLayoutLiquid = layoutLiquidRes.data.asset.value;
   if (!layoutLiquidRes.data.asset.value.includes("_otScriptTheme")) {
     // IF SCRIPT IS NOT  -> CREATE
-    const layoutLiquid = layoutLiquidRes.data.asset.value.split("</head>");
-    newLayoutLiquid =
-      layoutLiquid[0] +
-      `<script type="text/javascript" id="_otScriptTheme" src="${BASE_SCRIPT_URL}?v=${Math.floor(
-        Math.random() * 100000
-      )}"></script>\n` +
-      "</head>\n" +
-      layoutLiquid[1];
+    // const layoutLiquid = layoutLiquidRes.data.asset.value.split("</head>");
+    // newLayoutLiquid =
+    //   layoutLiquid[0] +
+    //   `<script type="text/javascript" id="_otScriptTheme" src="${BASE_SCRIPT_URL}?v=${Math.floor(
+    //     Math.random() * 100000
+    //   )}"></script>\n` +
+    //   "</head>\n" +
+    //   layoutLiquid[1];
   } else {
     // IF SCRIPT IS EXISTED -> UPDATE
     let matchedScriptEle = getEleByIdUsingRegex(
@@ -303,7 +303,7 @@ async function updateScriptInTheme(shop, accessToken) {
         console.log("Done!");
         process.exit(0);
       }
-    }, i * 2000);
+    }, i * 1000);
   });
   // console.log(promises);
 })();
