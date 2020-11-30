@@ -14,10 +14,11 @@ import {
   Frame,
   Thumbnail,
   Sticky,
-  DisplayText,
+  Autocomplete,
   TextContainer,
   ChoiceList,
   TextStyle,
+  FormLayout,
 } from "@shopify/polaris";
 import { SketchPicker } from "react-color";
 import { DropzoneAreaBase } from "material-ui-dropzone";
@@ -67,6 +68,14 @@ const Index = ({ shopOrigin }) => {
   const [min_age, set__min_age] = useState("18");
   const [bgImage_temp, set__bgImage_temp] = useState(null);
   const [logo_temp, set__logo_temp] = useState(null);
+  const countryOptions = [
+    { value: "VN", label: "Vietnam" },
+    { value: "JP", label: "Japan" },
+    { value: "US", label: "United States of America" },
+  ];
+  const [country_options, set__country_options] = useState(countryOptions);
+  const [countries_min_age, set__countries_min_age] = useState({});
+  const [selected_country, set__selected_country] = useState("");
   // TODO: collection page
   // NEW
   const [page_show, set__page_show] = useState(0);
@@ -981,18 +990,46 @@ const Index = ({ shopOrigin }) => {
       </Layout.Section>
 
       {input_age == 1 ? (
-        <Layout.Section>
-          <Card title="Minimum age to view site:">
-            <Card.Section>
-              <TextField
-                value={min_age + ""}
-                type="number"
-                inputMode="numeric"
-                onChange={handleMinAgeChange}
-              />
-            </Card.Section>
-          </Card>
-        </Layout.Section>
+        <>
+          <Layout.Section>
+            <Card title="Minimum age to view site:">
+              <Card.Section>
+                <TextField
+                  value={min_age + ""}
+                  type="number"
+                  inputMode="numeric"
+                  onChange={handleMinAgeChange}
+                />
+              </Card.Section>
+            </Card>
+          </Layout.Section>
+
+          <Layout.Section>
+            <Card title="Regional restrictions">
+              <Card.Section>
+                <Stack vertical spacing="extraTight">
+                  <FormLayout>
+                    <FormLayout.Group condensed>
+                      <Select
+                        label="Country"
+                        placeholder="Select"
+                        options={countryOptions}
+                        value={selected_country}
+                        onChange={handleCountryChange}
+                      />
+                      <TextField
+                        label="Minimum age"
+                        type="number"
+                        value={countries_min_age[selected_country]}
+                        onChange={handleCountryAgeChange}
+                      />
+                    </FormLayout.Group>
+                  </FormLayout>
+                </Stack>
+              </Card.Section>
+            </Card>
+          </Layout.Section>
+        </>
       ) : null}
 
       <Layout.Section>
@@ -1055,6 +1092,7 @@ const Index = ({ shopOrigin }) => {
     </Layout>
   );
 
+  // STYLE SETTINGS SECTION
   const handleColorPickerActivator = (activateSetter, styleSettingsState) => {
     let stateColor;
     switch (styleSettingsState) {
@@ -1230,7 +1268,6 @@ const Index = ({ shopOrigin }) => {
     );
   }
 
-  // STYLE SETTINGS SECTION
   const styleSettingsTab = (
     <Layout>
       <Layout.Section>

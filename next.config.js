@@ -5,7 +5,7 @@ const apiKey = JSON.stringify(process.env.SHOPIFY_API_KEY);
 
 module.exports = {
   basePath: "/age-verification",
-  assetPrefix: "/age-verification/nextjs-static/",
+  // assetPrefix: "/age-verification/nextjs-static/",
 
   webpack: (config) => {
     const env = { API_KEY: apiKey };
