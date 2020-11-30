@@ -107,6 +107,9 @@ app.prepare().then(() => {
     async (ctx) => {
       try {
         const res = await getUserSettings(ctx.params.shop);
+        if (!res) {
+          return (ctx.status = 204);
+        }
         const res_body = {
           installed_date: res.installed_date,
           status: res.status,
@@ -138,6 +141,9 @@ app.prepare().then(() => {
   router.get("/age-verification/api/shops/user-settings/:shop", async (ctx) => {
     try {
       const res = await getUserSettings(ctx.params.shop);
+      if (!res) {
+        return (ctx.status = 204);
+      }
       ctx.body = res;
     } catch (err) {
       console.log(err);
@@ -174,9 +180,11 @@ app.prepare().then(() => {
       const { payload } = ctx.state.webhook;
       try {
         await deleteTableRow("age_verifier_settings", { shop: payload.domain });
-        await deleteTableRow("tbl_usersettings", {
-          store_name: payload.domain,
-        });
+        await updateTableRow(
+          "tbl_usersettings",
+          { status: "disable" },
+          { store_name: shopDomain, app_id: 27 }
+        );
         await updateTableRow(
           "shop_installed",
           { date_uninstalled: cur_date_uninstalled },

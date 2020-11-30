@@ -34,7 +34,7 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
       await insertTableRow("shop_installed", {
         shop: shopDomain,
         date_installed: cur_date_installed,
-        app_id: 1,
+        app_id: 27,
       });
       await insertTableRow("age_verifier_settings", {
         shop: shopDomain,
@@ -49,7 +49,7 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
       await insertTableRow("tbl_usersettings", {
         access_token: accessToken,
         store_name: shopDomain,
-        app_id: 1,
+        app_id: 27,
         installed_date: cur_date_installed,
       });
     } catch (err) {
@@ -72,12 +72,11 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
           submitBtnLabelColor: JSON.stringify(submitBtnLabelColor),
           cancelBtnLabelColor: JSON.stringify(cancelBtnLabelColor),
         });
-        await insertTableRow("tbl_usersettings", {
-          access_token: accessToken,
-          store_name: shopDomain,
-          app_id: 1,
-          installed_date: shopInstalled.date_installed,
-        });
+        await updateTableRow(
+          "tbl_usersettings",
+          { access_token: accessToken },
+          { store_name: shopDomain, app_id: 27 }
+        );
         return;
       } catch (err) {
         return;
@@ -93,7 +92,7 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
       await updateTableRow(
         "tbl_usersettings",
         { access_token: accessToken },
-        { store_name: shopDomain }
+        { store_name: shopDomain, app_id: 27 }
       );
       return;
     } catch (err) {

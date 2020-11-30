@@ -26,7 +26,7 @@ export const getShopSettings = (shop) => {
 };
 
 export const getUserSettings = (shop) => {
-  let query = `SELECT * FROM tbl_usersettings WHERE store_name = '${shop}'`;
+  let query = `SELECT * FROM tbl_usersettings WHERE store_name = '${shop}' AND app_id='27'`;
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -51,7 +51,7 @@ export const getUserSettings = (shop) => {
 };
 
 export const getShopInstalled = (shop) => {
-  let query = `SELECT * FROM shop_installed WHERE shop = '${shop}'`;
+  let query = `SELECT * FROM shop_installed WHERE shop = '${shop}' AND app_id='27'`;
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -124,7 +124,7 @@ export const updateUserSettings = (shop, data) => {
     }`);
   });
 
-  query = `UPDATE tbl_usersettings SET ${sql_Set} WHERE store_name = '${shop}'`;
+  query = `UPDATE tbl_usersettings SET ${sql_Set} WHERE store_name = '${shop}' AND app_id='27'`;
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -156,7 +156,9 @@ export const updateTableRow = (table, data, where) => {
   let query = "";
 
   whereKeys.map((col, i) => {
-    sql_Where += `${col} = "${where[col]}"`;
+    sql_Where += `${col} = "${where[col]}" ${
+      i != whereKeys.length - 1 ? "AND " : ""
+    }`;
   });
 
   for (let i = 0; i < dataKeys.length; i++) {

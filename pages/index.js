@@ -294,7 +294,11 @@ const Index = ({ shopOrigin }) => {
       const user_settings = await axios.get(
         `/age-verification/api/shops/user-settings/${shopOrigin}`
       );
-      if (!user_settings) return;
+      if (!user_settings) {
+        setChargeStatus(false);
+        setLoading(false);
+        return;
+      }
 
       set__user_settings(user_settings.data);
 
@@ -571,6 +575,10 @@ const Index = ({ shopOrigin }) => {
   });
   const handleLogoTempChange = useCallback((logo_temp) => {
     set__logo_temp(logo_temp);
+  });
+  const handleCountryAgeChange = useCallback((country_age) => {});
+  const handleCountryChange = useCallback((country) => {
+    console.log(country);
   });
 
   // STYLE SETTING HANDLERS

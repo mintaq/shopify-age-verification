@@ -63,7 +63,9 @@ function updateTableRow(table, data, where) {
   let query = "";
 
   whereKeys.map((col, i) => {
-    sql_Where += `${col} = "${where[col]}"`;
+    sql_Where += `${col} = "${where[col]}" ${
+      i != whereKeys.length - 1 ? "AND " : ""
+    }`;
   });
 
   for (let i = 0; i < dataKeys.length; i++) {
