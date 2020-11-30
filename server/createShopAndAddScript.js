@@ -72,11 +72,12 @@ const createShopAndAddScript = async function (shopDomain, accessToken) {
           submitBtnLabelColor: JSON.stringify(submitBtnLabelColor),
           cancelBtnLabelColor: JSON.stringify(cancelBtnLabelColor),
         });
-        await updateTableRow(
-          "tbl_usersettings",
-          { access_token: accessToken },
-          { store_name: shopDomain, app_id: 27 }
-        );
+        await insertTableRow("tbl_usersettings", {
+          access_token: accessToken,
+          store_name: shopDomain,
+          app_id: 27,
+          installed_date: shopInstalled.date_installed,
+        });
         return;
       } catch (err) {
         return;

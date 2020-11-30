@@ -263,7 +263,9 @@ export const selectTableRow = (table, field, where) => {
   let query = "";
 
   whereKeys.map((col, i) => {
-    sql_Where += `${col} = "${where[col]}"`;
+    sql_Where += `${col} = "${where[col]}" ${
+      i != whereKeys.length - 1 ? "AND " : ""
+    }`;
   });
 
   query = `SELECT ${field} FROM ${table} WHERE ${sql_Where}`;
@@ -296,7 +298,9 @@ export const deleteTableRow = (table, where) => {
   let query = "";
 
   whereKeys.map((col, i) => {
-    sql_Where += `${col} = "${where[col]}"`;
+    sql_Where += `${col} = "${where[col]}" ${
+      i != whereKeys.length - 1 ? "AND " : ""
+    }`;
   });
 
   query = `DELETE FROM ${table} WHERE ${sql_Where}`;
