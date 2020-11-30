@@ -1,3 +1,4 @@
+require("events").EventEmitter.defaultMaxListeners = 15;
 require("isomorphic-fetch");
 const axios = require("axios");
 const ShopifyAPIClient = require("shopify-api-node");
@@ -168,7 +169,7 @@ async function updateScriptInTheme(shop, accessToken) {
 
     if (Array.isArray(scriptList) && scriptList.length > 0) {
       scriptTag = scriptList.find((scriptTag) =>
-        scriptTag.src.includes("https://apps.omegatheme.com/age-verifier/")
+        scriptTag.src.includes("https://apps.omegatheme.com/age-verifier1/")
       );
       if (scriptTag) {
         scriptTag_id = scriptTag.id;
@@ -210,12 +211,7 @@ async function updateScriptInTheme(shop, accessToken) {
       "_otScriptTheme",
       newLayoutLiquid
     )[0];
-    newLayoutLiquid = newLayoutLiquid.replace(
-      matchedScriptEle + "\n",
-      `<script type="text/javascript" id="_otScriptTheme" src="${BASE_SCRIPT_URL}?v=${Math.floor(
-        Math.random() * 100000
-      )}"></script>\n`
-    );
+    newLayoutLiquid = newLayoutLiquid.replace(matchedScriptEle + "\n", ``);
   }
 
   // PUT/UPDATE SCRIPT TO THEME/SCRIPT-TAG, REGISTE WEBHOOKS
@@ -245,8 +241,8 @@ async function updateScriptInTheme(shop, accessToken) {
           script_tag: {
             id: scriptTag_id,
             src: scriptTag_src.replace(
-              "https://apps.omegatheme.com/age-verifier/",
-              "https://apps.omegatheme.com/age-verifier1/"
+              "https://apps.omegatheme.com/age-verifier1/",
+              "https://apps.omegatheme.com/age-verifier/"
             ),
           },
         },
