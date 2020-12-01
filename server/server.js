@@ -207,6 +207,7 @@ app.prepare().then(() => {
       const { domain } = ctx.state.webhook;
       try {
         const userSettings = await getUserSettings(domain);
+        if (!userSettings) return (ctx.status = 404);
         const { store_name, access_token } = userSettings;
         const theme_id = await updateScriptInTheme(store_name, access_token);
         await updateTableRow(
@@ -246,9 +247,7 @@ app.prepare().then(() => {
   });
 
   router.get("(.*)", async (ctx) => {
-    // ctx.req.url = ctx.req.url.replace("/age-verification", "");
     await handle(ctx.req, ctx.res);
-    // app.render(ctx.req, ctx.res, "/age-verification", ctx.query);
     ctx.respond = false;
     ctx.res.statusCode = 200;
   });

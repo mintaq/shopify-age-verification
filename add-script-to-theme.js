@@ -3,13 +3,10 @@ require("isomorphic-fetch");
 const axios = require("axios");
 const ShopifyAPIClient = require("shopify-api-node");
 const mysql = require("mysql");
-const { registerWebhook } = require("@shopify/koa-shopify-webhooks");
-const { ApiVersion } = require("@shopify/koa-shopify-graphql-proxy");
 const config = require("./age-verification.config");
 
 /* CONFIG*/
 const {
-  HOST,
   STATIC_FILE_FOLDER,
   MYSQL_HOST,
   MYSQL_DB,
@@ -29,7 +26,7 @@ var mysqlLib = mysql.createPool({
 });
 
 function getUserSettings() {
-  let query = `SELECT access_token, store_name FROM tbl_usersettings`;
+  let query = `SELECT access_token, store_name FROM tbl_usersettings WHERE app_id = '27' AND status = 'active'`;
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -184,98 +181,49 @@ async function updateScriptInTheme(shop, accessToken) {
   }
 
   // GET layout/theme.liquid
-  // const layoutLiquidRes = await axios.get(
-  //   `https://${shop}/admin/api/2020-10/themes/${theme_id}/assets.json?asset[key]=layout/theme.liquid`,
-  //   {
-  //     headers: {
-  //       "X-Shopify-Access-Token": accessToken,
-  //       "Content-Type": "application/json",
-  //     },
-  //   }
-  // );
+  const layoutLiquidRes = await axios.get(
+    `https://${shop}/admin/api/2020-10/themes/${theme_id}/assets.json?asset[key]=layout/theme.liquid`,
+    {
+      headers: {
+        "X-Shopify-Access-Token": accessToken,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
   // CREATE/UPDATE SCRIPT
-  // let newLayoutLiquid = layoutLiquidRes.data.asset.value;
-  // if (!layoutLiquidRes.data.asset.value.includes("_otScriptTheme")) {
-  // IF SCRIPT IS NOT  -> CREATE
-  // const layoutLiquid = layoutLiquidRes.data.asset.value.split("</head>");
-  // newLayoutLiquid =
-  //   layoutLiquid[0] +
-  //   `<script type="text/javascript" id="_otScriptTheme" src="${BASE_SCRIPT_URL}?v=${Math.floor(
-  //     Math.random() * 100000
-  //   )}"></script>\n` +
-  //   "</head>\n" +
-  //   layoutLiquid[1];
-  // } else {
-  // IF SCRIPT IS EXISTED -> UPDATE
-  //   let matchedScriptEle = getEleByIdUsingRegex(
-  //     "script",
-  //     "_otScriptTheme",
-  //     newLayoutLiquid
-  //   )[0];
-  //   newLayoutLiquid = newLayoutLiquid.replace(matchedScriptEle + "\n", ``);
-  // }
+  let newLayoutLiquid = layoutLiquidRes.data.asset.value;
+  if (!layoutLiquidRes.data.asset.value.includes("_otScriptTheme")) {
+    // IF SCRIPT IS NOT EXISTED -> CREATE
+    const layoutLiquid = layoutLiquidRes.data.asset.value.split("</head>");
+    newLayoutLiquid =
+      layoutLiquid[0] +
+      `<script type="text/javascript" id="_otScriptTheme" src="${BASE_SCRIPT_URL}?v=${Math.floor(
+        Math.random() * 100000
+      )}"></script>\n` +
+      "</head>\n" +
+      layoutLiquid[1];
+  } else {
+    // IF SCRIPT IS EXISTED -> UPDATE
+    let matchedScriptEle = getEleByIdUsingRegex(
+      "script",
+      "_otScriptTheme",
+      newLayoutLiquid
+    )[0];
+    newLayoutLiquid = newLayoutLiquid.replace(matchedScriptEle + "\n", ``);
+  }
 
-  // PUT/UPDATE SCRIPT TO THEME/SCRIPT-TAG, REGISTE WEBHOOKS
+  // PUT/UPDATE SCRIPT TO THEME/SCRIPT-TAG
   try {
     // PUT SCRIPT TO THEME
-    // await axios.put(
-    //   `https://${shop}/admin/api/2020-10/themes/${theme_id}/assets.json`,
-    //   {
-    //     asset: {
-    //       key: "layout/theme.liquid",
-    //       value: newLayoutLiquid,
-    //     },
-    //   },
-    //   {
-    //     headers: {
-    //       "X-Shopify-Access-Token": accessToken,
-    //       "Content-Type": "application/json",
-    //     },
-    //   }
-    // );
-
-    // UPDATE SCRIPT TAG
-    // if (scriptTag_id && scriptTag_src) {
-    //   await axios.put(
-    //     `https://${shop}/admin/api/2020-10/script_tags/${scriptTag_id}.json`,
-    //     {
-    //       script_tag: {
-    //         id: scriptTag_id,
-    //         src: scriptTag_src.replace(
-    //           "https://apps.omegatheme.com/age-verifier1/",
-    //           "https://apps.omegatheme.com/age-verifier/"
-    //         ),
-    //       },
-    //     },
-    //     {
-    //       headers: {
-    //         "X-Shopify-Access-Token": accessToken,
-    //         "Content-Type": "application/json",
-    //       },
-    //     }
-    //   );
-    // }
-
-    // REGISTER WEBHOOK
-    // await registerWebhook({
-    //   address: `${HOST}webhooks/app/uninstalled`,
-    //   topic: "APP_UNINSTALLED",
-    //   accessToken,
-    //   shop,
-    //   apiVersion: ApiVersion.April20,
-    // });
-
-    // await registerWebhook({
-    //   address: `${HOST}webhooks/themes/update`,
-    //   topic: "THEMES_UPDATE",
-    //   accessToken,
-    //   shop,
-    //   apiVersion: ApiVersion.April20,
-    // });
-
-    const whlist = await axios.get(
-      `https://${shop}/admin/api/2020-10/webhooks.json`,
+    await axios.put(
+      `https://${shop}/admin/api/2020-10/themes/${theme_id}/assets.json`,
+      {
+        asset: {
+          key: "layout/theme.liquid",
+          value: newLayoutLiquid,
+        },
+      },
       {
         headers: {
           "X-Shopify-Access-Token": accessToken,
@@ -284,34 +232,19 @@ async function updateScriptInTheme(shop, accessToken) {
       }
     );
 
-    // console.log(whlist.data);
-    const webhooklist = whlist.data.webhooks;
-    // console.log(webhooklist)
-    let whIdArr = [];
-    webhooklist.map((webhook) => {
-      if (
-        webhook.address.includes(
-          "https://apps.omegatheme.com/age-verification/webhooks/"
-        )
-      ) {
-        whIdArr.push(webhook.id);
-      }
-    });
-
-    // console.log(whIdArr)
-
-    if (whIdArr.length > 0) {
-      await axios.delete(
-        `https://${shop}/admin/api/2020-10/webhooks/${whIdArr[0]}.json`,
+    // UPDATE SCRIPT TAG
+    if (scriptTag_id && scriptTag_src) {
+      await axios.put(
+        `https://${shop}/admin/api/2020-10/script_tags/${scriptTag_id}.json`,
         {
-          headers: {
-            "X-Shopify-Access-Token": accessToken,
-            "Content-Type": "application/json",
+          script_tag: {
+            id: scriptTag_id,
+            src: scriptTag_src.replace(
+              "https://apps.omegatheme.com/age-verifier1/",
+              "https://apps.omegatheme.com/age-verifier/"
+            ),
           },
-        }
-      );
-      await axios.delete(
-        `https://${shop}/admin/api/2020-10/webhooks/${whIdArr[1]}.json`,
+        },
         {
           headers: {
             "X-Shopify-Access-Token": accessToken,
@@ -322,11 +255,11 @@ async function updateScriptInTheme(shop, accessToken) {
     }
 
     // UPDATE THEME ID
-    // await updateTableRow(
-    //   "age_verifier_settings",
-    //   { themeId: theme_id + "" },
-    //   { shop }
-    // );
+    await updateTableRow(
+      "age_verifier_settings",
+      { themeId: theme_id + "" },
+      { shop }
+    );
 
     console.log(`> ${shop}`);
     return theme_id;
@@ -344,9 +277,34 @@ async function updateScriptInTheme(shop, accessToken) {
     console.log("No shop found!");
     process.exit(0);
   } else {
+    user_settings_arr.push(
+      // {
+      //   access_token: "7fb07d8f20e5f3f6abc3d8ec307999b2",
+      //   store_name: "bamboo-cycles.myshopify.com",
+      // },
+      // {
+      //   access_token: "11943401712a42199d06ec7534bb6b64",
+      //   store_name: "sunshine-coast-vape-store-ltd.myshopify.com",
+      // },
+      {
+        access_token: "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",
+        store_name: "badcobeer.myshopify.com",
+      }
+      // {
+      //   access_token: "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",
+      //   store_name: "obriens-bottle-shop.myshopify.com",
+      // },
+      // {
+      //   access_token: "d41e2cd158c46869fecdfc4f0936330b",
+      //   store_name: "shaltihazaken.myshopify.com",
+      // },
+      // {
+      //   access_token: "bc3268f896d30ab24937eb10a7650be1",
+      //   store_name: "evapedk.myshopify.com",
+      // }
+    );
     user_settings_arr.map(async ({ access_token, store_name }, i) => {
       setTimeout(async () => {
-        // console.log("#", i);
         await updateScriptInTheme(store_name, access_token);
         if (i == user_settings_arr.length - 1) {
           setTimeout(() => {
@@ -354,9 +312,7 @@ async function updateScriptInTheme(shop, accessToken) {
             process.exit(0);
           }, 5000);
         }
-      }, i * 200);
+      }, i * 500);
     });
   }
-
-  // console.log(promises);
 })();

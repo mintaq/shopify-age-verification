@@ -501,7 +501,7 @@ const Index = ({ shopOrigin }) => {
           }
         }
       } else {
-        set__popupDisplaySelected(["home"]);
+        set__popupDisplaySelected(["all"]);
         set__blockProducts([]);
       }
     } else {
