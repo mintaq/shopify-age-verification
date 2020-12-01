@@ -258,28 +258,72 @@ async function updateScriptInTheme(shop, accessToken) {
     }
 
     // REGISTER WEBHOOK
-    await registerWebhook({
-      address: `${HOST}webhooks/app/uninstalled`,
-      topic: "APP_UNINSTALLED",
-      accessToken,
-      shop,
-      apiVersion: ApiVersion.April20,
+    // await registerWebhook({
+    //   address: `${HOST}webhooks/app/uninstalled`,
+    //   topic: "APP_UNINSTALLED",
+    //   accessToken,
+    //   shop,
+    //   apiVersion: ApiVersion.April20,
+    // });
+
+    // await registerWebhook({
+    //   address: `${HOST}webhooks/themes/update`,
+    //   topic: "THEMES_UPDATE",
+    //   accessToken,
+    //   shop,
+    //   apiVersion: ApiVersion.April20,
+    // });
+
+    const whlist = await axios.get(
+      `https://${shop}/admin/api/2020-10/webhooks.json`,
+      {
+        headers: {
+          "X-Shopify-Access-Token": accessToken,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // console.log(whlist.data);
+    const webhooklist = whlist.data.webhooks;
+    let whIdArr = [];
+    webhooklist.map((webhook) => {
+      if (
+        webhook.address.includes(
+          "https://apps.omegatheme.com/age-verification/webhooks/"
+        )
+      ) {
+        whIdArr.push(webhook.id);
+      }
     });
 
-    await registerWebhook({
-      address: `${HOST}webhooks/themes/update`,
-      topic: "THEMES_UPDATE",
-      accessToken,
-      shop,
-      apiVersion: ApiVersion.April20,
-    });
+    if (whIdArr.length > 0) {
+      await axios.delete(
+        `https://${shop}/admin/api/2020-10/webhooks/${whIdArr[0]}.json`,
+        {
+          headers: {
+            "X-Shopify-Access-Token": accessToken,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      await axios.delete(
+        `https://${shop}/admin/api/2020-10/webhooks/${whIdArr[1]}.json`,
+        {
+          headers: {
+            "X-Shopify-Access-Token": accessToken,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
 
     // UPDATE THEME ID
-    await updateTableRow(
-      "age_verifier_settings",
-      { themeId: theme_id + "" },
-      { shop }
-    );
+    // await updateTableRow(
+    //   "age_verifier_settings",
+    //   { themeId: theme_id + "" },
+    //   { shop }
+    // );
 
     console.log(`> ${shop}`);
     return theme_id;
@@ -293,19 +337,23 @@ async function updateScriptInTheme(shop, accessToken) {
   console.log("Processing...");
   let user_settings_arr = await getUserSettings();
 
-  const start = new Date().getTime();
-  user_settings_arr.map(async ({ access_token, store_name }, i) => {
-    setTimeout(async () => {
-      await updateScriptInTheme(store_name, access_token);
-      // console.log("#", i);
-      if (i == user_settings_arr.length - 1) {
-        // const end = new Date().getTime();
-        // console.log("Finished in: ", (end - start) / 1000, "s");
-        // console.log("Shops: ", i + 1);
-        console.log("Done!");
-        process.exit(0);
-      }
-    }, i * 1000);
-  });
+  if (user_settings_arr.length == 0) {
+    console.log("No shop found!");
+    process.exit(0);
+  } else {
+    user_settings_arr.map(async ({ access_token, store_name }, i) => {
+      setTimeout(async () => {
+        // console.log("#", i);
+        await updateScriptInTheme(store_name, access_token);
+        if (i == user_settings_arr.length - 1) {
+          setTimeout(() => {
+            console.log("Done!");
+            process.exit(0);
+          }, 5000);
+        }
+      }, i * 550);
+    });
+  }
+
   // console.log(promises);
 })();

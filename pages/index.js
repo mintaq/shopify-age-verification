@@ -26,6 +26,7 @@ import SkeletonPageComp from "../components/SkeletonPageComp";
 import { ResourcePicker } from "@shopify/app-bridge-react";
 import axios from "axios";
 import { HOST, STATIC_FILE_FOLDER } from "../age-verification.config";
+import { COUNTRY_CODE } from "../server/services/defaultValues";
 
 const Index = ({ shopOrigin }) => {
   const [themeId, set__themeId] = useState("");
@@ -318,6 +319,8 @@ const Index = ({ shopOrigin }) => {
         set__popup_bg_name(data.popup_bg_name);
         set__input_age(data.input_age + "");
         set__min_age(data.min_age + "");
+        if (data.countries_min_age)
+          set__countries_min_age(JSON.parse(data.countries_min_age));
         popup_display_coverter(
           data.page_show,
           data.specific_products,
@@ -576,9 +579,16 @@ const Index = ({ shopOrigin }) => {
   const handleLogoTempChange = useCallback((logo_temp) => {
     set__logo_temp(logo_temp);
   });
-  const handleCountryAgeChange = useCallback((country_age) => {});
+  const handleCountryAgeChange = useCallback((country_age) => {
+    if (selected_country) {
+      set__countries_min_age({
+        ...countries_min_age,
+        [selected_country]: country_age,
+      });
+    }
+  });
   const handleCountryChange = useCallback((country) => {
-    console.log(country);
+    set__selected_country(country);
   });
 
   // STYLE SETTING HANDLERS
@@ -665,6 +675,7 @@ const Index = ({ shopOrigin }) => {
       av_layout: Number.parseInt(av_layout),
       input_age: Number.parseInt(input_age),
       min_age: Number.parseInt(min_age),
+      countries_min_age: JSON.stringify(countries_min_age),
       headline_text,
       headline_size,
       subhead_text,
@@ -1012,8 +1023,8 @@ const Index = ({ shopOrigin }) => {
             </Card>
           </Layout.Section>
 
-          {/* <Layout.Section>
-            <Card title="Regional restrictions">
+          <Layout.Section>
+            <Card title="Regional restrictions:">
               <Card.Section>
                 <Stack vertical spacing="extraTight">
                   <FormLayout>
@@ -1021,11 +1032,13 @@ const Index = ({ shopOrigin }) => {
                       <Select
                         label="Country"
                         placeholder="Select"
-                        options={countryOptions}
+                        options={COUNTRY_CODE}
                         value={selected_country}
                         onChange={handleCountryChange}
                       />
                       <TextField
+                        disabled={selected_country == ""}
+                        placeholder={min_age + ""}
                         label="Minimum age"
                         type="number"
                         value={countries_min_age[selected_country]}
@@ -1035,8 +1048,14 @@ const Index = ({ shopOrigin }) => {
                   </FormLayout>
                 </Stack>
               </Card.Section>
+              <Card.Section>
+                <p>
+                  *If not defined, 'Minimum age to view site' will be used as
+                  default value!
+                </p>
+              </Card.Section>
             </Card>
-          </Layout.Section> */}
+          </Layout.Section>
         </>
       ) : null}
 

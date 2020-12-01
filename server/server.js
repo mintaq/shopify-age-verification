@@ -95,6 +95,9 @@ app.prepare().then(() => {
   router.get("/age-verification/api/shops/settings/:shop", async (ctx) => {
     try {
       const res = await getShopSettings(ctx.params.shop);
+      if (!res) {
+        return (ctx.status = 204);
+      }
       ctx.body = res;
     } catch (err) {
       console.log(err);
@@ -187,7 +190,7 @@ app.prepare().then(() => {
         await updateTableRow(
           "shop_installed",
           { date_uninstalled: cur_date_uninstalled },
-          { shop: payload.domain }
+          { shop: payload.domain, app_id: 27 }
         );
         ctx.status = 200;
       } catch (err) {
