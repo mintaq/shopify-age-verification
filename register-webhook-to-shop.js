@@ -1,5 +1,6 @@
 require("events").EventEmitter.defaultMaxListeners = 15;
 require("isomorphic-fetch");
+const axios = require("axios");
 const mysql = require("mysql");
 const { registerWebhook } = require("@shopify/koa-shopify-webhooks");
 const { ApiVersion } = require("@shopify/koa-shopify-graphql-proxy");
@@ -44,13 +45,24 @@ function getUserSettings() {
   });
 }
 
-async function registerWebhook(shop, accessToken) {
+async function registerWebhookToShop(shop, accessToken) {
   if (!shop || !accessToken) {
     return;
   }
 
   // REGISTE WEBHOOKS
   try {
+    const whlist = await axios.get(
+      `https://${shop}/admin/api/2020-10/webhooks.json`,
+      {
+        headers: {
+          "X-Shopify-Access-Token": accessToken,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(whlist.data);
+
     await registerWebhook({
       address: `${HOST}webhooks/app/uninstalled`,
       topic: "APP_UNINSTALLED",
@@ -85,7 +97,7 @@ async function registerWebhook(shop, accessToken) {
   } else {
     user_settings_arr.map(async ({ access_token, store_name }, i) => {
       setTimeout(async () => {
-        await registerWebhook(store_name, access_token);
+        await registerWebhookToShop(store_name, access_token);
         if (i == user_settings_arr.length - 1) {
           setTimeout(() => {
             console.log("Done!");

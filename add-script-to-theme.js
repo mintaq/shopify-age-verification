@@ -168,7 +168,7 @@ async function updateScriptInTheme(shop, accessToken) {
 
     if (Array.isArray(scriptList) && scriptList.length > 0) {
       scriptTag = scriptList.find((scriptTag) =>
-        scriptTag.src.includes("https://apps.omegatheme.com/age-verifier1/")
+        scriptTag.src.includes("https://apps.omegatheme.com/age-verifier/")
       );
       if (scriptTag) {
         scriptTag_id = scriptTag.id;
@@ -192,17 +192,15 @@ async function updateScriptInTheme(shop, accessToken) {
   );
 
   // CREATE/UPDATE SCRIPT
+  const EMBEDDED_SCRIPT = `<script type="text/javascript" id="_otScriptTheme" src="${BASE_SCRIPT_URL}?v=${Math.floor(
+    Math.random() * 100000
+  )}"></script>\n`;
   let newLayoutLiquid = layoutLiquidRes.data.asset.value;
   if (!layoutLiquidRes.data.asset.value.includes("_otScriptTheme")) {
     // IF SCRIPT IS NOT EXISTED -> CREATE
     const layoutLiquid = layoutLiquidRes.data.asset.value.split("</head>");
     newLayoutLiquid =
-      layoutLiquid[0] +
-      `<script type="text/javascript" id="_otScriptTheme" src="${BASE_SCRIPT_URL}?v=${Math.floor(
-        Math.random() * 100000
-      )}"></script>\n` +
-      "</head>\n" +
-      layoutLiquid[1];
+      layoutLiquid[0] + EMBEDDED_SCRIPT + "</head>\n" + layoutLiquid[1];
   } else {
     // IF SCRIPT IS EXISTED -> UPDATE
     let matchedScriptEle = getEleByIdUsingRegex(
@@ -210,7 +208,10 @@ async function updateScriptInTheme(shop, accessToken) {
       "_otScriptTheme",
       newLayoutLiquid
     )[0];
-    newLayoutLiquid = newLayoutLiquid.replace(matchedScriptEle + "\n", ``);
+    newLayoutLiquid = newLayoutLiquid.replace(
+      matchedScriptEle + "\n",
+      EMBEDDED_SCRIPT
+    );
   }
 
   // PUT/UPDATE SCRIPT TO THEME/SCRIPT-TAG
@@ -240,8 +241,8 @@ async function updateScriptInTheme(shop, accessToken) {
           script_tag: {
             id: scriptTag_id,
             src: scriptTag_src.replace(
-              "https://apps.omegatheme.com/age-verifier1/",
-              "https://apps.omegatheme.com/age-verifier/"
+              "https://apps.omegatheme.com/age-verifier/",
+              "https://apps.omegatheme.com/age-verifier1/"
             ),
           },
         },
@@ -278,10 +279,10 @@ async function updateScriptInTheme(shop, accessToken) {
     process.exit(0);
   } else {
     user_settings_arr.push(
-      // {
-      //   access_token: "7fb07d8f20e5f3f6abc3d8ec307999b2",
-      //   store_name: "bamboo-cycles.myshopify.com",
-      // },
+      {
+        access_token: "7fb07d8f20e5f3f6abc3d8ec307999b2",
+        store_name: "bamboo-cycles.myshopify.com",
+      },
       // {
       //   access_token: "11943401712a42199d06ec7534bb6b64",
       //   store_name: "sunshine-coast-vape-store-ltd.myshopify.com",
@@ -289,19 +290,19 @@ async function updateScriptInTheme(shop, accessToken) {
       {
         access_token: "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",
         store_name: "badcobeer.myshopify.com",
-      }
-      // {
-      //   access_token: "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",
-      //   store_name: "obriens-bottle-shop.myshopify.com",
-      // },
+      },
+      {
+        access_token: "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",
+        store_name: "obriens-bottle-shop.myshopify.com",
+      },
       // {
       //   access_token: "d41e2cd158c46869fecdfc4f0936330b",
       //   store_name: "shaltihazaken.myshopify.com",
       // },
-      // {
-      //   access_token: "bc3268f896d30ab24937eb10a7650be1",
-      //   store_name: "evapedk.myshopify.com",
-      // }
+      {
+        access_token: "bc3268f896d30ab24937eb10a7650be1",
+        store_name: "evapedk.myshopify.com",
+      }
     );
     user_settings_arr.map(async ({ access_token, store_name }, i) => {
       setTimeout(async () => {
