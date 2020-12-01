@@ -184,78 +184,78 @@ async function updateScriptInTheme(shop, accessToken) {
   }
 
   // GET layout/theme.liquid
-  const layoutLiquidRes = await axios.get(
-    `https://${shop}/admin/api/2020-10/themes/${theme_id}/assets.json?asset[key]=layout/theme.liquid`,
-    {
-      headers: {
-        "X-Shopify-Access-Token": accessToken,
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  // const layoutLiquidRes = await axios.get(
+  //   `https://${shop}/admin/api/2020-10/themes/${theme_id}/assets.json?asset[key]=layout/theme.liquid`,
+  //   {
+  //     headers: {
+  //       "X-Shopify-Access-Token": accessToken,
+  //       "Content-Type": "application/json",
+  //     },
+  //   }
+  // );
 
   // CREATE/UPDATE SCRIPT
-  let newLayoutLiquid = layoutLiquidRes.data.asset.value;
-  if (!layoutLiquidRes.data.asset.value.includes("_otScriptTheme")) {
-    // IF SCRIPT IS NOT  -> CREATE
-    // const layoutLiquid = layoutLiquidRes.data.asset.value.split("</head>");
-    // newLayoutLiquid =
-    //   layoutLiquid[0] +
-    //   `<script type="text/javascript" id="_otScriptTheme" src="${BASE_SCRIPT_URL}?v=${Math.floor(
-    //     Math.random() * 100000
-    //   )}"></script>\n` +
-    //   "</head>\n" +
-    //   layoutLiquid[1];
-  } else {
-    // IF SCRIPT IS EXISTED -> UPDATE
-    let matchedScriptEle = getEleByIdUsingRegex(
-      "script",
-      "_otScriptTheme",
-      newLayoutLiquid
-    )[0];
-    newLayoutLiquid = newLayoutLiquid.replace(matchedScriptEle + "\n", ``);
-  }
+  // let newLayoutLiquid = layoutLiquidRes.data.asset.value;
+  // if (!layoutLiquidRes.data.asset.value.includes("_otScriptTheme")) {
+  // IF SCRIPT IS NOT  -> CREATE
+  // const layoutLiquid = layoutLiquidRes.data.asset.value.split("</head>");
+  // newLayoutLiquid =
+  //   layoutLiquid[0] +
+  //   `<script type="text/javascript" id="_otScriptTheme" src="${BASE_SCRIPT_URL}?v=${Math.floor(
+  //     Math.random() * 100000
+  //   )}"></script>\n` +
+  //   "</head>\n" +
+  //   layoutLiquid[1];
+  // } else {
+  // IF SCRIPT IS EXISTED -> UPDATE
+  //   let matchedScriptEle = getEleByIdUsingRegex(
+  //     "script",
+  //     "_otScriptTheme",
+  //     newLayoutLiquid
+  //   )[0];
+  //   newLayoutLiquid = newLayoutLiquid.replace(matchedScriptEle + "\n", ``);
+  // }
 
   // PUT/UPDATE SCRIPT TO THEME/SCRIPT-TAG, REGISTE WEBHOOKS
   try {
     // PUT SCRIPT TO THEME
-    await axios.put(
-      `https://${shop}/admin/api/2020-10/themes/${theme_id}/assets.json`,
-      {
-        asset: {
-          key: "layout/theme.liquid",
-          value: newLayoutLiquid,
-        },
-      },
-      {
-        headers: {
-          "X-Shopify-Access-Token": accessToken,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    // await axios.put(
+    //   `https://${shop}/admin/api/2020-10/themes/${theme_id}/assets.json`,
+    //   {
+    //     asset: {
+    //       key: "layout/theme.liquid",
+    //       value: newLayoutLiquid,
+    //     },
+    //   },
+    //   {
+    //     headers: {
+    //       "X-Shopify-Access-Token": accessToken,
+    //       "Content-Type": "application/json",
+    //     },
+    //   }
+    // );
 
     // UPDATE SCRIPT TAG
-    if (scriptTag_id && scriptTag_src) {
-      await axios.put(
-        `https://${shop}/admin/api/2020-10/script_tags/${scriptTag_id}.json`,
-        {
-          script_tag: {
-            id: scriptTag_id,
-            src: scriptTag_src.replace(
-              "https://apps.omegatheme.com/age-verifier1/",
-              "https://apps.omegatheme.com/age-verifier/"
-            ),
-          },
-        },
-        {
-          headers: {
-            "X-Shopify-Access-Token": accessToken,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
+    // if (scriptTag_id && scriptTag_src) {
+    //   await axios.put(
+    //     `https://${shop}/admin/api/2020-10/script_tags/${scriptTag_id}.json`,
+    //     {
+    //       script_tag: {
+    //         id: scriptTag_id,
+    //         src: scriptTag_src.replace(
+    //           "https://apps.omegatheme.com/age-verifier1/",
+    //           "https://apps.omegatheme.com/age-verifier/"
+    //         ),
+    //       },
+    //     },
+    //     {
+    //       headers: {
+    //         "X-Shopify-Access-Token": accessToken,
+    //         "Content-Type": "application/json",
+    //       },
+    //     }
+    //   );
+    // }
 
     // REGISTER WEBHOOK
     // await registerWebhook({
@@ -286,6 +286,7 @@ async function updateScriptInTheme(shop, accessToken) {
 
     // console.log(whlist.data);
     const webhooklist = whlist.data.webhooks;
+    // console.log(webhooklist)
     let whIdArr = [];
     webhooklist.map((webhook) => {
       if (
@@ -296,6 +297,8 @@ async function updateScriptInTheme(shop, accessToken) {
         whIdArr.push(webhook.id);
       }
     });
+
+    // console.log(whIdArr)
 
     if (whIdArr.length > 0) {
       await axios.delete(
@@ -351,7 +354,7 @@ async function updateScriptInTheme(shop, accessToken) {
             process.exit(0);
           }, 5000);
         }
-      }, i * 550);
+      }, i * 200);
     });
   }
 
