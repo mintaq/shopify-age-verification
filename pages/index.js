@@ -1012,7 +1012,7 @@ const Index = ({ shopOrigin }) => {
             </Card>
           </Layout.Section>
 
-          <Layout.Section>
+          {/* <Layout.Section>
             <Card title="Regional restrictions">
               <Card.Section>
                 <Stack vertical spacing="extraTight">
@@ -1036,7 +1036,7 @@ const Index = ({ shopOrigin }) => {
                 </Stack>
               </Card.Section>
             </Card>
-          </Layout.Section>
+          </Layout.Section> */}
         </>
       ) : null}
 
