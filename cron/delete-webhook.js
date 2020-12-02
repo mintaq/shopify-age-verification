@@ -2,9 +2,7 @@ require("events").EventEmitter.defaultMaxListeners = 15;
 require("isomorphic-fetch");
 const axios = require("axios");
 const mysql = require("mysql");
-const { registerWebhook } = require("@shopify/koa-shopify-webhooks");
-const { ApiVersion } = require("@shopify/koa-shopify-graphql-proxy");
-const config = require("./age-verification.config");
+const config = require("../age-verification.config");
 
 /* CONFIG*/
 const { HOST, MYSQL_HOST, MYSQL_DB, MYSQL_PWD, MYSQL_USER } = config;
@@ -19,7 +17,7 @@ var mysqlLib = mysql.createPool({
 });
 
 function getUserSettings() {
-  let query = `SELECT access_token, store_name FROM tbl_usersettings WHERE app_id = '27' AND status = 'active'`;
+  let query = `SELECT access_token, store_name FROM tbl_usersettings`;
 
   return new Promise(function (resolve, reject) {
     mysqlLib.getConnection(function (err, connection) {
@@ -45,31 +43,51 @@ function getUserSettings() {
   });
 }
 
-async function registerWebhookToShop(shop, accessToken) {
+async function deleteWebhook(shop, accessToken) {
   if (!shop || !accessToken) {
     return;
   }
 
-  // REGISTE WEBHOOKS
+  // DELTE WEBHOOKS
   try {
-    await registerWebhook({
-      address: `${HOST}webhooks/app/uninstalled`,
-      topic: "APP_UNINSTALLED",
-      accessToken,
-      shop,
-      apiVersion: ApiVersion.April20,
+    const whlist = await axios.get(
+      `https://${shop}/admin/api/2020-10/webhooks.json`,
+      {
+        headers: {
+          "X-Shopify-Access-Token": accessToken,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const webhooklist = whlist.data.webhooks;
+    let whIdArr = [];
+    webhooklist.map((webhook) => {
+      if (
+        webhook.address.includes(
+          "https://apps.omegatheme.com/age-verification/webhooks/"
+        )
+      ) {
+        whIdArr.push(webhook.id);
+      }
     });
 
-    await registerWebhook({
-      address: `${HOST}webhooks/themes/update`,
-      topic: "THEMES_UPDATE",
-      accessToken,
-      shop,
-      apiVersion: ApiVersion.April20,
-    });
+    if (whIdArr.length > 0) {
+      whIdArr.map(async (id) => {
+        await axios.delete(
+          `https://${shop}/admin/api/2020-10/webhooks/${id}.json`,
+          {
+            headers: {
+              "X-Shopify-Access-Token": accessToken,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      });
+    }
 
     console.log(`> ${shop}`);
-    return theme_id;
+    return;
   } catch (err) {
     // console.log("err", err);
     return;
@@ -86,14 +104,14 @@ async function registerWebhookToShop(shop, accessToken) {
   } else {
     user_settings_arr.map(async ({ access_token, store_name }, i) => {
       setTimeout(async () => {
-        await registerWebhookToShop(store_name, access_token);
+        await deleteWebhook(store_name, access_token);
         if (i == user_settings_arr.length - 1) {
           setTimeout(() => {
             console.log("Done!");
             process.exit(0);
-          }, 5000);
+          }, 2500);
         }
-      }, i * 200);
+      }, i * 550);
     });
   }
 })();

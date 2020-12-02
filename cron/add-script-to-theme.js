@@ -3,7 +3,7 @@ require("isomorphic-fetch");
 const axios = require("axios");
 const ShopifyAPIClient = require("shopify-api-node");
 const mysql = require("mysql");
-const config = require("./age-verification.config");
+const config = require("../age-verification.config");
 
 /* CONFIG*/
 const {
