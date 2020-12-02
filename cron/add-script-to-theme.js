@@ -138,6 +138,8 @@ function getEleByIdUsingRegex(tag, id, html) {
 
 async function updateScriptInTheme(shop, accessToken) {
   let shopify;
+  let theme;
+  let theme_id;
 
   if (!shop || !accessToken) {
     return;
@@ -152,29 +154,12 @@ async function updateScriptInTheme(shop, accessToken) {
     return;
   }
 
-  // FETCH THEME LIST, SCRIPT-TAG LIST
-  let theme;
-  let theme_id;
-  let scriptTag;
-  let scriptTag_id;
-  let scriptTag_src;
-
+  // FETCH THEME LIST
   try {
     const themeList = await shopify.theme.list();
-    const scriptList = await shopify.scriptTag.list();
 
     theme = themeList.find((theme) => theme.role == "main");
     theme_id = theme.id;
-
-    if (Array.isArray(scriptList) && scriptList.length > 0) {
-      scriptTag = scriptList.find((scriptTag) =>
-        scriptTag.src.includes("https://apps.omegatheme.com/age-verifier/")
-      );
-      if (scriptTag) {
-        scriptTag_id = scriptTag.id;
-        scriptTag_src = scriptTag.src;
-      }
-    }
   } catch (err) {
     // console.log("err", err);
     return;
@@ -214,7 +199,7 @@ async function updateScriptInTheme(shop, accessToken) {
     );
   }
 
-  // PUT/UPDATE SCRIPT TO THEME/SCRIPT-TAG
+  // PUT/UPDATE SCRIPT TO THEME
   try {
     // PUT SCRIPT TO THEME
     await axios.put(
@@ -232,28 +217,6 @@ async function updateScriptInTheme(shop, accessToken) {
         },
       }
     );
-
-    // UPDATE SCRIPT TAG
-    if (scriptTag_id && scriptTag_src) {
-      await axios.put(
-        `https://${shop}/admin/api/2020-10/script_tags/${scriptTag_id}.json`,
-        {
-          script_tag: {
-            id: scriptTag_id,
-            src: scriptTag_src.replace(
-              "https://apps.omegatheme.com/age-verifier/",
-              "https://apps.omegatheme.com/age-verifier1/"
-            ),
-          },
-        },
-        {
-          headers: {
-            "X-Shopify-Access-Token": accessToken,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
 
     // UPDATE THEME ID
     await updateTableRow(
@@ -287,7 +250,7 @@ async function updateScriptInTheme(shop, accessToken) {
             process.exit(0);
           }, 5000);
         }
-      }, i * 500);
+      }, i * 550);
     });
   }
 })();
