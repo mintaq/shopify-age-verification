@@ -278,32 +278,6 @@ async function updateScriptInTheme(shop, accessToken) {
     console.log("No shop found!");
     process.exit(0);
   } else {
-    user_settings_arr.push(
-      {
-        access_token: "7fb07d8f20e5f3f6abc3d8ec307999b2",
-        store_name: "bamboo-cycles.myshopify.com",
-      },
-      // {
-      //   access_token: "11943401712a42199d06ec7534bb6b64",
-      //   store_name: "sunshine-coast-vape-store-ltd.myshopify.com",
-      // },
-      {
-        access_token: "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",
-        store_name: "badcobeer.myshopify.com",
-      },
-      {
-        access_token: "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",
-        store_name: "obriens-bottle-shop.myshopify.com",
-      },
-      // {
-      //   access_token: "d41e2cd158c46869fecdfc4f0936330b",
-      //   store_name: "shaltihazaken.myshopify.com",
-      // },
-      {
-        access_token: "bc3268f896d30ab24937eb10a7650be1",
-        store_name: "evapedk.myshopify.com",
-      }
-    );
     user_settings_arr.map(async ({ access_token, store_name }, i) => {
       setTimeout(async () => {
         await updateScriptInTheme(store_name, access_token);

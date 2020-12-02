@@ -52,17 +52,6 @@ async function registerWebhookToShop(shop, accessToken) {
 
   // REGISTE WEBHOOKS
   try {
-    const whlist = await axios.get(
-      `https://${shop}/admin/api/2020-10/webhooks.json`,
-      {
-        headers: {
-          "X-Shopify-Access-Token": accessToken,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    console.log(whlist.data);
-
     await registerWebhook({
       address: `${HOST}webhooks/app/uninstalled`,
       topic: "APP_UNINSTALLED",
