@@ -2,7 +2,7 @@ export const overlayBgColor = {
   r: 10,
   g: 10,
   b: 10,
-  a: 0.95,
+  a: 0.88,
 };
 
 export const popupBgColor = {

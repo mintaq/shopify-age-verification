@@ -113,10 +113,10 @@ const Index = ({ shopOrigin }) => {
   );
   const [subhead_size, set__subhead_size] = useState(16);
   const [overlayBgColor, set__overlayBgColor] = useState({
-    r: 31,
-    g: 26,
-    b: 26,
-    a: 1,
+    r: 10,
+    g: 10,
+    b: 10,
+    a: 0.88,
   });
   const [popupBgColor, set__popupBgColor] = useState({
     r: 241,
@@ -1551,23 +1551,24 @@ const Index = ({ shopOrigin }) => {
       </option>
     );
   }
+  let converted_overlayBgColor = convertRgbToString(overlayBgColor);
 
   const avOverlayWrapStyle =
-    av_layout == 2 && popup_bg != null && popup_bg != "" && bgImage_temp == null
+    av_layout == 2 && popup_bg && bgImage_temp == null
       ? {
-          backgroundImage: `url('${popup_bg}')`,
+          backgroundImage: `linear-gradient(to bottom, ${converted_overlayBgColor} 0%,${converted_overlayBgColor} 100%),url('${popup_bg}')`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           backgroundSize: "cover",
         }
       : av_layout == 2 && bgImage_temp != null
       ? {
-          backgroundImage: `url(${bgImage_temp.data})`,
+          backgroundImage: `linear-gradient(to bottom, ${converted_overlayBgColor} 0%,${converted_overlayBgColor} 100%),url(${bgImage_temp.data})`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           backgroundSize: "cover",
         }
-      : { backgroundColor: convertRgbToString(overlayBgColor) };
+      : { backgroundColor: converted_overlayBgColor };
 
   const finalRender = loading ? (
     <SkeletonPageComp />

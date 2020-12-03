@@ -76,7 +76,6 @@ async function deleteOldScriptTag(shop, accessToken) {
     const scriptList = await shopify.scriptTag.list();
 
     if (Array.isArray(scriptList) && scriptList.length > 0) {
-      console.log("shop & script list", scriptList);
       scriptTag = scriptList.find((scriptTag) =>
         scriptTag.src.includes("https://apps.omegatheme.com/age-verifier1/")
       );

@@ -92,6 +92,23 @@ app.prepare().then(() => {
   // });
 
   // ROUTES
+  router.get("/age-verification/", async (ctx, next) => {
+    if (
+      ctx.query.hmac &&
+      ctx.query.shop &&
+      ctx.query.timestamp &&
+      (!ctx.query.locale ||
+        !ctx.query.new_design_language ||
+        !ctx.query.session)
+    ) {
+      ctx.redirect(
+        `${HOST}auth?hmac=${ctx.query.hmac}&shop=${ctx.query.shop}&timestamp=${ctx.query.timestamp}`
+      );
+    } else {
+      next();
+    }
+  });
+
   router.get("/age-verification/api/shops/settings/:shop", async (ctx) => {
     try {
       const res = await getShopSettings(ctx.params.shop);
