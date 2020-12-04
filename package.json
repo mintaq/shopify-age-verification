@@ -6,7 +6,7 @@
     "test": "jest",
     "dev": "cross-env NODE_ENV=development nodemon ./server/index.js --watch ./server/index.js",
     "build": "next build && next export && next export -o /home/shopify/public_html/age-verification/nextjs-static/",
-    "next-export" : "next export -o ../public_html/age-verification/nextjs-static/",
+    "next-export": "next export -o ../public_html/age-verification/nextjs-static/",
     "start": "cross-env NODE_ENV=production node ./server/index.js"
   },
   "repository": {
@@ -33,6 +33,7 @@
     "@shopify/koa-shopify-graphql-proxy": "^4.0.4",
     "@shopify/koa-shopify-webhooks": "^2.5.2",
     "@shopify/polaris": "^5.10.1",
+    "@shopify/polaris-icons": "^4.1.0",
     "@zeit/next-css": "^1.0.1",
     "antd": "^4.8.5",
     "apollo-boost": "^0.4.9",

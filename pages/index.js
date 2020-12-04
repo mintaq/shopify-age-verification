@@ -14,12 +14,13 @@ import {
   Frame,
   Thumbnail,
   Sticky,
-  Autocomplete,
+  Icon,
   TextContainer,
   ChoiceList,
-  TextStyle,
   FormLayout,
+  List,
 } from "@shopify/polaris";
+import { DeleteMajor } from "@shopify/polaris-icons";
 import { SketchPicker } from "react-color";
 import { DropzoneAreaBase } from "material-ui-dropzone";
 import SkeletonPageComp from "../components/SkeletonPageComp";
@@ -69,14 +70,13 @@ const Index = ({ shopOrigin }) => {
   const [min_age, set__min_age] = useState("18");
   const [bgImage_temp, set__bgImage_temp] = useState(null);
   const [logo_temp, set__logo_temp] = useState(null);
-  const countryOptions = [
-    { value: "VN", label: "Vietnam" },
-    { value: "JP", label: "Japan" },
-    { value: "US", label: "United States of America" },
-  ];
-  const [country_options, set__country_options] = useState(countryOptions);
+  const [country_popover_active, set__country_popover_active] = useState(false);
   const [countries_min_age, set__countries_min_age] = useState({});
   const [selected_country, set__selected_country] = useState("");
+  const [selected_country_list, set__selected_country_list] = useState([]);
+  const [selected_country_list_obj, set__selected_country_list_obj] = useState(
+    []
+  );
   // TODO: collection page
   // NEW
   const [page_show, set__page_show] = useState(0);
@@ -319,8 +319,9 @@ const Index = ({ shopOrigin }) => {
         set__popup_bg_name(data.popup_bg_name);
         set__input_age(data.input_age + "");
         set__min_age(data.min_age + "");
-        if (data.countries_min_age)
-          set__countries_min_age(JSON.parse(data.countries_min_age));
+        if (data.countries_min_age && data.countries_min_age != "{}") {
+          handleMapCountryMinAge(JSON.parse(data.countries_min_age));
+        }
         popup_display_coverter(
           data.page_show,
           data.specific_products,
@@ -512,6 +513,22 @@ const Index = ({ shopOrigin }) => {
     }
   };
 
+  const handleMapCountryMinAge = (data) => {
+    const country_code_list = Object.keys(data);
+    country_code_list.map((countryCode) => {
+      const countryObj = COUNTRY_CODE.find((obj) => obj.value == countryCode);
+      set__selected_country_list((selected_country_list) => [
+        ...selected_country_list,
+        countryCode,
+      ]);
+      set__selected_country_list_obj((selected_country_list_obj) => [
+        ...selected_country_list_obj,
+        { label: countryObj.label, value: countryObj.value },
+      ]);
+    });
+    set__countries_min_age(data);
+  };
+
   // LAYOUT SETTINGS HANDLERS
   const handlePopupDisplayChange = useCallback((popupDisplaySelected) => {
     if (
@@ -581,14 +598,42 @@ const Index = ({ shopOrigin }) => {
   });
   const handleCountryAgeChange = useCallback((country_age) => {
     if (selected_country) {
-      set__countries_min_age({
-        ...countries_min_age,
-        [selected_country]: country_age,
-      });
+      if (country_age) {
+        set__countries_min_age({
+          ...countries_min_age,
+          [selected_country]: country_age,
+        });
+        if (!selected_country_list.includes(selected_country)) {
+          const countryObj = COUNTRY_CODE.find(
+            (obj) => obj.value == selected_country
+          );
+          set__selected_country_list((selected_country_list) => [
+            ...selected_country_list,
+            selected_country,
+          ]);
+          set__selected_country_list_obj((selected_country_list_obj) => [
+            ...selected_country_list_obj,
+            { label: countryObj.label, value: countryObj.value },
+          ]);
+        }
+      } else {
+        handleRemoveCountry(selected_country);
+      }
     }
   });
   const handleCountryChange = useCallback((country) => {
     set__selected_country(country);
+  });
+  const handleRemoveCountry = useCallback((countryCode) => {
+    set__selected_country_list(
+      selected_country_list.filter((country) => country != countryCode)
+    );
+    set__selected_country_list_obj(
+      selected_country_list_obj.filter(
+        (country) => country.value != countryCode
+      )
+    );
+    set__countries_min_age({ ...countries_min_age, [countryCode]: undefined });
   });
 
   // STYLE SETTING HANDLERS
@@ -847,6 +892,10 @@ const Index = ({ shopOrigin }) => {
     />
   ) : null;
 
+  let country_items;
+  if (Array.isArray(selected_country_list_obj)) {
+  }
+
   // LAYOUT SETTINGS SECTION
   const layoutSettingsTab = (
     <Layout>
@@ -1036,6 +1085,7 @@ const Index = ({ shopOrigin }) => {
                         value={selected_country}
                         onChange={handleCountryChange}
                       />
+
                       <TextField
                         disabled={selected_country == ""}
                         placeholder={min_age + ""}
@@ -1048,6 +1098,31 @@ const Index = ({ shopOrigin }) => {
                   </FormLayout>
                 </Stack>
               </Card.Section>
+              {selected_country_list.length > 0 ? (
+                <Card.Section>
+                  <List type="bullet">
+                    {selected_country_list_obj.map((country) => {
+                      return (
+                        <List.Item key={country.value}>
+                          <Stack distribution="leading" alignment="center">
+                            <Button
+                              size="slim"
+                              onClick={() => handleRemoveCountry(country.value)}
+                            >
+                              <Icon source={DeleteMajor} />
+                            </Button>
+                            <TextContainer>
+                              {country.label} (min age:{" "}
+                              {countries_min_age[country.value]})
+                            </TextContainer>
+                          </Stack>
+                        </List.Item>
+                      );
+                    })}
+                  </List>
+                </Card.Section>
+              ) : null}
+
               <Card.Section>
                 <p>
                   *If not defined, 'Minimum age to view site' will be used as
@@ -1475,7 +1550,14 @@ const Index = ({ shopOrigin }) => {
   const advanceSettingsTab = (
     <Layout>
       <Layout.Section>
-        <Card title="Remember visitors for (days)">
+        <Card title="Remember visitors (days)">
+          <Card.Section>
+            <TextContainer>
+              This will set how long a verified visitor will be remembered so
+              that they don't need to verify their age when returning to your
+              store.
+            </TextContainer>
+          </Card.Section>
           <Card.Section>
             <TextField
               value={cache_time}
@@ -1491,6 +1573,12 @@ const Index = ({ shopOrigin }) => {
       <Layout.Section>
         <Card title="Exit URL">
           <Card.Section>
+            <TextContainer>
+              Visitor will be redirected to this URL if they don't reach minimum
+              age required.
+            </TextContainer>
+          </Card.Section>
+          <Card.Section>
             <TextField
               value={exit_link}
               placeholder="https://www.google.com"
@@ -1502,6 +1590,11 @@ const Index = ({ shopOrigin }) => {
 
       <Layout.Section>
         <Card title="Custom CSS">
+          <Card.Section>
+            <TextContainer>
+              This section allow you to add your custom CSS to Age Verification.
+            </TextContainer>
+          </Card.Section>
           <Card.Section>
             <TextField
               value={customcss}
