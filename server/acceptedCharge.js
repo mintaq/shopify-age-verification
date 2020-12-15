@@ -36,6 +36,7 @@ const acceptedCharge = async (ctx, accessToken, shop, charge_id) => {
       status: "accepted",
       return_url: RETURN_URL + `/${userSettings.store_name}`,
       test: TEST_MODE,
+      trial_days: TRIAL_TIME,
       decorated_return_url:
         RETURN_URL + `/${userSettings.store_name}?charge_id=${charge_id}`,
     },
