@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_VERSION } from "../../age-verification.config";
 import { selectTableRow, updateTableRow } from "../sql/sqlQueries";
 import updateScriptInTheme from "./updateScriptInTheme";
 
@@ -36,7 +37,7 @@ const uploadImageToAssets = async (shop, accessToken, img_data) => {
       // IF INPUT DATA NOT NULL
       // DELETE OLD IMAGE IN ASSETS
       await axios.delete(
-        `https://${shop}/admin/api/2020-10/themes/${themeId}/assets.json?asset[key]=assets/${res__selectTable[query_field]}`,
+        `https://${shop}/admin/api/${API_VERSION}/themes/${themeId}/assets.json?asset[key]=assets/${res__selectTable[query_field]}`,
         {
           headers: {
             "X-Shopify-Access-Token": accessToken,
@@ -47,7 +48,7 @@ const uploadImageToAssets = async (shop, accessToken, img_data) => {
 
       // CREATE NEW IMAGE IN ASSETS
       const axiosImageRes = await axios.put(
-        `https://${shop}/admin/api/2020-10/themes/${themeId}/assets.json`,
+        `https://${shop}/admin/api/${API_VERSION}/themes/${themeId}/assets.json`,
         {
           asset: {
             key: `assets/${img_name}`,
@@ -87,7 +88,7 @@ const uploadImageToAssets = async (shop, accessToken, img_data) => {
       // IF INPUT DATA IS NULL (REMOVE EXISTED IMAGE)
       // DELETE IMAGE IN ASSETS
       await axios.delete(
-        `https://${shop}/admin/api/2020-10/themes/${themeId}/assets.json?asset[key]=assets/${res__selectTable[query_field]}`,
+        `https://${shop}/admin/api/${API_VERSION}/themes/${themeId}/assets.json?asset[key]=assets/${res__selectTable[query_field]}`,
         {
           headers: {
             "X-Shopify-Access-Token": accessToken,
@@ -122,7 +123,7 @@ const uploadImageToAssets = async (shop, accessToken, img_data) => {
     if (img_base64_data != null && img_name != null) {
       // IF INPUT DATA IS NOT NULL
       const axiosImageRes = await axios.put(
-        `https://${shop}/admin/api/2020-10/themes/${themeId}/assets.json`,
+        `https://${shop}/admin/api/${API_VERSION}/themes/${themeId}/assets.json`,
         {
           asset: {
             key: `assets/${img_name}`,

@@ -400,6 +400,7 @@ const Index = ({ shopOrigin }) => {
   const checkAppChargeStatus = async (data) => {
     let _isOnTrial;
     let _isActive;
+    const { status } = data;
     const nowDate = new Date().getTime();
     const _7daysMs = 7 * 24 * 60 * 60 * 1000;
     const installedDate = new Date(data.installed_date).getTime();
@@ -408,7 +409,9 @@ const Index = ({ shopOrigin }) => {
       ? (_isOnTrial = true)
       : (_isOnTrial = false);
 
-    data.status == "active" ? (_isActive = true) : (_isActive = false);
+    status == "active" ? (_isActive = true) : (_isActive = false);
+
+    if (status == "pending" || status == "trial") return false;
 
     return _isActive || _isOnTrial;
   };

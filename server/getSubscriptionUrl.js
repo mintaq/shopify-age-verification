@@ -1,5 +1,5 @@
 import {
-  CHARGE_TIME,
+  API_VERSION,
   CHARGE_TITLE,
   PRICE,
   RETURN_URL,
@@ -35,24 +35,23 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
     nowMs - new Date(date_installed).getTime() < _7daysMs ? true : false;
 
   // IF SHOP IS NOT ACTIVE && NOT ON TRIAL TIME && NOT UNINSTALLED -> REDIRECT TO confirmation_url
-  if (confirmation_url && !_isOnTrial && status != "active") {
+  if (confirmation_url && status != "active") {
     if (
       new Date(date_installed).getTime() >= new Date("2020-11-13").getTime()
     ) {
       return ctx.redirect(confirmation_url);
     } else {
       const charge_id = confirmation_url.split("charges/")[1].split("/")[0];
-      // console.log("charge_id", charge_id);
-      // await fetch(
-      //   `https://${shop}/admin/api/2020-10/recurring_application_charges/${charge_id}.json`,
-      //   {
-      //     method: "DELETE",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //       "X-Shopify-Access-Token": accessToken,
-      //     },
-      //   }
-      // );
+      await fetch(
+        `https://${shop}/admin/api/${API_VERSION}/recurring_application_charges/${charge_id}.json`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": accessToken,
+          },
+        }
+      );
     }
   }
 
@@ -89,7 +88,7 @@ const getSubscriptionUrl = async (ctx, accessToken, shop) => {
 
   // CREATE NEW CHARGE
   const response = await fetch(
-    `https://${shop}/admin/api/2020-10/recurring_application_charges.json`,
+    `https://${shop}/admin/api/${API_VERSION}/recurring_application_charges.json`,
     {
       method: "POST",
       headers: {

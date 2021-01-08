@@ -1,6 +1,10 @@
 import axios from "axios";
 import ShopifyAPIClient from "shopify-api-node";
-import { HOST, STATIC_FILE_FOLDER } from "../../age-verification.config";
+import {
+  HOST,
+  STATIC_FILE_FOLDER,
+  API_VERSION,
+} from "../../age-verification.config";
 
 const BASE_SCRIPT_URL = `${STATIC_FILE_FOLDER}age-verfication-script-tag.js`;
 
@@ -28,7 +32,7 @@ export default async function updateScriptInTheme(domain, accessToken) {
 
   // GET layout/theme.liquid
   const layoutLiquidRes = await axios.get(
-    `https://${domain}/admin/api/2020-10/themes/${id}/assets.json?asset[key]=layout/theme.liquid`,
+    `https://${domain}/admin/api/${API_VERSION}/themes/${id}/assets.json?asset[key]=layout/theme.liquid`,
     {
       headers: {
         "X-Shopify-Access-Token": accessToken,
@@ -66,7 +70,7 @@ export default async function updateScriptInTheme(domain, accessToken) {
 
   // PUT SCRIPT TO THEME
   const axiosThemeRes = await axios.put(
-    `https://${domain}/admin/api/2020-10/themes/${id}/assets.json`,
+    `https://${domain}/admin/api/${API_VERSION}/themes/${id}/assets.json`,
     {
       asset: {
         key: "layout/theme.liquid",
